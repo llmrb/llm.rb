@@ -51,10 +51,11 @@ class LLM::OpenAI
 
     ##
     # Create a vector store and poll until its status is "completed"
+    # @param interval [Float] The interval between polling attempts (seconds)
     # @param (see LLM::OpenAI::VectorStores#create)
     # @return (see LLM::OpenAI::VectorStores#poll)
-    def create_and_poll(...)
-      poll(vector: create(...))
+    def create_and_poll(interval: 0.01, **rest)
+      poll(interval:, vector: create(**rest))
     end
 
     ##
@@ -151,10 +152,11 @@ class LLM::OpenAI
 
     ##
     # Add a file to a vector store and poll until its status is "completed"
+    # @param interval [Float] The interval between polling attempts (seconds)
     # @param (see LLM::OpenAI::VectorStores#add_file)
     # @return (see LLM::OpenAI::VectorStores#poll)
-    def add_file_and_poll(vector:, file:, **rest)
-      poll(vector:, file: add_file(vector:, file:, **rest))
+    def add_file_and_poll(vector:, file:, interval: 0.01, **rest)
+      poll(vector:, interval:, file: add_file(vector: vector, file: file, **rest))
     end
     alias_method :create_file_and_poll, :add_file_and_poll
 
@@ -213,18 +215,19 @@ class LLM::OpenAI
     # @param [String, #id] file The file to poll (optional)
     # @param [Integer] attempts The current number of attempts (default: 0)
     # @param [Integer] max The maximum number of iterations (default: 50)
+    # @param [Float] interval The interval between polling attempts (seconds)
     # @raise [LLM::PollError] When the maximum number of iterations is reached
     # @return [LLM::Response]
-    def poll(vector:, file: nil, attempts: 0, max: 50)
+    def poll(vector:, file: nil, attempts: 0, max: 50, interval: 0.01)
       target = file || vector
       if attempts == max
         raise LLM::PollError, "'#{target.id}' has status '#{target.status}' after #{max} attempts"
       elsif target.status == "expired"
         raise LLM::PollError, "#{target.id}' has expired"
       elsif target.status != "completed"
-        file ? (file = get_file(vector:, file:)) : (vector = get(vector:))
-        sleep(0.1 * (2**attempts))
-        poll(vector:, file:, attempts: attempts + 1, max:)
+        file ? (file = get_file(vector: vector, file: file)) : (vector = get(vector: vector))
+        sleep(interval * (2**attempts)) unless interval.zero?
+        poll(vector: vector, file: file, attempts: attempts + 1, max: max, interval:)
       else
         target
       end

@@ -225,7 +225,7 @@ class LLM::OpenAI
       elsif target.status == "expired"
         raise LLM::PollError, "#{target.id}' has expired"
       elsif target.status != "completed"
-        file ? (file = get_file(vector: vector, file: file)) : (vector = get(vector: vector))
+        file ? (file = get_file(vector:, file: file)) : (vector = get(vector:))
         sleep(interval * (2**attempts)) unless interval.zero?
         poll(vector:, file:, attempts: attempts + 1, max:, interval:)
       else

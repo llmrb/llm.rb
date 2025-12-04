@@ -156,7 +156,7 @@ class LLM::OpenAI
     # @param (see LLM::OpenAI::VectorStores#add_file)
     # @return (see LLM::OpenAI::VectorStores#poll)
     def add_file_and_poll(vector:, file:, interval: 0.01, **rest)
-      poll(vector:, interval:, file: add_file(vector: vector, file: file, **rest))
+      poll(vector:, interval:, file: add_file(vector:, file:, **rest))
     end
     alias_method :create_file_and_poll, :add_file_and_poll
 

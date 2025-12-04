@@ -227,7 +227,7 @@ class LLM::OpenAI
       elsif target.status != "completed"
         file ? (file = get_file(vector: vector, file: file)) : (vector = get(vector: vector))
         sleep(interval * (2**attempts)) unless interval.zero?
-        poll(vector: vector, file: file, attempts: attempts + 1, max: max, interval:)
+        poll(vector:, file:, attempts: attempts + 1, max:, interval:)
       else
         target
       end

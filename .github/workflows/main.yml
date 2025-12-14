@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  linux:
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby-version }}
     strategy:
@@ -22,5 +22,19 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
-    - name: Run the default task
+    - name: Run tests (ubuntu)
       run: bundle exec rake
+
+  hardenedbsd:
+    runs-on: ubuntu-latest
+    name: hardenedBSD
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run tests (hardenedBSD)
+      uses: 0x1eef/hardenedbsd-vm@v1
+      with:
+        release: '16-CURRENT'
+        run: |
+          mdo -u root pkg-static install -y rubygem-bundler
+          bundle install
+          bundle exec rake

@@ -164,10 +164,14 @@ module LLM
     end
 
     ##
-    # Summarize and continue the conversation in a fork
+    # This method will summarize an existing conversation,
+    # then continue a new, second conversation in a second
+    # bot instance. The second bot instance inherits the same
+    # tools, and parameters. This method should be used in case
+    # a conversation's context window becomes too large.  
     # @return [LLM::Bot]
     #  Returns a new bot with a summarized conversation
-    def fork!(options = {})
+    def summarize!(options = {})
       return self if messages.empty?
       chat(summary)
       prompt = LLM::Message.new(:system, messages[-1].content)

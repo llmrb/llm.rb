@@ -177,7 +177,7 @@ module LLM
     # @return [LLM::Bot]
     #  Returns a new bot with a summarized conversation
     def summarize!(_options = {})
-      raise LLM::SummaryError, "there are no messages to summarize" if messages.empty?
+      raise LLM::SummaryError, "no messages to summarize" if messages.empty?
       prompt = LLM::Message.new(:system, chat(summary).content)
       buffer = LLM::Buffer.new(@provider).concat([prompt])
       LLM::Bot.new(@provider, @params.merge(buffer:))

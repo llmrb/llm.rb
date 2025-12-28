@@ -164,19 +164,23 @@ module LLM
     end
 
     ##
-    # This method will summarize an existing conversation,
-    # then continue a new, second conversation in a second
-    # bot instance. The second bot instance inherits the same
-    # tools, and parameters. This method should be used in case
-    # a conversation's context window becomes too large.  
+    # Summarizes the current conversation and continues in a new bot
+    # instance with a reduced context window.
+    #
+    # The new bot inherits the same provider, tools, and parameters.
+    # This method is useful when a conversation grows too large for
+    # the model's context window.
+    # 
+    # @raise [LLM::SummaryError]
+    #  When a conversation can't be summarized
+    #
     # @return [LLM::Bot]
     #  Returns a new bot with a summarized conversation
-    def summarize!(options = {})
-      return self if messages.empty?
-      chat(summary)
-      prompt = LLM::Message.new(:system, messages[-1].content)
+    def summarize!(_options = {})
+      raise LLM::SummaryError, "there are no messages to summarize" if messages.empty?
+      prompt = LLM::Message.new(:system, chat(summary).content)
       buffer = LLM::Buffer.new(@provider).concat([prompt])
-      LLM::Bot.new(@provider, buffer:)
+      LLM::Bot.new(@provider, @params.merge(buffer:))
     end
 
     private

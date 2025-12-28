@@ -2,6 +2,13 @@
 
 module LLM::OpenAI::Response
   module Completion
+    ##
+    # @return [String]
+    #  Returns message content (usually a string)
+    def content
+      choices.find(&:assistant?).content
+    end
+
     def choices
       body.choices.map.with_index do |choice, index|
         choice = LLM::Object.from_hash(choice)

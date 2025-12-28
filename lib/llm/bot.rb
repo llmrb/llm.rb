@@ -39,16 +39,16 @@ module LLM
     #  not only those listed here.
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
+    # @option params [LLM::Buffer] :buffer
     def initialize(provider, params = {})
       @provider = provider
+      @messages = params.delete(:buffer) || LLM::Buffer.new(provider)
       @params = {model: provider.default_model, schema: nil}.compact.merge!(params)
-      @messages = LLM::Buffer.new(provider)
     end
 
     ##
     # Maintain a conversation via the chat completions API.
     # This method immediately sends a request to the LLM and returns the response.
-    #
     # @param prompt (see LLM::Provider#complete)
     # @param params The params, including optional :role (defaults to :user), :stream, :tools, :schema etc.
     # @return [LLM::Response] Returns the LLM's response for this turn.
@@ -71,7 +71,6 @@ module LLM
     ##
     # Maintain a conversation via the responses API.
     # This method immediately sends a request to the LLM and returns the response.
-    #
     # @note Not all LLM providers support this API
     # @param prompt (see LLM::Provider#complete)
     # @param params The params, including optional :role (defaults to :user), :stream, :tools, :schema etc.
@@ -114,7 +113,7 @@ module LLM
     ##
     # Returns token usage for the conversation
     # @note
-    # This method returns token usage for the latest
+    # This method returns token usage from the latest
     # assistant message, and it returns an empty object
     # if there are no assistant messages
     # @return [LLM::Object]
@@ -164,7 +163,33 @@ module LLM
       LLM::Object.from_hash(value: res, kind: :remote_file)
     end
 
+    ##
+    # Summarize and continue the conversation in a fork
+    # @return [LLM::Bot]
+    #  Returns a new bot with a summarized conversation
+    def fork!(options = {})
+      return self if messages.empty?
+      chat(summary)
+      prompt = LLM::Message.new(:system, messages[-1].content)
+      buffer = LLM::Buffer.new(@provider).concat([prompt])
+      LLM::Bot.new(@provider, buffer:)
+    end
+
     private
+
+    def summary
+      <<~PROMPT
+      I would like you to summarize the conversation.
+      Please include as much information as possible,
+      but in a way that would conserve tokens and limit
+      the context window.
+
+      Once you have done this, a new conversation will begin.
+      We will use your summarization as its system prompt, and
+      continue the conversation from that point. It is good that
+      the user be aware of this continuity.
+      PROMPT
+    end
 
     def fetch(prompt, params)
       return [prompt, params, []] unless LLM::Builder === prompt

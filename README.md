@@ -97,7 +97,7 @@ bot.chat bot.functions.map(&:call)
 bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n" }
 ```
 
-#### Fork
+#### Summarization
 
 Large Language Models have a context window that represents their working memory.
 It is measured in tokens, and each turn in a conversation costs a variable number
@@ -117,21 +117,22 @@ require "llm"
 
 ##
 # Conversation #1
-llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm)
+llm  = LLM.openai(key: ENV["KEY"])
+bot1 = LLM::Bot.new(llm)
 prompt = bot.build_prompt do
   it.system "You are tasked with being helpful."
   it.user "What is the capital of Spain?"
   it.user "What is the capital of the USA?"
-  it.user "What is the capital of Morocco?"
+  it.user "What is the capital of Italy?"
+  it.user "Suggest groceries for todays trip"
 end
 bot.chat(prompt)
 
 ##
 # Conversation #2
 # Summarizes the conversation and forks a new bot
-bot = bot.fork!
-bot.chat "What have we been talking about?"
+bot2 = bot1.summarize!
+bot2.chat "What have we been talking about?"
 ```
 
 ## Features

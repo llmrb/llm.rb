@@ -120,7 +120,7 @@ require "llm"
 llm  = LLM.openai(key: ENV["KEY"])
 bot1 = LLM::Bot.new(llm)
 prompt = bot.build_prompt do
-  it.system "You are tasked with being helpful."
+  it.system "You are are a helpful personal assistant"
   it.user "What is the capital of Spain?"
   it.user "What is the capital of the USA?"
   it.user "What is the capital of Italy?"

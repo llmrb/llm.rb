@@ -179,15 +179,15 @@ module LLM
 
     def summary
       <<~PROMPT
-      I would like you to summarize the conversation.
-      Please include as much information as possible,
-      but in a way that would conserve tokens and limit
-      the context window.
+        I would like you to summarize the conversation.
+        Please include as much information as possible,
+        but in a way that would conserve tokens and limit
+        the context window.
 
-      Once you have done this, a new conversation will begin.
-      We will use your summarization as its system prompt, and
-      continue the conversation from that point. It is good that
-      the user be aware of this continuity.
+        Once you have done this, a new conversation will begin.
+        We will use your summarization as its system prompt, and
+        continue the conversation from that point. It is good that
+        the user be aware of this continuity.
       PROMPT
     end
 

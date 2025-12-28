@@ -2,6 +2,13 @@
 
 module LLM::Anthropic::Response
   module Completion
+    ##
+    # @return [String]
+    #  Returns message content (usually a string)  
+    def content
+      choices.find(&:assistant?).content
+    end
+
     def choices = format_choices
     def role = body.role
     def model = body.model

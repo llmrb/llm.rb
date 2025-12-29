@@ -1,0 +1,21 @@
+This is a system message.
+
+Proceed to summarize the conversation that has taken
+place up to this point, include as much information 
+as possible but in a way that would conserve tokens 
+and reduce the overall context window size.
+
+The message you respond with will be the summary, 
+and your message will be treated as a "system message" 
+for a future conversation.
+
+The system message should be focused on providing a summary
+of the users messages, and not the system messages that 
+have been sent as well.
+
+
+
+
+
+
+

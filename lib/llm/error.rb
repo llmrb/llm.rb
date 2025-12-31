@@ -48,6 +48,6 @@ module LLM
   PromptError = Class.new(FormatError)
 
   ##
-  # When given a bot that can't summarize conversation
+  # When a conversation can't be summarized
   SummaryError = Class.new(Error)
 end

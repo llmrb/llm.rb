@@ -12,10 +12,3 @@ for a future conversation.
 The system message should be focused on providing a summary
 of the users messages, and not the system messages that 
 have been sent as well.
-
-
-
-
-
-
-

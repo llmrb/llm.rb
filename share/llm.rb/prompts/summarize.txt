@@ -4,3 +4,9 @@ Proceed to summarize the conversation that has taken
 place up to this point, include as much information 
 as possible but in a way that would conserve tokens 
 and reduce the overall context window size.
+
+Your response will be used as the foundation for a new 
+conversation. If the model supports system messages,
+your response will become a system message in a new
+conversation. In other words, the target audience 
+is the assistant or model rather than the user.

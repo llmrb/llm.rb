@@ -108,17 +108,16 @@ may be dropped or a hard limit may be imposed. One common workaround is to
 summarize the conversation into a compact representation of the most important
 information, reducing the number of tokens that must be carried forward.
 
-In llm.rb, summarization is modeled as a fork: a new conversation begins with the
-summary as its system prompt:
+A conversation can be summarized by the [LLM::Bot#summarize!]() method. The method
+returns a new instance of [LLM::Bot]() which has a single system message that acts
+a summary of the previous conversation:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
-##
-# Conversation #1
 llm  = LLM.openai(key: ENV["KEY"])
-bot1 = LLM::Bot.new(llm)
+bot = LLM::Bot.new(llm)
 prompt = bot.build_prompt do
   it.system "You are are a helpful personal assistant"
   it.user "What is the capital of Spain?"
@@ -127,12 +126,7 @@ prompt = bot.build_prompt do
   it.user "Suggest groceries for todays trip"
 end
 bot.chat(prompt)
-
-##
-# Conversation #2
-# Summarizes the conversation and forks a new bot
-bot2 = bot1.summarize!
-bot2.chat "What have we been talking about?"
+bot = bot.summarize!
 ```
 
 ## Features

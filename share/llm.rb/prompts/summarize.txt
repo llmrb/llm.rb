@@ -1,9 +1,18 @@
-This is a system message.
+## Task
 
 Proceed to summarize the conversation that has taken
-place up to this point, include as much information 
-as possible but in a way that would conserve tokens 
-and reduce the overall context window size.
+place up to this point. 
+
+## Requirements
+
+The following requirements must be met:
+
+- The summary *MUST* include all important information
+- The summary *MUST* conserve tokens 
+- The summary *MUST* reduce the overall context window size
+- The summary *MUST NOT* include duplicate information 
+
+## Context
 
 Your response will be used as the foundation for a new 
 conversation. If the model supports system messages,

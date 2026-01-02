@@ -164,8 +164,8 @@ module LLM
     end
 
     ##
-    # Summarizes the current conversation and continues in a new bot
-    # instance with a reduced context window.
+    # Summarizes the current conversation and returns a new instance
+    # of {LLM::Bot LLM::Bot}.
     #
     # The new bot inherits the same provider, tools, and parameters.
     # This method is useful when a conversation grows too large for
@@ -173,7 +173,6 @@ module LLM
     # 
     # @raise [LLM::SummaryError]
     #  When a conversation can't be summarized
-    #
     # @return [LLM::Bot]
     #  Returns a new bot with a summarized conversation
     def summarize!(_options = {})
@@ -184,10 +183,6 @@ module LLM
     end
 
     private
-
-    def summary
-
-    end
 
     def fetch(prompt, params)
       return [prompt, params, []] unless LLM::Builder === prompt

@@ -1,21 +1,22 @@
 ## Task
 
-Proceed to summarize the conversation that has taken
-place up to this point. 
+Summarize the conversation so far into a minimal, lossless message
 
 ## Requirements
 
-The following requirements must be met:
+Preserve:
+- facts, decisions, constraints, preferences
+- technical details needed to continue the task
 
-- The summary *MUST* include all important information
-- The summary *MUST* conserve tokens 
-- The summary *MUST* reduce the overall context window size
-- The summary *MUST NOT* include duplicate information 
+Remove:
+- redundancy, examples, pleasantries, reasoning trails
+
+Rules:
+- no new info
+- no commentary
+- concise, neutral tone
+- optimized for minimal tokens
 
 ## Context
 
-Your response will be used as the foundation for a new 
-conversation. If the model supports system messages,
-your response will become a system message in a new
-conversation. In other words, the target audience 
-is the assistant or model rather than the user.
+Your response will become a system message in a new conversation. 

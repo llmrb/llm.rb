@@ -120,7 +120,7 @@ module LLM
   def share
     @share
   end
-  @share = ::File.realpath ::File.join(__dir__, "..", "llm.rb", "share")
+  @share = ::File.realpath ::File.join(__dir__, "..", "..", "llm.rb", "share")
   
   ##
   # Provides a thread-safe lock

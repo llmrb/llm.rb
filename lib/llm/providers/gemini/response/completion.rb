@@ -2,6 +2,13 @@
 
 module LLM::Gemini::Response
   module Completion
+    ##
+    # @return [String]
+    #  Returns message content (usually a string)
+    def content
+      choices.find(&:assistant?).content
+    end
+
     def model = body.modelVersion
     def prompt_tokens = body.usageMetadata.promptTokenCount
     def completion_tokens = body.usageMetadata.candidatesTokenCount

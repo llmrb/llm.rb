@@ -97,6 +97,38 @@ bot.chat bot.functions.map(&:call)
 bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n" }
 ```
 
+#### Summarization
+
+Large Language Models have a context window that represents their working memory.
+It is measured in tokens, and each turn in a conversation costs a variable number
+of tokens based on message length.
+
+The context window is finite. When a conversation grows beyond it, older messages
+may be dropped or a hard limit may be imposed. One common workaround is to
+summarize the conversation into a compact representation of the most important
+information, reducing the number of tokens that must be carried forward.
+
+A conversation can be summarized by the [LLM::Bot#summarize!]() method. The method
+returns a new instance of [LLM::Bot]() which has a single system message that acts
+a summary of the previous conversation:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm  = LLM.openai(key: ENV["KEY"])
+bot = LLM::Bot.new(llm)
+prompt = bot.build_prompt do
+  it.system "You are are a helpful personal assistant"
+  it.user "What is the capital of Spain?"
+  it.user "What is the capital of the USA?"
+  it.user "What is the capital of Italy?"
+  it.user "Suggest groceries for todays trip"
+end
+bot.chat(prompt)
+bot = bot.summarize!
+```
+
 ## Features
 
 #### General
@@ -110,6 +142,7 @@ bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n"
 - 🤖 Tool calling and function execution
 - 🗂️ JSON Schema support for structured, validated responses
 - 📡 Streaming support for real-time response updates
+- 🌿 Explicit context management via conversation forking
 
 #### Media
 - 🗣️ Text-to-speech, transcription, and translation

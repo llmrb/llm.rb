@@ -1,0 +1,22 @@
+## Task
+
+Summarize the conversation so far into a minimal, lossless message
+
+## Requirements
+
+Preserve:
+- facts, decisions, constraints, preferences
+- technical details needed to continue the task
+
+Remove:
+- redundancy, examples, pleasantries, reasoning trails
+
+Rules:
+- no new info
+- no commentary
+- concise, neutral tone
+- optimized for minimal tokens
+
+## Context
+
+Your response will become a system message in a new conversation. 

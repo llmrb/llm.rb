@@ -46,4 +46,8 @@ module LLM
   ##
   # When given a prompt object that is not understood
   PromptError = Class.new(FormatError)
+
+  ##
+  # When a conversation can't be summarized
+  SummaryError = Class.new(Error)
 end

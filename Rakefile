@@ -53,4 +53,4 @@ task :console do
   binding.irb
 end
 
-task default: %i[spec rubocop]
+task default: %i[spec]

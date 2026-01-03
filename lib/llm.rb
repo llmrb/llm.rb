@@ -113,6 +113,15 @@ module LLM
     LLM::Function.new(key, &b)
   end
 
+
+  ##
+  # @return [String]
+  #  Returns llm.rb's data directory
+  def share
+    @share
+  end
+  @share = ::File.realpath ::File.join(__dir__, "..", "..", "llm.rb", "share")
+  
   ##
   # Provides a thread-safe lock
   # @param [Symbol] name The name of the lock

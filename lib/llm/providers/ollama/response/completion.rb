@@ -2,6 +2,13 @@
 
 module LLM::Ollama::Response
   module Completion
+    ##
+    # @return [String]
+    #  Returns message content (usually a string)
+    def content
+      choices.find(&:assistant?).content
+    end
+
     def model = body.model
     def prompt_tokens = body.prompt_eval_count || 0
     def completion_tokens = body.eval_count || 0

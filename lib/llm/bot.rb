@@ -39,16 +39,16 @@ module LLM
     #  not only those listed here.
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
+    # @option params [LLM::Buffer] :buffer
     def initialize(provider, params = {})
       @provider = provider
+      @messages = params.delete(:buffer) || LLM::Buffer.new(provider)
       @params = {model: provider.default_model, schema: nil}.compact.merge!(params)
-      @messages = LLM::Buffer.new(provider)
     end
 
     ##
     # Maintain a conversation via the chat completions API.
     # This method immediately sends a request to the LLM and returns the response.
-    #
     # @param prompt (see LLM::Provider#complete)
     # @param params The params, including optional :role (defaults to :user), :stream, :tools, :schema etc.
     # @return [LLM::Response] Returns the LLM's response for this turn.
@@ -71,7 +71,6 @@ module LLM
     ##
     # Maintain a conversation via the responses API.
     # This method immediately sends a request to the LLM and returns the response.
-    #
     # @note Not all LLM providers support this API
     # @param prompt (see LLM::Provider#complete)
     # @param params The params, including optional :role (defaults to :user), :stream, :tools, :schema etc.
@@ -114,7 +113,7 @@ module LLM
     ##
     # Returns token usage for the conversation
     # @note
-    # This method returns token usage for the latest
+    # This method returns token usage from the latest
     # assistant message, and it returns an empty object
     # if there are no assistant messages
     # @return [LLM::Object]
@@ -162,6 +161,25 @@ module LLM
     #  Returns a tagged object
     def remote_file(res)
       LLM::Object.from_hash(value: res, kind: :remote_file)
+    end
+
+    ##
+    # Summarizes the current conversation and returns a new instance
+    # of {LLM::Bot LLM::Bot}.
+    #
+    # The new bot inherits the same provider, tools, and parameters.
+    # This method is useful when a conversation grows too large for
+    # the model's context window.
+    # 
+    # @raise [LLM::SummaryError]
+    #  When a conversation can't be summarized
+    # @return [LLM::Bot]
+    #  Returns a new bot with a summarized conversation
+    def summarize!(_options = {})
+      raise LLM::SummaryError, "no messages to summarize" if messages.empty?
+      prompt = LLM::Message.new(:system, chat(summary).content)
+      buffer = LLM::Buffer.new(@provider).concat([prompt])
+      LLM::Bot.new(@provider, @params.merge(buffer:))
     end
 
     private

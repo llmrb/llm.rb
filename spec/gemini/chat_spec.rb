@@ -16,6 +16,7 @@ RSpec.describe "LLM::Bot: gemini" do
 
   context LLM::Bot do
     include_examples "LLM::Bot: completions", :gemini, match_requests_on: [:method]
+    include_examples "LLM::Bot: completions contract", :gemini, match_requests_on: [:method]
     include_examples "LLM::Bot: text stream", :gemini, match_requests_on: [:method]
     include_examples "LLM::Bot: tool stream", :gemini, match_requests_on: [:method]
   end

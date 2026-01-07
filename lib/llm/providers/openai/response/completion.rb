@@ -2,6 +2,10 @@
 
 module LLM::OpenAI::Response
   module Completion
+    include LLM::Completion
+
+    ##
+    # (see LLM::Completion#choices)
     def choices
       body.choices.map.with_index do |choice, index|
         choice = LLM::Object.from_hash(choice)
@@ -17,11 +21,35 @@ module LLM::OpenAI::Response
     end
     alias_method :messages, :choices
 
-    def model = body.model
-    def prompt_tokens = usage["prompt_tokens"]
-    def completion_tokens = usage["completion_tokens"]
-    def total_tokens = usage["total_tokens"]
-    def usage = body.usage || {}
+    ##
+    # (see LLM::Completion#model)
+    def model
+      body.model
+    end
+
+    ##
+    # (see LLM::Completion#prompt_tokens)
+    def prompt_tokens
+      usage["prompt_tokens"] || 0
+    end
+
+    ##
+    # (see LLM::Completion#completion_tokens)
+    def completion_tokens
+      usage["completion_tokens"] || 0
+    end
+
+    ##
+    # (see LLM::Completion#total_tokens)
+    def total_tokens
+      usage["total_tokens"] || 0
+    end
+
+    ##
+    # (see LLM::Completion#usage)
+    def usage
+      body.usage || {}
+    end
 
     private
 

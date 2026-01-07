@@ -16,6 +16,7 @@ RSpec.describe "LLM::Bot: anthropic" do
 
   context LLM::Bot do
     include_examples "LLM::Bot: completions", :anthropic
+    include_examples "LLM::Bot: completions contract", :anthropic
     include_examples "LLM::Bot: text stream", :anthropic
     include_examples "LLM::Bot: tool stream", :anthropic
   end

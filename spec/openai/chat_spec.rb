@@ -16,6 +16,7 @@ RSpec.describe "LLM::Bot: openai" do
 
   context LLM::Bot do
     include_examples "LLM::Bot: completions", :openai
+    include_examples "LLM::Bot: completions contract", :openai
     include_examples "LLM::Bot: text stream", :openai
     include_examples "LLM::Bot: tool stream", :openai
   end

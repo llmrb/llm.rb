@@ -2,6 +2,7 @@
 
 module LLM::Gemini::Response
   module Completion
+    include LLM::Completion
     ##
     # (see LLM::Completion#choices)
     def choices

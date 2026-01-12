@@ -34,10 +34,14 @@ module LLM::Completion
   end
 
   ##
-  # @return [LLM::Object, Hash]
+  # @return [LLM::Object]
   #  Returns usage information
   def usage
-    raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
+    LLM::Object.from_hash({
+      "input_tokens" => input_tokens,
+      "output_tokens" => output_tokens,
+      "total_tokens" => total_tokens
+    })
   end
 
   ##

@@ -145,11 +145,7 @@ module LLM
     # @return [LLM::Object]
     def usage
       @usage ||= if response
-        LLM::Object.from_hash({
-          input_tokens: response.prompt_tokens || 0,
-          output_tokens: response.completion_tokens || 0,
-          total_tokens: response.total_tokens || 0
-        })
+        response.usage
       else
         LLM::Object.from_hash({})
       end

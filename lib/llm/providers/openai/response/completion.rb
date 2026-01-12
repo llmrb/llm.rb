@@ -28,27 +28,27 @@ module LLM::OpenAI::Response
     end
 
     ##
-    # (see LLM::Completion#prompt_tokens)
-    def prompt_tokens
-      usage["prompt_tokens"] || 0
+    # (see LLM::Completion#input_tokens)
+    def input_tokens
+      body.usage["prompt_tokens"] || 0
     end
 
     ##
-    # (see LLM::Completion#completion_tokens)
-    def completion_tokens
-      usage["completion_tokens"] || 0
+    # (see LLM::Completion#output_tokens)
+    def output_tokens
+      body.usage["completion_tokens"] || 0
     end
 
     ##
     # (see LLM::Completion#total_tokens)
     def total_tokens
-      usage["total_tokens"] || 0
+      body.usage["total_tokens"] || 0
     end
 
     ##
     # (see LLM::Completion#usage)
     def usage
-      body.usage || {}
+      super
     end
 
     private

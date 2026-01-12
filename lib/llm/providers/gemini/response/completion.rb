@@ -37,11 +37,7 @@ module LLM::Gemini::Response
     ##
     # (see LLM::Completion#usage)
     def usage
-      LLM::Object.from_hash({
-        "prompt_tokens" => prompt_tokens,
-        "completion_tokens" => completion_tokens,
-        "total_tokens" => total_tokens
-      })
+      super
     end
 
     private

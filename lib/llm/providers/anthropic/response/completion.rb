@@ -3,6 +3,7 @@
 module LLM::Anthropic::Response
   module Completion
     include LLM::Completion
+
     ##
     # (see LLM::Completion#messages)
     def messages

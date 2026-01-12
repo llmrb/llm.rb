@@ -19,19 +19,19 @@ module LLM::Gemini::Response
     ##
     # (see LLM::Completion#input_tokens)
     def input_tokens
-      body.usageMetadata.promptTokenCount
+      body.usageMetadata.promptTokenCount || 0
     end
 
     ##
     # (see LLM::Completion#output_tokens)
     def output_tokens
-      body.usageMetadata.candidatesTokenCount
+      body.usageMetadata.candidatesTokenCount || 0
     end
 
     ##
     # (see LLM::Completion#total_tokens)
     def total_tokens
-      body.usageMetadata.totalTokenCount
+      body.usageMetadata.totalTokenCount || 0
     end
 
     ##

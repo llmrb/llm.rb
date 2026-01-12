@@ -7,10 +7,10 @@ module LLM::Completion
   ##
   # @return [Array<LLM::Messsage>]
   #  Returns one or more messages
-  def choices
+  def messages
     raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
   end
-  alias_method :messages, :choices
+  alias_method :choices, :messages
 
   ##
   # @return [Integer]

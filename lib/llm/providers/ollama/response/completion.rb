@@ -20,7 +20,7 @@ module LLM::Ollama::Response
     ##
     # (see LLM::Completion#output_tokens)
     def output_tokens
-      body.completion_eval_count || 0
+      body.eval_count || 0
     end
 
     ##

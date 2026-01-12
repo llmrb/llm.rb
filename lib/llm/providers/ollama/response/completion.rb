@@ -5,6 +5,13 @@ module LLM::Ollama::Response
     include LLM::Completion
 
     ##
+    # (see LLM::Completion#usage)
+    def choices
+      format_choices
+    end
+    alias_method :messages, :choices
+
+    ##
     # (see LLM::Completion#model)
     def model
       body.model
@@ -26,12 +33,6 @@ module LLM::Ollama::Response
     # (see LLM::Completion#total_tokens)
     def total_tokens
       input_tokens + output_tokens
-    end
-
-    ##
-    # (see LLM::Completion#usage)
-    def choices
-      format_choices
     end
 
     private

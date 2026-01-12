@@ -4,17 +4,11 @@ module LLM::Gemini::Response
   module Completion
     include LLM::Completion
     ##
-    # (see LLM::Completion#choices)
-    def choices
+    # (see LLM::Completion#messages)
+    def messages
       format_choices
     end
-    alias_method :messages, :choices
-
-    ##
-    # (see LLM::Completion#model)
-    def model
-      body.modelVersion
-    end
+    alias_method :choices, :messages
 
     ##
     # (see LLM::Completion#input_tokens)
@@ -38,6 +32,12 @@ module LLM::Gemini::Response
     # (see LLM::Completion#usage)
     def usage
       super
+    end
+
+    ##
+    # (see LLM::Completion#model)
+    def model
+      body.modelVersion
     end
 
     private

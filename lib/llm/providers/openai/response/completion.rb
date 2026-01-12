@@ -5,8 +5,8 @@ module LLM::OpenAI::Response
     include LLM::Completion
 
     ##
-    # (see LLM::Completion#choices)
-    def choices
+    # (see LLM::Completion#messages)
+    def messages
       body.choices.map.with_index do |choice, index|
         choice = LLM::Object.from_hash(choice)
         message = choice.message
@@ -19,13 +19,7 @@ module LLM::OpenAI::Response
         LLM::Message.new(message.role, message.content, extra)
       end
     end
-    alias_method :messages, :choices
-
-    ##
-    # (see LLM::Completion#model)
-    def model
-      body.model
-    end
+    alias_method :choices, :messages
 
     ##
     # (see LLM::Completion#input_tokens)
@@ -49,6 +43,12 @@ module LLM::OpenAI::Response
     # (see LLM::Completion#usage)
     def usage
       super
+    end
+
+    ##
+    # (see LLM::Completion#model)
+    def model
+      body.model
     end
 
     private

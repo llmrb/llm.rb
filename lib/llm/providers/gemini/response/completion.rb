@@ -17,14 +17,14 @@ module LLM::Gemini::Response
     end
 
     ##
-    # (see LLM::Completion#prompt_tokens)
-    def prompt_tokens
+    # (see LLM::Completion#input_tokens)
+    def input_tokens
       body.usageMetadata.promptTokenCount
     end
 
     ##
-    # (see LLM::Completion#completion_tokens)
-    def completion_tokens
+    # (see LLM::Completion#output_tokens)
+    def output_tokens
       body.usageMetadata.candidatesTokenCount
     end
 

@@ -14,15 +14,15 @@ module LLM::Completion
 
   ##
   # @return [Integer]
-  #  Returns the number of prompt tokens
-  def prompt_tokens
+  #  Returns the number of input tokens
+  def input_tokens
     raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
   end
 
   ##
   # @return [Integer]
-  #  Returns the number of completion tokens
-  def completion_tokens
+  #  Returns the number of output tokens
+  def output_tokens
     raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
   end
 

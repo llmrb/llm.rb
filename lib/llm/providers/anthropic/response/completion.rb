@@ -17,21 +17,21 @@ module LLM::Anthropic::Response
     end
 
     ##
-    # (see LLM::Completion#prompt_tokens)
-    def prompt_tokens
+    # (see LLM::Completion#input_tokens)
+    def input_tokens
       body.usage["input_tokens"] || 0
     end
 
     ##
-    # (see LLM::Completion#completion_tokens)
-    def completion_tokens
+    # (see LLM::Completion#output_tokens)
+    def output_tokens
       body.usage["output_tokens"] || 0
     end
 
     ##
     # (see LLM::Completion#total_tokens)
     def total_tokens
-      prompt_tokens + completion_tokens
+      input_tokens + output_tokens
     end
 
     ##

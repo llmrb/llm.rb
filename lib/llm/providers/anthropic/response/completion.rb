@@ -37,7 +37,7 @@ module LLM::Anthropic::Response
     ##
     # (see LLM::Completion#usage)
     def usage
-      body.usage || {}
+      super
     end
 
     private

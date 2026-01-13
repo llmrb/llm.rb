@@ -2,6 +2,7 @@
 
 module LLM
   require "stringio"
+  require_relative "llm/usage"
   require_relative "llm/completion"
   require_relative "llm/builder"
   require_relative "llm/schema"

@@ -34,14 +34,14 @@ module LLM::Completion
   end
 
   ##
-  # @return [LLM::Object]
+  # @return [LLM::Usage]
   #  Returns usage information
   def usage
-    LLM::Object.from_hash({
-      "input_tokens" => input_tokens,
-      "output_tokens" => output_tokens,
-      "total_tokens" => total_tokens
-    })
+    LLM::Usage.new(
+      input_tokens:,
+      output_tokens:,
+      total_tokens:
+    )
   end
 
   ##

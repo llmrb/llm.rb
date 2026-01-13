@@ -46,4 +46,12 @@ module LLM
   ##
   # When given a prompt object that is not understood
   PromptError = Class.new(FormatError)
+
+  ##
+  # When given an invalid request
+  InvalidRequestError = Class.new(Error)
+
+  ##
+  # When the context window is exceeded
+  ContextWindowError = Class.new(InvalidRequestError)
 end

@@ -49,7 +49,9 @@ module LLM
 
   ##
   # When given an invalid request
-  InvalidRequestError = Class.new(Error)
+  InvalidRequestError = Class.new(Error) do
+    attr_accessor :response
+  end
 
   ##
   # When the context window is exceeded

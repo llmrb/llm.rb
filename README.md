@@ -106,7 +106,7 @@ bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n"
 #### General
 - ✅ A single unified interface for multiple providers
 - 📦 Zero dependencies outside Ruby's standard library
-- 🧩 Choose your own JSON parser (JSON stdlib, Oj, etc)
+- 🧩 Choose your own JSON parser (JSON stdlib, Oj, Yajl, etc)
 - 🚀 Simple, composable API
 - ♻️ Optional: per-provider, process-wide connection pool via net-http-persistent
 

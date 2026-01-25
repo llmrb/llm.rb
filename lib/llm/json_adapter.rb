@@ -7,6 +7,7 @@ module LLM
   # following parsers are supported:
   # * {LLM::JSONAdapter::JSON LLM::JSONAdapter::JSON} (default)
   # * {LLM::JSONAdapter::Oj LLM::JSONAdapter::Oj}
+  # * {LLM::JSONAdapter::Yajl LLM::JSONAdapter::Yajl}
   #
   # @example Change parser
   #   LLM.json = LLM::JSONAdapter::Oj
@@ -77,6 +78,32 @@ module LLM
     def self.parser_error
       require "oj" unless defined?(::Oj)
       ::Oj::ParseError
+    end
+  end
+
+  ##
+  # The {LLM::JSONAdapter::Yajl LLM::JSONAdapter::Yajl} class
+  # provides a JSON adapter backed by the Yajl gem.
+  class JSONAdapter::Yajl < JSONAdapter
+    ##
+    # @return (see JSONAdapter#dump)
+    def self.dump(obj)
+      require "yajl" unless defined?(::Yajl)
+      ::Yajl::Encoder.encode(obj)
+    end
+
+    ##
+    # @return (see JSONAdapter#load)
+    def self.load(string)
+      require "yajl" unless defined?(::Yajl)
+      ::Yajl::Parser.parse(string)
+    end
+
+    ##
+    # @return (see JSONAdapter#parser_error)
+    def self.parser_error
+      require "yajl" unless defined?(::Yajl)
+      ::Yajl::ParseError
     end
   end
 end

@@ -48,6 +48,7 @@ module LLM
     @json = case adapter.to_s
     when "JSON" then JSONAdapter::JSON
     when "Oj" then JSONAdapter::Oj
+    when "Yajl" then JSONAdapter::Yajl
     else
       is_class = Class === adapter
       is_subclass = is_class && adapter.ancestors.include?(LLM::JSONAdapter)

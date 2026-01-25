@@ -8,6 +8,8 @@ require "dotenv"
 Dir[File.join(__dir__, "support/shared_examples/*.rb")].each { require(_1) }
 Dotenv.load
 
+LLM.json = ENV.fetch("JSON_PARSER", "JSON")
+
 RSpec.configure do |config|
   config.disable_monkey_patching!
 

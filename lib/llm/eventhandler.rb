@@ -18,8 +18,9 @@ module LLM
     def on_data(event)
       return if event.end?
       chunk = LLM.json.load(event.value)
+      return unless chunk
       @parser.parse!(chunk)
-    rescue LLM.json.parser_error
+    rescue *LLM.json.parser_error
     end
 
     ##
@@ -32,8 +33,9 @@ module LLM
     def on_chunk(event)
       return if event.end?
       chunk = LLM.json.load(event.chunk)
+      return unless chunk
       @parser.parse!(chunk)
-    rescue LLM.json.parser_error
+    rescue *LLM.json.parser_error
     end
 
     ##

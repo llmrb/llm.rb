@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         ruby-version: ['3.2', '3.3', '3.4', '4.0']
+        json-parser: ['JSON', 'Oj', 'Yajl']
 
     steps:
     - uses: actions/checkout@v4
@@ -23,6 +24,8 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
     - name: Run tests (ubuntu)
+      env:
+        JSON_PARSER: ${{ matrix.json-parser }}
       run: bundle exec rake
 
  # hardenedbsd:

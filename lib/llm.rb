@@ -41,14 +41,14 @@ module LLM
 
   ##
   # Sets the JSON adapter used by the library
-  # @param [Class] adapter
-  #  A class that responds to +dump+ and +load+
+  # @param [Class, String, Symbol] adapter
+  #  A JSON adapter class or its name
   # @return [void]
   def json=(adapter)
     @json = case adapter.to_s
-    when "JSON" then JSONAdapter::JSON
-    when "Oj" then JSONAdapter::Oj
-    when "Yajl" then JSONAdapter::Yajl
+    when "JSON", "json" then JSONAdapter::JSON
+    when "Oj", "oj" then JSONAdapter::Oj
+    when "Yajl", "yajl" then JSONAdapter::Yajl
     else
       is_class = Class === adapter
       is_subclass = is_class && adapter.ancestors.include?(LLM::JSONAdapter)

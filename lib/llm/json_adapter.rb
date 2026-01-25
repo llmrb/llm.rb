@@ -25,7 +25,7 @@ module LLM
     ##
     # @return [Exception]
     #  Returns the error raised when parsing fails
-    def self.parser_error = StandardError
+    def self.parser_error = [StandardError]
   end
 
   ##
@@ -51,7 +51,7 @@ module LLM
     # @return (see JSONAdapter#parser_error)
     def self.parser_error
       require "json" unless defined?(::JSON)
-      ::JSON::ParserError
+      [::JSON::ParserError]
     end
   end
 
@@ -70,14 +70,14 @@ module LLM
     # @return (see JSONAdapter#load)
     def self.load(string)
       require "oj" unless defined?(::Oj)
-      ::Oj.load(string)
+      ::Oj.load(string, mode: :compat, symbol_keys: false, symbolize_names: false)
     end
 
     ##
     # @return (see JSONAdapter#parser_error)
     def self.parser_error
       require "oj" unless defined?(::Oj)
-      ::Oj::ParseError
+      [::Oj::ParseError, ::EncodingError]
     end
   end
 
@@ -103,7 +103,7 @@ module LLM
     # @return (see JSONAdapter#parser_error)
     def self.parser_error
       require "yajl" unless defined?(::Yajl)
-      ::Yajl::ParseError
+      [::Yajl::ParseError]
     end
   end
 end

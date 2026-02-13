@@ -30,14 +30,21 @@ class LLM::Provider
   # @param [Boolean] persistent
   #  Whether to use a persistent connection.
   #  Requires the net-http-persistent gem.
-  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, persistent: false)
+  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, persistent: false, trace: false)
     @key = key
     @host = host
     @port = port
     @timeout = timeout
     @ssl = ssl
     @client = persistent ? persistent_client : transient_client
+    @tracer = trace ? LLM::Tracer::Tracer.new : LLM::Tracer::Null.new
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
+  end
+
+  ##
+  # @return [LLM::Tracer::Tracer, LLM::Tracer::Null]
+  def tracer
+    @tracer
   end
 
   ##

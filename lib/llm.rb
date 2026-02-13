@@ -2,6 +2,7 @@
 
 module LLM
   require "stringio"
+  require_relative "llm/tracer"
   require_relative "llm/json_adapter"
   require_relative "llm/error"
   require_relative "llm/contract"

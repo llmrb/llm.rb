@@ -41,6 +41,7 @@ module LLM
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     def initialize(provider, params = {})
       @provider = provider
+      @tracer = provider.tracer
       @params = {model: provider.default_model, schema: nil}.compact.merge!(params)
       @messages = LLM::Buffer.new(provider)
     end
@@ -58,13 +59,20 @@ module LLM
     #   response = bot.chat("Hello, what is your name?")
     #   puts response.choices[0].content
     def chat(prompt, params = {})
+      span = start_span("llm.chat", provider: @provider.class.name, model: @params[:model])
       prompt, params, messages = fetch(prompt, params)
       params = params.merge(messages: [*@messages.to_a, *messages])
       params = @params.merge(params)
+      event("llm.chat.input", {
+        prompt_size: prompt.to_s.bytesize,
+        message_count: params[:messages]&.length,
+        stream: !!params[:stream]
+      })
       res = @provider.complete(prompt, params)
       @messages.concat [LLM::Message.new(params[:role] || :user, prompt)]
       @messages.concat messages
       @messages.concat [res.choices[-1]]
+      end_span(span)
       res
     end
 
@@ -82,14 +90,24 @@ module LLM
     #   res = bot.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
+      span = start_span("llm.respond", {
+        provider: @provider.class.name,
+        model: @params[:model]
+      })
       prompt, params, messages = fetch(prompt, params)
       res_id = @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: messages).compact
       params = @params.merge(params)
+      event("llm.respond.input", {
+        prompt_size: prompt.to_s.bytesize,
+        message_count: messages.length,
+        stream: !!params[:stream]
+      })
       res = @provider.responses.create(prompt, params)
       @messages.concat [LLM::Message.new(params[:role] || :user, prompt)]
       @messages.concat messages
       @messages.concat [res.choices[-1]]
+      end_span(span)
       res
     end
 
@@ -99,6 +117,13 @@ module LLM
       "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
       "@provider=#{@provider.class}, @params=#{@params.inspect}, " \
       "@messages=#{@messages.inspect}>"
+    end
+
+    ##
+    # Returns the tracer for this bot
+    # @return [LLM::Tracer::Tracer, LLM::Tracer::Null]
+    def tracer
+      @tracer
     end
 
     ##
@@ -172,6 +197,18 @@ module LLM
       prompt = messages.shift
       params.merge!(role: prompt.role)
       [prompt.content, params, messages]
+    end
+
+    def start_span(...)
+      @tracer.start_span(...)
+    end
+
+    def end_span(...)
+      @tracer.end_span(...)
+    end
+
+    def event(...)
+      @tracer.event(...)
     end
   end
 end

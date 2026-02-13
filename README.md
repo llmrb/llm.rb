@@ -116,6 +116,7 @@ bot.messages.select(&:assistant?).each { |m| puts "[#{m.role}] #{m.content}" }
 - 📦  Zero runtime deps (stdlib-only)
 - 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
 - ♻️  Optional persistent HTTP pool (net-http-persistent)
+- 🧭  Built-in tracing primitives for eval frameworks
 
 #### Chat, Agents
 - 🧠  Stateless + stateful chat (completions + responses)
@@ -298,6 +299,21 @@ prompt = bot.build_prompt do
   it.user ["Tell me about the PDF", bot.local_file(pdf_path)]
 end
 bot.chat(prompt)
+```
+
+#### Tracer
+
+The following example demonstrates how to use the built-in tracing primitives
+to capture spans and events for a chat interaction. This can be useful for
+debugging, logging, or feeding into an eval framework:
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["OPENAI_SECRET"], trace: true)
+bot = LLM::Bot.new(llm)
+bot.chat "Hello world"
+pp bot.tracer.to_h
 ```
 
 ### Schema

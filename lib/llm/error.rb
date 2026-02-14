@@ -50,4 +50,8 @@ module LLM
   ##
   # When the context window is exceeded
   ContextWindowError = Class.new(InvalidRequestError)
+
+  ##
+  # When stuck in a tool call loop
+  ToolLoopError = Class.new(Error)
 end

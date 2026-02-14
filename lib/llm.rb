@@ -18,6 +18,7 @@ module LLM
   require_relative "llm/file"
   require_relative "llm/provider"
   require_relative "llm/bot"
+  require_relative "llm/agent"
   require_relative "llm/buffer"
   require_relative "llm/function"
   require_relative "llm/eventstream"

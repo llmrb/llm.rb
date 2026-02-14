@@ -109,6 +109,29 @@ bot.chat(bot.functions.map(&:call))
 bot.messages.select(&:assistant?).each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
+#### Agents
+
+The [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Agent.html)
+class provides a class-level DSL for defining reusable, preconfigured
+assistants with defaults for model, tools, schema, and instructions.
+Instructions are injected only on the first request, and unlike
+[LLM::Bot](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Bot.html),
+an [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Agent.html)
+will automatically call tools when needed:
+
+```ruby
+class SystemAdmin < LLM::Agent
+  model "gpt-4.1-nano"
+  instructions "You are a Linux system admin"
+  tools Shell
+  schema Result
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = SystemAdmin.new(llm)
+res = agent.chat("Run 'date'")
+```
+
 ## Features
 
 #### General
@@ -120,6 +143,7 @@ bot.messages.select(&:assistant?).each { |m| puts "[#{m.role}] #{m.content}" }
 #### Chat, Agents
 - 🧠  Stateless + stateful chat (completions + responses)
 - 🤖  Tool calling / function execution
+- 🔁  Agent tool-call auto-execution (bounded)
 - 🗂️  JSON Schema structured output
 - 📡  Streaming responses
 

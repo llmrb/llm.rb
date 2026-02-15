@@ -84,6 +84,7 @@ module LLM
     # @option params [#to_json, nil] :schema Defaults to nil
     def initialize(provider, params = {})
       defaults = {model: self.class.model, tools: self.class.tools, schema: self.class.schema}.compact
+      @provider = provider
       @bot = LLM::Bot.new(provider, defaults.merge(params))
       @instructions_applied = false
     end
@@ -197,7 +198,7 @@ module LLM
       return prompt unless instr
       if LLM::Builder === prompt
         messages = prompt.to_a
-        builder = LLM::Builder.new do |builder|
+        builder = LLM::Builder.new(@provider) do |builder|
           builder.system instr unless @instructions_applied
           messages.each { |msg| builder.chat(msg.content, role: msg.role) }
         end

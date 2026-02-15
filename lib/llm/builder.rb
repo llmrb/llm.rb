@@ -4,6 +4,9 @@
 # The {LLM::Builder LLM::Builder} class can build a collection
 # of messages that can be sent in a single request.
 #
+# @note
+# This API is not meant to be used directly.
+#
 # @example
 #   llm = LLM.openai(key: ENV["KEY"])
 #   bot = LLM::Bot.new(llm)
@@ -16,7 +19,8 @@ class LLM::Builder
   ##
   # @param [Proc] evaluator
   #  The evaluator
-  def initialize(&evaluator)
+  def initialize(provider, &evaluator)
+    @provider = provider
     @buffer = []
     @evaluator = evaluator
   end
@@ -33,7 +37,13 @@ class LLM::Builder
   # @param [Symbol] role
   #  The role (eg user, system)
   # @return [void]
-  def chat(content, role: :user)
+  def chat(content, role: @provider.user_role)
+    role = case role.to_sym
+    when :system then @provider.system_role
+    when :user then @provider.user_role
+    when :developer then @provider.developer_role
+    else role
+    end
     @buffer << LLM::Message.new(role, content)
   end
 
@@ -42,7 +52,7 @@ class LLM::Builder
   #  The message content
   # @return [void]
   def user(content)
-    chat(content, role: :user)
+    chat(content, role: @provider.user_role)
   end
 
   ##
@@ -50,7 +60,15 @@ class LLM::Builder
   #  The message content
   # @return [void]
   def system(content)
-    chat(content, role: :system)
+    chat(content, role: @provider.system_role)
+  end
+
+  ##
+  # @param [String] content
+  #  The message content
+  # @return [void]
+  def developer(content)
+    chat(content, role: @provider.developer_role)
   end
 
   ##

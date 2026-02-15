@@ -234,6 +234,24 @@ class LLM::Provider
     raise NotImplementedError
   end
 
+  ##
+  # @return [Symbol]
+  def user_role
+    :user
+  end
+
+  ##
+  # @return [Symbol]
+  def system_role
+    :system
+  end
+
+  ##
+  # @return [Symbol]
+  def developer_role
+    :developer
+  end
+
   private
 
   attr_reader :client, :base_uri, :host, :port, :timeout, :ssl

@@ -131,7 +131,7 @@ module LLM
     #   end
     #   bot.chat(prompt)
     def build_prompt(&)
-      LLM::Builder.new(&).tap(&:call)
+      LLM::Builder.new(@provider, &).tap(&:call)
     end
 
     ##

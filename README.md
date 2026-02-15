@@ -30,9 +30,9 @@ end
 
 #### Prompts
 
-> ℹ️  **Tip:** Some providers (such as OpenAI) support `system` and `developer`
-> roles, but the examples in this README stick to `user` roles since they are
-> supported across all providers.
+> ℹ️  **Tip:** Some providers support `system` and `developer` roles while
+> others do not, and llm.rb will map roles appropriately for providers with
+> different role support.
 
 A prompt builder that produces a chain of messages that can be sent in one request:
 
@@ -44,7 +44,7 @@ llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm)
 
 prompt = bot.build_prompt do
-  it.user "Answer concisely."
+  it.system "Answer concisely."
   it.user "Was 2024 a leap year?"
   it.user "How many days were in that year?"
 end
@@ -100,7 +100,7 @@ llm  = LLM.openai(key: ENV.fetch("KEY"))
 bot  = LLM::Bot.new(llm, tools: [System])
 
 prompt = bot.build_prompt do
-  it.user "You can run safe shell commands."
+  it.system "You can run safe shell commands."
   it.user "Run `date`."
 end
 
@@ -344,7 +344,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, schema: Player)
 prompt = bot.build_prompt do
-  it.user "The player's name is Sam and their position is (7, 12)."
+  it.system "The player's name is Sam and their position is (7, 12)."
   it.user "Return the player's name and position"
 end
 

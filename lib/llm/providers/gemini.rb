@@ -104,12 +104,6 @@ module LLM
     end
 
     ##
-    # @return (see LLM::Provider#assistant_role)
-    def assistant_role
-      "model"
-    end
-
-    ##
     # Returns the default model for chat completions
     # @see https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash gemini-2.5-flash
     # @return [String]
@@ -139,6 +133,33 @@ module LLM
     # @return [LLM::Response] The response from the LLM provider.
     def web_search(query:)
       ResponseAdapter.adapt(complete(query, tools: [server_tools[:google_search]]), type: :web_search)
+    end
+
+    ##
+    # @return [Symbol]
+    #  Returns the providers user role
+    def user_role
+      :user
+    end
+
+    ##
+    # @return [Symbol]
+    #  Returns the providers system role
+    def system_role
+      :user
+    end
+
+    ##
+    # @return [Symbol]
+    # Returns the providers developer role
+    def developer_role
+      :user
+    end
+
+    ##
+    # @return (see LLM::Provider#assistant_role)
+    def assistant_role
+      "model"
     end
 
     private

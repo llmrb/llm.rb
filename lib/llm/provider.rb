@@ -11,10 +11,12 @@ class LLM::Provider
   include LLM::Client
 
   @@clients = {}
+  @@tracers = {null: LLM::Tracer::Null, telemetry: LLM::Tracer::Telemetry}
 
   ##
   # @api private
   def self.clients = @@clients
+  def self.tracers = @@tracers
 
   ##
   # @param [String, nil] key
@@ -27,16 +29,19 @@ class LLM::Provider
   #  The number of seconds to wait for a response
   # @param [Boolean] ssl
   #  Whether to use SSL for the connection
+  # @param [LLM::Tracer, Symbol] tracer
+  #  The tracer to use
   # @param [Boolean] persistent
   #  Whether to use a persistent connection.
   #  Requires the net-http-persistent gem.
-  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, persistent: false)
+  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, tracer: :null, persistent: false)
     @key = key
     @host = host
     @port = port
     @timeout = timeout
     @ssl = ssl
     @client = persistent ? persistent_client : transient_client
+    @tracer = (tracers[tracer] || tracers[:null]).new(self)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
   end
 
@@ -45,7 +50,7 @@ class LLM::Provider
   # @return [String]
   # @note The secret key is redacted in inspect for security reasons
   def inspect
-    "#<#{self.class.name}:0x#{object_id.to_s(16)} @key=[REDACTED] @client=#{@client.inspect}>"
+    "#<#{self.class.name}:0x#{object_id.to_s(16)} @key=[REDACTED] @client=#{@client.inspect} @tracer=#{@tracer.inspect}>"
   end
 
   ##
@@ -252,6 +257,13 @@ class LLM::Provider
     :developer
   end
 
+  ##
+  # @return [LLM::Tracer]
+  #  Returns an LLM tracer
+  def tracer
+    @tracer
+  end
+
   private
 
   attr_reader :client, :base_uri, :host, :port, :timeout, :ssl
@@ -303,7 +315,8 @@ class LLM::Provider
   # @raise [SystemCallError]
   #  When there is a network error at the operating system level
   # @return [Net::HTTPResponse]
-  def execute(request:, stream: nil, stream_parser: self.stream_parser, &b)
+  def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, &b)
+    span = @tracer.on_request_start(operation:, model:)
     args = (Net::HTTP === client) ? [request] : [URI.join(base_uri, request.path), request]
     res = if stream
       client.request(*args) do |res|
@@ -323,18 +336,20 @@ class LLM::Provider
       b ? client.request(*args) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 } :
           client.request(*args)
     end
-    handle_response(res)
+    [handle_response(res, span), span]
   end
 
   ##
   # Handles the response from a request
   # @param [Net::HTTPResponse] res
   #  The response to handle
+  # @param [Object, nil] span
+  #  The span
   # @return [Net::HTTPResponse]
-  def handle_response(res)
+  def handle_response(res, span)
     case res
     when Net::HTTPOK then res.body = parse_response(res)
-    else error_handler.new(res).raise_error!
+    else error_handler.new(@tracer, span, res).raise_error!
     end
     res
   end
@@ -374,5 +389,23 @@ class LLM::Provider
         raise TypeError, "#{tool.class} given as a tool but it is not recognized"
       end
     end
+  end
+
+  ##
+  # @return [Hash<Symbol, LLM::Tracer>]
+  def tracers
+    self.class.tracers
+  end
+
+  ##
+  # Finalizes tracing after a response has been adapted/wrapped.
+  # @param [String] operation
+  # @param [String, nil] model
+  # @param [LLM::Response] res
+  # @param [Object, nil] span
+  # @return [LLM::Response]
+  def finish_trace(operation:, res:, model: nil, span: nil)
+    @tracer.on_request_finish(operation:, model:, res:, span:)
+    res
   end
 end

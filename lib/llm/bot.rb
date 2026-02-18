@@ -160,6 +160,13 @@ module LLM
       LLM::Object.from(value: res, kind: :remote_file)
     end
 
+    ##
+    # @return [LLM::Tracer]
+    #  Returns an LLM tracer
+    def tracer
+      @provider.tracer
+    end
+
     private
 
     def fetch(prompt, params)

@@ -51,8 +51,9 @@ class LLM::Gemini
         instances: [{prompt:}]
       })
       req.body = body
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :image)
+      res, span = execute(request: req, operation: "request")
+      res = ResponseAdapter.adapt(res, type: :image)
+      finish_trace(operation: "request", model:, res:, span:)
     end
 
     ##
@@ -89,7 +90,7 @@ class LLM::Gemini
       @provider.instance_variable_get(:@key)
     end
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:headers, :execute, :set_body_stream, :finish_trace].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

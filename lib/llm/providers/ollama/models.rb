@@ -43,13 +43,14 @@ class LLM::Ollama
     def all(**params)
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/api/tags?#{query}", headers)
-      res = execute(request: req)
-      LLM::Response.new(res)
+      res, span = execute(request: req, operation: "request")
+      res = LLM::Response.new(res)
+      finish_trace(operation: "request", res:, span:)
     end
 
     private
 
-    [:headers, :execute].each do |m|
+    [:headers, :execute, :finish_trace].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

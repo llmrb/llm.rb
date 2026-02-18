@@ -50,13 +50,14 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/moderations", headers)
       input = RequestAdapter::Moderation.new(input).adapt
       req.body = LLM.json.dump({input:, model:}.merge!(params))
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :moderations)
+      res, span = execute(request: req, operation: "request")
+      res = ResponseAdapter.adapt(res, type: :moderations)
+      finish_trace(operation: "request", model:, res:, span:)
     end
 
     private
 
-    [:headers, :execute].each do |m|
+    [:headers, :execute, :finish_trace].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

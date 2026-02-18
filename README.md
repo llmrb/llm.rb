@@ -143,6 +143,7 @@ bot.chat(prompt)
 - 📦  Zero runtime deps (stdlib-only)
 - 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
 - ♻️  Optional persistent HTTP pool (net-http-persistent)
+- 📈  Optional tracing hooks ([LLM::Tracer](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tracer.html)) with OpenTelemetry support
 
 #### Chat, Agents
 - 🧠  Stateless + stateful chat (completions + responses)
@@ -256,6 +257,33 @@ res1 = llm.responses.create "message 1"
 res2 = llm.responses.create "message 2", previous_response_id: res1.response_id
 res3 = llm.responses.create "message 3", previous_response_id: res2.response_id
 puts res3.output_text
+```
+
+#### Telemetry
+
+The llm.rb library includes telemetry support through its tracer API, and it
+can be used to trace LLM requests. It can be useful for debugging, monitoring,
+and observability. The primary use case in mind is integration with tools like
+[LangSmith](https://www.langsmith.com/).
+
+The telemetry implementation uses the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
+and is based on the [gen-ai telemetry spec(s)](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/).
+This feature is optional, disabled by default, and the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
+gem should be installed separately. Please also note that llm.rb will take care of
+loading and configuring the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
+library for you, and llm.rb configures an in-memory exporter that doesn't have
+external dependencies by default:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+require "pp"
+
+llm = LLM.openai(key: ENV["KEY"], tracer: :telemetry)
+bot = LLM::Bot.new(llm)
+bot.chat "Hello world!"
+bot.chat "Adios."
+bot.tracer.spans.each { |span| pp span }
 ```
 
 #### Thread Safety

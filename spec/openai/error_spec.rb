@@ -4,7 +4,9 @@ require "setup"
 require "llm/providers/openai"
 
 RSpec.describe LLM::OpenAI::ErrorHandler do
-  subject(:handler) { described_class.new(response) }
+  subject(:handler) { described_class.new(tracer, span, response) }
+  let(:tracer) { LLM::Tracer::Null.new(nil) }
+  let(:span) { nil }
 
   context "when response is a server error" do
     let(:response) { Net::HTTPServerError.new("1.1", "500", "Internal Server Error") }

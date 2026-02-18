@@ -35,8 +35,9 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/audio/speech", headers)
       req.body = LLM.json.dump({input:, voice:, model:, response_format:}.merge!(params))
       io = StringIO.new("".b)
-      res = execute(request: req) { _1.read_body { |chunk| io << chunk } }
-      LLM::Response.new(res).tap { _1.define_singleton_method(:audio) { io } }
+      res, span = execute(request: req, operation: "request") { _1.read_body { |chunk| io << chunk } }
+      res = LLM::Response.new(res).tap { _1.define_singleton_method(:audio) { io } }
+      finish_trace(operation: "request", model:, res:, span:)
     end
 
     ##
@@ -56,8 +57,9 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/audio/transcriptions", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
-      res = execute(request: req)
-      LLM::Response.new(res)
+      res, span = execute(request: req, operation: "request")
+      res = LLM::Response.new(res)
+      finish_trace(operation: "request", model:, res:, span:)
     end
 
     ##
@@ -78,13 +80,14 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/audio/translations", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
-      res = execute(request: req)
-      LLM::Response.new(res)
+      res, span = execute(request: req, operation: "request")
+      res = LLM::Response.new(res)
+      finish_trace(operation: "request", model:, res:, span:)
     end
 
     private
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:headers, :execute, :set_body_stream, :finish_trace].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

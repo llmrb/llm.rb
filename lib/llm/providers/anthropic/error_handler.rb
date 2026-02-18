@@ -10,10 +10,21 @@ class LLM::Anthropic
     attr_reader :res
 
     ##
+    # @return [Object, nil]
+    #  The span
+    attr_reader :span
+
+    ##
+    # @param [LLM::Tracer] tracer
+    #  The tracer
+    # @param [Object, nil] span
+    #  The span
     # @param [Net::HTTPResponse] res
     #  The response from the server
     # @return [LLM::Anthropic::ErrorHandler]
-    def initialize(res)
+    def initialize(tracer, span, res)
+      @tracer = tracer
+      @span = span
       @res = res
     end
 
@@ -21,15 +32,26 @@ class LLM::Anthropic
     # @raise [LLM::Error]
     #  Raises a subclass of {LLM::Error LLM::Error}
     def raise_error!
+      ex = error
+      @tracer.on_request_error(ex:, span:)
+    ensure
+      raise(ex)
+    end
+
+    private
+
+    ##
+    # @return [LLM::Error]
+    def error
       case res
       when Net::HTTPServerError
-        raise LLM::ServerError.new { _1.response = res }, "Server error"
+        LLM::ServerError.new("Server error").tap { _1.response = res }
       when Net::HTTPUnauthorized
-        raise LLM::UnauthorizedError.new { _1.response = res }, "Authentication error"
+        LLM::UnauthorizedError.new("Authentication error").tap { _1.response = res }
       when Net::HTTPTooManyRequests
-        raise LLM::RateLimitError.new { _1.response = res }, "Too many requests"
+        LLM::RateLimitError.new("Too many requests").tap { _1.response = res }
       else
-        raise LLM::Error.new { _1.response = res }, "Unexpected response"
+        LLM::Error.new("Unexpected response").tap { _1.response = res }
       end
     end
   end

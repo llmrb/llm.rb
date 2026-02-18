@@ -40,13 +40,14 @@ class LLM::Anthropic
     def all(**params)
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/models?#{query}", headers)
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :enumerable)
+      res, span = execute(request: req, operation: "request")
+      res = ResponseAdapter.adapt(res, type: :enumerable)
+      finish_trace(operation: "request", res:, span:)
     end
 
     private
 
-    [:headers, :execute].each do |m|
+    [:headers, :execute, :finish_trace].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

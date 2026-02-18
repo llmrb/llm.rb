@@ -38,8 +38,9 @@ class LLM::Anthropic
     def all(**params)
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files?#{query}", headers)
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :enumerable)
+      res, span = execute(request: req, operation: "request")
+      res = ResponseAdapter.adapt(res, type: :enumerable)
+      finish_trace(operation: "request", res:, span:)
     end
 
     ##
@@ -57,8 +58,9 @@ class LLM::Anthropic
       req = Net::HTTP::Post.new("/v1/files", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :file)
+      res, span = execute(request: req, operation: "request")
+      res = ResponseAdapter.adapt(res, type: :file)
+      finish_trace(operation: "request", res:, span:)
     end
 
     ##
@@ -76,8 +78,9 @@ class LLM::Anthropic
       file_id = file.respond_to?(:id) ? file.id : file
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files/#{file_id}?#{query}", headers)
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :file)
+      res, span = execute(request: req, operation: "request")
+      res = ResponseAdapter.adapt(res, type: :file)
+      finish_trace(operation: "request", res:, span:)
     end
 
     ##
@@ -95,8 +98,9 @@ class LLM::Anthropic
       query = URI.encode_www_form(params)
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Get.new("/v1/files/#{file_id}?#{query}", headers)
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :file)
+      res, span = execute(request: req, operation: "request")
+      res = ResponseAdapter.adapt(res, type: :file)
+      finish_trace(operation: "request", res:, span:)
     end
     alias_method :retrieve_metadata, :get_metadata
 
@@ -113,8 +117,9 @@ class LLM::Anthropic
     def delete(file:)
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Delete.new("/v1/files/#{file_id}", headers)
-      res = execute(request: req)
-      LLM::Response.new(res)
+      res, span = execute(request: req, operation: "request")
+      res = LLM::Response.new(res)
+      finish_trace(operation: "request", res:, span:)
     end
 
     ##
@@ -137,8 +142,9 @@ class LLM::Anthropic
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Get.new("/v1/files/#{file_id}/content?#{query}", headers)
       io = StringIO.new("".b)
-      res = execute(request: req) { |res| res.read_body { |chunk| io << chunk } }
-      LLM::Response.new(res).tap { _1.define_singleton_method(:file) { io } }
+      res, span = execute(request: req, operation: "request") { |res| res.read_body { |chunk| io << chunk } }
+      res = LLM::Response.new(res).tap { _1.define_singleton_method(:file) { io } }
+      finish_trace(operation: "request", res:, span:)
     end
 
     private
@@ -147,7 +153,7 @@ class LLM::Anthropic
       @provider.instance_variable_get(:@key)
     end
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:headers, :execute, :set_body_stream, :finish_trace].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

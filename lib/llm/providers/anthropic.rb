@@ -43,9 +43,10 @@ module LLM
     def complete(prompt, params = {})
       params, stream, tools, role = normalize_complete_params(params)
       req = build_complete_request(prompt, params, role)
-      res = execute(request: req, stream: stream)
-      ResponseAdapter.adapt(res, type: :completion)
+      res, span = execute(request: req, stream: stream, operation: "chat", model: params[:model])
+      res = ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
+      finish_trace(operation: "chat", model: params[:model], res:, span:)
     end
 
     ##

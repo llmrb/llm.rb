@@ -49,8 +49,9 @@ module LLM
       path = ["/v1beta/models/#{model}", "embedContent?key=#{@key}"].join(":")
       req = Net::HTTP::Post.new(path, headers)
       req.body = LLM.json.dump({content: {parts: [{text: input}]}})
-      res = execute(request: req)
-      ResponseAdapter.adapt(res, type: :embedding)
+      res, span = execute(request: req, operation: "embeddings", model:)
+      res = ResponseAdapter.adapt(res, type: :embedding)
+      finish_trace(operation: "embeddings", model:, res:, span:)
     end
 
     ##
@@ -66,9 +67,10 @@ module LLM
     def complete(prompt, params = {})
       params, stream, tools, role, model = normalize_complete_params(params)
       req = build_complete_request(prompt, params, role, model, stream)
-      res = execute(request: req, stream: stream)
-      ResponseAdapter.adapt(res, type: :completion)
+      res, span = execute(request: req, stream: stream, operation: "chat", model:)
+      res = ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
+      finish_trace(operation: "chat", model:, res:, span:)
     end
 
     ##

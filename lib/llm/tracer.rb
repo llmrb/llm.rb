@@ -2,8 +2,11 @@
 
 module LLM
   ##
-  # Abstract base class for request/tool tracing hooks.
-  # Subclasses should override one or more +on_*+ methods.
+  # The {LLM::Tracer LLM::Tracer} is the superclass of all
+  # LLM tracers. It can be helpful for implementing instrumentation
+  # and hooking into the lifecycle of an LLM request. See
+  # {LLM::Tracer::Telemetry LLM::Tracer::Telemetry} for an
+  # example tracer implementation. 
   class Tracer
     require_relative "tracer/telemetry"
     require_relative "tracer/null"

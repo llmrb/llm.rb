@@ -25,14 +25,14 @@ module LLM
     ##
     # param [LLM::Provider] provider
     #  An LLM provider
-    # @return [Tracer]
+    # @return [LLM::Tracer::Telemetry]
     def initialize(provider)
       @provider = provider
       setup!
     end
 
     ##
-    # see (LLM::Tracer#on_request_start)
+    # @param (see LLM::Tracer#on_request_start)
     def on_request_start(operation:, model:)
       return nil unless operation == "chat"
       attributes = {
@@ -49,7 +49,7 @@ module LLM
     end
 
     ##
-    # see (LLM::Tracer#on_request_finish)
+    # @param (see LLM::Tracer#on_request_finish)
     def on_request_finish(operation:, model:, res:, span: nil)
       return nil unless operation == "chat"
       attributes = {
@@ -66,7 +66,7 @@ module LLM
     end
 
     ##
-    # (see LLM::Tracer#on_request_error)
+    # @param (see LLM::Tracer#on_request_error)
     def on_request_error(ex:, span:)
       return nil unless span
       attributes = {"error.type" => ex.class.to_s}.compact

@@ -5,11 +5,22 @@ module LLM
   # The {LLM::Tracer LLM::Tracer} is the superclass of all
   # LLM tracers. It can be helpful for implementing instrumentation
   # and hooking into the lifecycle of an LLM request. See
-  # {LLM::Tracer::Telemetry LLM::Tracer::Telemetry} for an
-  # example tracer implementation.
+  # {LLM::Tracer::Telemetry LLM::Tracer::Telemetry}, and
+  # {LLM::Tracer::Logger LLM::Tracer::Logger} for example
+  # tracer implementations.
   class Tracer
+    require_relative "tracer/logger"
     require_relative "tracer/telemetry"
     require_relative "tracer/null"
+
+    ##
+    # Configures a tracer.
+    # @yieldparam [LLM::Tracer] tracer
+    #  The tracer class being configured
+    # @return [void]
+    def self.configure
+      yield(self)
+    end
 
     ##
     # @param [LLM::Provider] provider

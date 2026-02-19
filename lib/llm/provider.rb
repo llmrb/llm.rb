@@ -11,7 +11,7 @@ class LLM::Provider
   include LLM::Client
 
   @@clients = {}
-  @@tracers = {null: LLM::Tracer::Null, telemetry: LLM::Tracer::Telemetry}
+  @@tracers = {null: LLM::Tracer::Null, telemetry: LLM::Tracer::Telemetry, logger: LLM::Tracer::Logger}
 
   ##
   # @api private

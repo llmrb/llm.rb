@@ -34,6 +34,7 @@ module LLM
     ##
     # see (LLM::Tracer#on_request_start)
     def on_request_start(operation:, model:)
+      return nil unless operation == "chat"
       attributes = {
         "gen_ai.operation.name" => operation,
         "gen_ai.request.model" => model,
@@ -57,10 +58,8 @@ module LLM
         "gen_ai.response.id" => res.id,
         "gen_ai.response.model" => model,
         "gen_ai.usage.input_tokens" => res.usage.input_tokens,
-        "gen_ai.usage.output_tokens" => res.usage.output_tokens,
-        "openai.response.service_tier" => res.service_tier,
-        "openai.response.system_fingerprint" => res.system_fingerprint
-      }.compact
+        "gen_ai.usage.output_tokens" => res.usage.output_tokens
+      }.compact.merge!(finish_attributes(res))
       attributes.each { span.set_attribute(_1, _2) }
       span.add_event("gen_ai.request.finish")
       span.tap(&:finish)
@@ -69,6 +68,7 @@ module LLM
     ##
     # (see LLM::Tracer#on_request_error)
     def on_request_error(ex:, span:)
+      return nil unless span
       attributes = {"error.type" => ex.class.to_s}.compact
       attributes.each { span.set_attribute(_1, _2) }
       span.add_event("gen_ai.request.finish")
@@ -84,6 +84,20 @@ module LLM
     end
 
     private
+
+    ##
+    # @param [LLM::Response] res
+    # @api private
+    def finish_attributes(res)
+      case @provider.class.to_s
+      when "LLM::OpenAI"
+        {
+          "openai.response.service_tier" => res.service_tier,
+          "openai.response.system_fingerprint" => res.system_fingerprint
+        }
+      else {}
+      end
+    end
 
     ##
     # @api private

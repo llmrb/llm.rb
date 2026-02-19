@@ -79,7 +79,7 @@ module LLM
     ##
     # @return [Array<OpenTelemetry::SDK::Trace::SpanData>]
     def spans
-      OpenTelemetry.tracer_provider.force_flush
+      @tracer_provider.force_flush
       @exporter.finished_spans
     end
 
@@ -104,12 +104,10 @@ module LLM
     def setup!
       require "opentelemetry/sdk" unless defined?(OpenTelemetry)
       @exporter = OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
-      OpenTelemetry::SDK.configure do |c|
-        c.add_span_processor(
-          OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor.new(@exporter)
-        )
-      end
-      @tracer = OpenTelemetry.tracer_provider.tracer("llm.rb", LLM::VERSION)
+      processor = OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor.new(@exporter)
+      @tracer_provider = OpenTelemetry::SDK::Trace::TracerProvider.new
+      @tracer_provider.add_span_processor(processor)
+      @tracer = @tracer_provider.tracer("llm.rb", LLM::VERSION)
     end
   end
 end

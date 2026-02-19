@@ -16,11 +16,11 @@ module LLM
   #   require "llm"
   #   require "pp"
   #
-  #   llm = LLM.openai(token: ENV["KEY"], tracer: :telemetry)
-  #   bot = LLM::Bot.chat(llm)
+  #   llm = LLM.openai(key: ENV["KEY"], tracer: :telemetry)
+  #   bot = LLM::Bot.new(llm)
   #   bot.chat "hello"
   #   bot.chat "how are you?"
-  #   bot.tracer.spans.each { pp span }
+  #   bot.tracer.spans.each { |span| pp span }
   class Tracer::Telemetry < Tracer
     ##
     # param [LLM::Provider] provider

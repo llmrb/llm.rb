@@ -63,7 +63,7 @@ module LLM
     # @return (see JSONAdapter#dump)
     def self.dump(obj)
       require "oj" unless defined?(::Oj)
-      ::Oj.dump(obj)
+      ::Oj.dump(obj, mode: :compat)
     end
 
     ##

@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         ruby-version: ['3.2', '3.3', '3.4', '4.0']
-        json-parser: ['JSON', 'Yajl']
+        json-parser: ['JSON', 'Oj', 'Yajl']
 
     steps:
     - uses: actions/checkout@v4

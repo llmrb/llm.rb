@@ -191,6 +191,13 @@ module LLM
       @bot.remote_file(res)
     end
 
+    ##
+    # @return [LLM::Tracer]
+    #  Returns an LLM tracer
+    def tracer
+      @bot.tracer
+    end
+
     private
 
     def apply_instructions(prompt)

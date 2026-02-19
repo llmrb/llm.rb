@@ -142,8 +142,9 @@ bot.chat(prompt)
 - ✅  Unified API across providers
 - 📦  Zero runtime deps (stdlib-only)
 - 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
-- ♻️  Optional persistent HTTP pool (net-http-persistent)
-- 📈  Optional tracing hooks ([LLM::Tracer](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tracer.html)) with OpenTelemetry support
+- 🧱  Builtin tracer API ([LLM::Tracer](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tracer.html))
+- ♻️  Optional persistent HTTP pool ([net-http-persistent](https://github.com/drbrain/net-http-persistent))
+- 📈  Optional telemetry support via OpenTelemetry ([opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby))
 
 #### Chat, Agents
 - 🧠  Stateless + stateful chat (completions + responses)

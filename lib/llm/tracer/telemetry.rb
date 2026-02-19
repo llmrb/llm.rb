@@ -59,7 +59,7 @@ module LLM
         "gen_ai.response.model" => model,
         "gen_ai.usage.input_tokens" => res.usage.input_tokens,
         "gen_ai.usage.output_tokens" => res.usage.output_tokens
-      }.compact.merge!(finish_attributes(res))
+      }.merge!(finish_attributes(res)).compact
       attributes.each { span.set_attribute(_1, _2) }
       span.add_event("gen_ai.request.finish")
       span.tap(&:finish)

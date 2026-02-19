@@ -79,7 +79,7 @@ module LLM
     ##
     # @return [Array<OpenTelemetry::SDK::Trace::SpanData>]
     def spans
-      ::OpenTelemetry.tracer_provider.force_flush
+      OpenTelemetry.tracer_provider.force_flush
       @exporter.finished_spans
     end
 

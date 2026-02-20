@@ -30,7 +30,7 @@ jobs:
 
   hardenedbsd:
     runs-on: ubuntu-latest
-    name: hardenedBSD
+    name: HBSD (Ruby33)
     steps:
     - uses: actions/checkout@v4
     - name: Run tests (hardenedBSD)

@@ -313,22 +313,6 @@ bot.chat "Hello world!"
 bot.chat "Adios."
 ```
 
-Example output:
-
-```txt
-I, [2026-02-19T20:34:12.042476 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.start", :provider=>"openai", :operation=>"chat", :model=>"gpt-4.1"}
-I, [2026-02-19T20:34:13.558245 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.finish", :provider=>"openai", :response_id=>"chatcmpl-DB7p7Duq7WV6ZNHvsGumq3PrS7cN9", :input_tokens=>10, :output_tokens=>11, :operation=>"chat", :model=>"gpt-4.1"}
-I, [2026-02-19T20:34:13.558387 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.start", :provider=>"openai", :operation=>"chat", :model=>"gpt-4.1"}
-I, [2026-02-19T20:34:14.493313 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.finish", :provider=>"openai", :response_id=>"chatcmpl-DB7p8vflVVNAuLyUTNTOPDJg5f7zL", :input_tokens=>32, :output_tokens=>22, :operation=>"chat", :model=>"gpt-4.1"}
-```
-
-To log somewhere other than `$stdout`:
-
-```ruby
-llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Logger.new(llm, file: "/tmp/llm.log")
-```
-
 #### Thread Safety
 
 The llm.rb library is thread-safe and can be used in a multi-threaded

@@ -11,12 +11,10 @@ class LLM::Provider
   include LLM::Client
 
   @@clients = {}
-  @@tracers = {null: LLM::Tracer::Null, telemetry: LLM::Tracer::Telemetry}
 
   ##
   # @api private
   def self.clients = @@clients
-  def self.tracers = @@tracers
 
   ##
   # @param [String, nil] key
@@ -29,19 +27,17 @@ class LLM::Provider
   #  The number of seconds to wait for a response
   # @param [Boolean] ssl
   #  Whether to use SSL for the connection
-  # @param [LLM::Tracer, Symbol] tracer
-  #  The tracer to use
   # @param [Boolean] persistent
   #  Whether to use a persistent connection.
   #  Requires the net-http-persistent gem.
-  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, tracer: :null, persistent: false)
+  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, persistent: false)
     @key = key
     @host = host
     @port = port
     @timeout = timeout
     @ssl = ssl
     @client = persistent ? persistent_client : transient_client
-    @tracer = (tracers[tracer] || tracers[:null]).new(self)
+    @tracer = LLM::Tracer::Null.new(self)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
   end
 
@@ -262,6 +258,23 @@ class LLM::Provider
   #  Returns an LLM tracer
   def tracer
     @tracer
+  end
+
+  ##
+  # Set the tracer
+  # @example
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, file: "/path/to/log.txt")
+  #   # ...
+  # @param [LLM::Tracer] tracer
+  #  A tracer
+  # @return [void]
+  def tracer=(tracer)
+    @tracer = if tracer.nil?
+      LLM::Tracer::Null.new(self)
+    else
+      tracer
+    end
   end
 
   private

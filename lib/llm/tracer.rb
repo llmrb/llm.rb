@@ -14,8 +14,9 @@ module LLM
     ##
     # @param [LLM::Provider] provider
     #  A provider
-    def initialize(provider)
+    def initialize(provider, options = {})
       @provider = provider
+      @options = {}
     end
 
     ##

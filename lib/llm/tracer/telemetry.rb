@@ -132,30 +132,39 @@ module LLM
     end
 
     ##
+    # @param [String] operation
     # @param [LLM::Response] res
     # @api private
-    def finish_attributes(res, operation)
+    def finish_attributes(operation, res)
       case @provider.class.to_s
-      when "LLM::OpenAI"
-        case operation
-        when "chat"
-          {
-            "openai.response.service_tier" => res.service_tier,
-            "openai.response.system_fingerprint" => res.system_fingerprint
-          }
-        when "retrieval"
-          {
-            "openai.vector_store.search.result_count" => res.size,
-            "openai.vector_store.search.has_more" => res.has_more
-          }
-        else {}
-        end
+      when "LLM::OpenAI" then openai_attributes(operation, res)
+      else {}
+      end
+    end
+
+    ##
+    # @param [String] operation
+    # @param [LLM::Response] res
+    # @api private
+    def openai_attributes(operation, res)
+      case operation
+      when "chat"
+        {
+          "openai.response.service_tier" => res.service_tier,
+          "openai.response.system_fingerprint" => res.system_fingerprint
+        }
+      when "retrieval"
+        {
+          "openai.vector_store.search.result_count" => res.size,
+          "openai.vector_store.search.has_more" => res.has_more
+        }
       else {}
       end
     end
 
     ##
     # start_*
+
     def start_chat(operation:, model:)
       attributes = {
         "gen_ai.operation.name" => operation,
@@ -193,7 +202,7 @@ module LLM
         "gen_ai.response.model" => model,
         "gen_ai.usage.input_tokens" => res.usage.input_tokens,
         "gen_ai.usage.output_tokens" => res.usage.output_tokens
-      }.merge!(finish_attributes(res, operation)).compact
+      }.merge!(finish_attributes(operation, res)).compact
       attributes.each { span.set_attribute(_1, _2) }
       span.add_event("gen_ai.request.finish")
       span.tap(&:finish)
@@ -202,7 +211,7 @@ module LLM
     def finish_retrieval(operation:, res:, span:)
       attributes = {
         "gen_ai.operation.name" => operation
-      }.merge!(finish_attributes(res, operation)).compact
+      }.merge!(finish_attributes(operation, res)).compact
       attributes.each { span.set_attribute(_1, _2) }
       span.add_event("gen_ai.request.finish")
       span.tap(&:finish)

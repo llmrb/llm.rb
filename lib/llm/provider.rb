@@ -274,7 +274,11 @@ class LLM::Provider
   #  A tracer
   # @return [void]
   def tracer=(tracer)
-    @tracer = tracer
+    if tracer.nil?
+      @tracer = LLM::Tracer::Null.new(self)
+    else
+      @tracer = tracer
+    end
   end
 
   private

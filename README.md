@@ -143,6 +143,9 @@ bot.chat(prompt)
 - 📦  Zero runtime deps (stdlib-only)
 - 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
 - 🧱  Builtin tracer API ([LLM::Tracer](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tracer.html))
+
+#### Optionals
+
 - ♻️  Optional persistent HTTP pool ([net-http-persistent](https://github.com/drbrain/net-http-persistent))
 - 📈  Optional telemetry support via OpenTelemetry ([opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby))
 - 🪵  Optional logging support via Ruby's standard library ([ruby/logger](https://github.com/ruby/logger))

@@ -54,25 +54,36 @@ module LLM
 
     ##
     # Called before a local tool/function executes.
-    # @param [Hash] payload
+    # @param [String, nil] id
+    #  The tool call ID assigned by the model/provider, if available.
+    # @param [String, nil] name
+    #  The tool (function) name.
+    # @param [Hash, nil] arguments
+    #  The parsed tool arguments.
     # @return [void]
-    def on_tool_start(payload = {})
+    def on_tool_start(id:, name:, arguments:)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
     ##
     # Called after a local tool/function succeeds.
-    # @param [Hash] payload
+    # @param [LLM::Function::Return] result
+    #  The tool return object.
+    # @param [Object, nil] span
+    #  The span/context object returned by {#on_tool_start}.
     # @return [void]
-    def on_tool_finish(payload = {})
+    def on_tool_finish(result:, span:)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
     ##
     # Called when a local tool/function raises.
-    # @param [Hash] payload
+    # @param [Exception] ex
+    #  The raised error.
+    # @param [Object, nil] span
+    #  The span/context object returned by {#on_tool_start}.
     # @return [void]
-    def on_tool_error(payload = {})
+    def on_tool_error(ex:, span:)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 

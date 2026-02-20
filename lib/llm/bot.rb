@@ -105,6 +105,7 @@ module LLM
         .select(&:assistant?)
         .flat_map(&:functions)
         .select(&:pending?)
+        .each { _1.tracer = tracer }
     end
 
     ##

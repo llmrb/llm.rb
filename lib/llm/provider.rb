@@ -264,7 +264,7 @@ class LLM::Provider
   # Set the tracer
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   llm.tracer = LLM::Tracer::Logger.new(llm, file: "/path/to/log.txt")
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log.txt")
   #   # ...
   # @param [LLM::Tracer] tracer
   #  A tracer

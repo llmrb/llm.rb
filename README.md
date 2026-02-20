@@ -145,6 +145,7 @@ bot.chat(prompt)
 - 🧱  Builtin tracer API ([LLM::Tracer](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tracer.html))
 - ♻️  Optional persistent HTTP pool ([net-http-persistent](https://github.com/drbrain/net-http-persistent))
 - 📈  Optional telemetry support via OpenTelemetry ([opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby))
+- 🪵  Optional logging support via Ruby's standard library ([ruby/logger](https://github.com/ruby/logger))
 
 #### Chat, Agents
 - 🧠  Stateless + stateful chat (completions + responses)
@@ -281,12 +282,48 @@ require "llm"
 require "pp"
 
 llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Telemetry.new(self)
+llm.tracer = LLM::Tracer::Telemetry.new(llm)
 
 bot = LLM::Bot.new(llm)
 bot.chat "Hello world!"
 bot.chat "Adios."
 bot.tracer.spans.each { |span| pp span }
+```
+
+#### Logger
+
+The llm.rb library includes simple logging support through its
+tracer API, and Ruby's standard library ([ruby/logger](https://github.com/ruby/logger)).
+This feature is optional, disabled by default, and it can be useful for debugging and/or
+monitoring requests to LLM providers. The `file` option can be used to choose where logs
+are written to, and by default it is set to `$stdout`:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["OPENAI_SECRET"])
+llm.tracer = LLM::Tracer::Logger.new(llm, file: $stdout)
+
+bot = LLM::Bot.new(llm)
+bot.chat "Hello world!"
+bot.chat "Adios."
+```
+
+Example output:
+
+```txt
+I, [2026-02-19T20:34:12.042476 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.start", :provider=>"openai", :operation=>"chat", :model=>"gpt-4.1"}
+I, [2026-02-19T20:34:13.558245 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.finish", :provider=>"openai", :response_id=>"chatcmpl-DB7p7Duq7WV6ZNHvsGumq3PrS7cN9", :input_tokens=>10, :output_tokens=>11, :operation=>"chat", :model=>"gpt-4.1"}
+I, [2026-02-19T20:34:13.558387 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.start", :provider=>"openai", :operation=>"chat", :model=>"gpt-4.1"}
+I, [2026-02-19T20:34:14.493313 #81809]  INFO -- : {:tracer=>"llm.rb (logger)", :event=>"request.finish", :provider=>"openai", :response_id=>"chatcmpl-DB7p8vflVVNAuLyUTNTOPDJg5f7zL", :input_tokens=>32, :output_tokens=>22, :operation=>"chat", :model=>"gpt-4.1"}
+```
+
+To log somewhere other than `$stdout`:
+
+```ruby
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Logger.new(llm, file: "/tmp/llm.log")
 ```
 
 #### Thread Safety

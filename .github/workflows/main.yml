@@ -39,5 +39,5 @@ jobs:
         release: '16-CURRENT'
         run: |
           mdo -u root pkg-static install -y ruby40
-          mdo -u root ruby44 -S gem install bundler
+          mdo -u root ruby40 -S gem install bundler
           bundle40 exec rake

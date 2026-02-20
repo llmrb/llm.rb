@@ -16,7 +16,7 @@ module LLM
     ##
     # @param (see LLM::Tracer#initialize)
     def initialize(provider, options = {})
-      @provider = provider
+      super
       setup!(**options)
     end
 

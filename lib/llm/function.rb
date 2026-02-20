@@ -29,6 +29,9 @@
 #     end
 #   end
 class LLM::Function
+  require_relative "function/tracing"
+  prepend LLM::Function::Tracing
+
   class Return < Struct.new(:id, :name, :value)
   end
 
@@ -41,6 +44,11 @@ class LLM::Function
   # Returns function arguments
   # @return [Array, nil]
   attr_accessor :arguments
+
+  ##
+  # Returns a tracer, or nil
+  # @return [LLM::Tracer, nil]
+  attr_accessor :tracer
 
   ##
   # @param [String] name The function name

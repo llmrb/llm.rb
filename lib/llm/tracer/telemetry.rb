@@ -79,6 +79,52 @@ module LLM
     end
 
     ##
+    # @param (see LLM::Tracer#on_tool_start)
+    # @return (see LLM::Tracer#on_tool_start)
+    def on_tool_start(id:, name:, arguments:)
+      attributes = {
+        "gen_ai.operation.name" => "execute_tool",
+        "gen_ai.tool.call.id" => id,
+        "gen_ai.tool.name" => name,
+        "gen_ai.tool.call.arguments" => LLM.json.dump(arguments),
+        "gen_ai.provider.name" => provider_name,
+        "server.address" => provider_host,
+        "server.port" => provider_port
+      }.compact
+      span_name = ["execute_tool", name].compact.join(" ")
+      span = @tracer.start_span(span_name.empty? ? "gen_ai.tool" : span_name, kind: :client, attributes:)
+      span.add_event("gen_ai.tool.start")
+      span
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_tool_finish)
+    # @return (see LLM::Tracer#on_tool_finish)
+    def on_tool_finish(result:, span:)
+      return nil unless span
+      attributes = {
+        "gen_ai.tool.call.id" => result.id,
+        "gen_ai.tool.name" => result.name,
+        "gen_ai.tool.call.result" => LLM.json.dump(result.value)
+      }.compact
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.tool.finish")
+      span.tap(&:finish)
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_tool_error)
+    # @return (see LLM::Tracer#on_tool_error)
+    def on_tool_error(ex:, span:)
+      return nil unless span
+      attributes = {"error.type" => ex.class.to_s}.compact
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.tool.finish")
+      span.status = ::OpenTelemetry::Trace::Status.error(ex.message)
+      span.tap(&:finish)
+    end
+
+    ##
     # @return [Array<OpenTelemetry::SDK::Trace::SpanData>]
     def spans
       @tracer_provider.force_flush

@@ -305,7 +305,7 @@ are written to, and by default it is set to `$stdout`:
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV["OPENAI_SECRET"])
+llm = LLM.openai(key: ENV["KEY"])
 llm.tracer = LLM::Tracer::Logger.new(llm, file: $stdout)
 
 bot = LLM::Bot.new(llm)

@@ -25,21 +25,9 @@ module LLM
     # @return [void]
     def on_request_start(operation:, model: nil)
       case operation
-      when "chat"
-        @logger.info(
-          tracer: "llm.rb (logger)",
-          event: "request.start",
-          provider: provider_name,
-          operation:,
-          model:
-        )
-      when "retrieval"
-        @logger.info(
-          tracer: "llm.rb (logger)",
-          event: "request.start",
-          provider: provider_name,
-          operation:
-        )
+      when "chat" then start_chat(operation:, model:)
+      when "retrieval" then start_retrieval(operation:, model:)
+      else nil
       end
     end
 
@@ -48,26 +36,9 @@ module LLM
     # @return [void]
     def on_request_finish(operation:, res:, model: nil, **)
       case operation
-      when "chat"
-        @logger.info(
-          tracer: "llm.rb (logger)",
-          event: "request.finish",
-          provider: provider_name,
-          operation:,
-          model:,
-          response_id: res.id,
-          input_tokens: res.usage.input_tokens,
-          output_tokens: res.usage.output_tokens,
-          **finish_attributes(res, operation)
-        )
-      when "retrieval"
-        @logger.info(
-          tracer: "llm.rb (logger)",
-          event: "request.finish",
-          provider: provider_name,
-          operation:,
-          **finish_attributes(res, operation)
-        )
+      when "chat" then finish_chat(operation:, res:, model:)
+      when "retrieval" then finish_retrieval(operation:, res:)
+      else nil
       end
     end
 
@@ -153,6 +124,55 @@ module LLM
         end
       else {}
       end
+    end
+
+    ##
+    # start_*
+
+    def start_chat(operation:, res:)
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "request.start",
+        provider: provider_name,
+        operation:,
+        model:
+      )
+    end
+
+    def start_retrieval(operation:, res:)
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "request.start",
+        provider: provider_name,
+        operation:
+      )
+    end
+
+    ##
+    # finish_*
+
+    def finish_chat(operation:, model:, res:)
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "request.finish",
+        provider: provider_name,
+        operation:,
+        model:,
+        response_id: res.id,
+        input_tokens: res.usage.input_tokens,
+        output_tokens: res.usage.output_tokens,
+        **finish_attributes(res, operation)
+      )
+    end
+
+    def finish_retrieval(operation:, res:)
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "request.finish",
+        provider: provider_name,
+        operation:,
+        **finish_attributes(res, operation)
+      )
     end
   end
 end

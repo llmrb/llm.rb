@@ -281,7 +281,7 @@ require "llm"
 require "pp"
 
 llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Telemetry.new(self)
+llm.tracer = LLM::Tracer::Telemetry.new(llm)
 
 bot = LLM::Bot.new(llm)
 bot.chat "Hello world!"

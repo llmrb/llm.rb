@@ -264,6 +264,19 @@ class LLM::Provider
     @tracer
   end
 
+  ##
+  # Set the tracer
+  # @example
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, file: "/path/to/log.txt")
+  #   # ...
+  # @param [LLM::Tracer] tracer
+  #  A tracer
+  # @return [void]
+  def tracer=(tracer)
+    @tracer = tracer
+  end
+
   private
 
   attr_reader :client, :base_uri, :host, :port, :timeout, :ssl

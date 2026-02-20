@@ -7,31 +7,17 @@ module LLM
   # standard library.
   #
   # @example
-  #   LLM::Tracer::Logger.configure do |tracer|
-  #     # Defaults to $stdout
-  #     tracer.file = File.join(Dir.tmpdir, "log.txt")
-  #   end
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   # Log to a file
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, file: "/tmp/log.txt")
+  #   # Log to $stdout (default)
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, file: $stdout)
   class Tracer::Logger < Tracer
     ##
-    # Defaults to standard output
-    # @return [IO, String]
-    def self.file
-      @file || $stdout
-    end
-
-    ##
-    # @param [IO, String] io
-    #  An IO, or path to a file
-    # @return [void]
-    def self.file=(io)
-      @file = io
-    end
-
-    ##
     # @param (see LLM::Tracer#initialize)
-    def initialize(provider)
+    def initialize(provider, options = {})
       @provider = provider
-      setup!
+      setup!(**options)
     end
 
     ##
@@ -99,9 +85,9 @@ module LLM
 
     private
 
-    def setup!
+    def setup!(file: $stdout)
       require "logger" unless defined?(::Logger)
-      @logger = ::Logger.new(self.class.file)
+      @logger = ::Logger.new(file)
     end
   end
 end

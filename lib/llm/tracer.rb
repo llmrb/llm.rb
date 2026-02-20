@@ -14,18 +14,11 @@ module LLM
     require_relative "tracer/null"
 
     ##
-    # Configures a tracer.
-    # @yieldparam [LLM::Tracer] tracer
-    #  The tracer class being configured
-    # @return [void]
-    def self.configure
-      yield(self)
-    end
-
-    ##
     # @param [LLM::Provider] provider
     #  A provider
-    def initialize(provider)
+    # @param [Hash] options
+    #  A hash of options
+    def initialize(provider, options = {})
       @provider = provider
     end
 

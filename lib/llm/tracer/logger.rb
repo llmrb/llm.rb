@@ -2,7 +2,7 @@
 
 module LLM
   ##
-  # The {Tracer::Logger Tracer::Logger} class provides a
+  # The {LLM::Tracer::Logger LLM::Tracer::Logger} class provides a
   # tracer that provides logging facilities through Ruby's
   # standard library.
   #

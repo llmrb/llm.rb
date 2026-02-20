@@ -65,22 +65,45 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_tool_start)
     # @return [void]
-    def on_tool_start(**)
-      nil
+    def on_tool_start(id:, name:, arguments:)
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "tool.start",
+        provider: provider_name,
+        operation: "execute_tool",
+        tool_id: id,
+        tool_name: name,
+        tool_arguments: arguments
+      )
     end
 
     ##
     # @param (see LLM::Tracer#on_tool_finish)
     # @return [void]
-    def on_tool_finish(**)
-      nil
+    def on_tool_finish(result:, **)
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "tool.finish",
+        provider: provider_name,
+        operation: "execute_tool",
+        tool_id: result.id,
+        tool_name: result.name,
+        tool_result: result.value
+      )
     end
 
     ##
     # @param (see LLM::Tracer#on_tool_error)
     # @return [void]
-    def on_tool_error(**)
-      nil
+    def on_tool_error(ex:, **)
+      @logger.error(
+        tracer: "llm.rb (logger)",
+        event: "tool.error",
+        provider: provider_name,
+        operation: "execute_tool",
+        error_class: ex.class.to_s,
+        error_message: ex.message
+      )
     end
 
     private

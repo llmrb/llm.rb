@@ -16,7 +16,9 @@ module LLM
   #   require "llm"
   #   require "pp"
   #
-  #   llm = LLM.openai(key: ENV["KEY"], tracer: :telemetry)
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   llm.tracer = LLM::Tracer::Telemetry.new(llm)
+  #
   #   bot = LLM::Bot.new(llm)
   #   bot.chat "hello"
   #   bot.chat "how are you?"
@@ -26,8 +28,8 @@ module LLM
     # param [LLM::Provider] provider
     #  An LLM provider
     # @return [LLM::Tracer::Telemetry]
-    def initialize(provider)
-      @provider = provider
+    def initialize(provider, options = {})
+      super
       setup!
     end
 

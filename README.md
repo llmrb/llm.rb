@@ -280,7 +280,9 @@ external dependencies by default:
 require "llm"
 require "pp"
 
-llm = LLM.openai(key: ENV["KEY"], tracer: :telemetry)
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Telemetry.new(self)
+
 bot = LLM::Bot.new(llm)
 bot.chat "Hello world!"
 bot.chat "Adios."

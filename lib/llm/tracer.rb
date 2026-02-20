@@ -20,6 +20,7 @@ module LLM
     #  A hash of options
     def initialize(provider, options = {})
       @provider = provider
+      @options = {}
     end
 
     ##

@@ -298,15 +298,15 @@ bot.tracer.spans.each { |span| pp span }
 The llm.rb library includes simple logging support through its
 tracer API, and Ruby's standard library ([ruby/logger](https://github.com/ruby/logger)).
 This feature is optional, disabled by default, and it can be useful for debugging and/or
-monitoring requests to LLM providers. The `file` option can be used to choose where logs
-are written to, and by default it is set to `$stdout`:
+monitoring requests to LLM providers. The `path` or `io` options can be used to choose
+where logs are written to, and by default it is set to `$stdout`:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Logger.new(llm, file: $stdout)
+llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
 
 bot = LLM::Bot.new(llm)
 bot.chat "Hello world!"

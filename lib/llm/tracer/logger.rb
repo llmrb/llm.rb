@@ -9,9 +9,9 @@ module LLM
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   # Log to a file
-  #   llm.tracer = LLM::Tracer::Logger.new(llm, file: "/tmp/log.txt")
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, path: "/tmp/log.txt")
   #   # Log to $stdout (default)
-  #   llm.tracer = LLM::Tracer::Logger.new(llm, file: $stdout)
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
   class Tracer::Logger < Tracer
     ##
     # @param (see LLM::Tracer#initialize)
@@ -85,9 +85,9 @@ module LLM
 
     private
 
-    def setup!(file: $stdout)
+    def setup!(path: nil, io: $stdout)
       require "logger" unless defined?(::Logger)
-      @logger = ::Logger.new(file)
+      @logger = ::Logger.new(path || io)
     end
   end
 end

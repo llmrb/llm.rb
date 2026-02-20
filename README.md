@@ -293,6 +293,29 @@ bot.chat "Adios."
 bot.tracer.spans.each { |span| pp span }
 ```
 
+The llm.rb library also supports export through the OpenTelemetry Protocol (OTLP).
+OTLP is a standard protocol for exporting telemetry data, and it is supported by
+multiple observability tools. By default the export is batched in the background,
+and happens automatically but short lived scripts might need to
+[explicitly flush](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tracer/Telemetry#flush!-instance_method)
+the exporter before they exit &ndash; otherwise some telemetry data could be lost:
+
+```ruby
+ #!/usr/bin/env ruby
+ require "llm"
+ require "opentelemetry-exporter-otlp"
+
+ endpoint = "https://api.smith.langchain.com/otel/v1/traces"
+ exporter = OpenTelemetry::Exporter::OTLP::Exporter.new(endpoint:)
+
+ llm = LLM.openai(key: ENV["KEY"])
+ llm.tracer = LLM::Tracer::Telemetry.new(llm, exporter:)
+
+ bot = LLM::Bot.new(llm)
+ bot.chat "hello"
+ bot.chat "how are you?"
+ ```
+
 #### Logger
 
 The llm.rb library includes simple logging support through its

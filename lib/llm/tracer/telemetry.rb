@@ -11,7 +11,7 @@ module LLM
   # @see https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai Telemetry specs (index)
   # @see https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/openai.md Telemetry specs (OpenAI)
   #
-  # @example
+  # @example InMemory export
   #   #!/usr/bin/env ruby
   #   require "llm"
   #   require "pp"
@@ -23,6 +23,21 @@ module LLM
   #   bot.chat "hello"
   #   bot.chat "how are you?"
   #   bot.tracer.spans.each { |span| pp span }
+  #
+  # @example OTLP export
+  #   #!/usr/bin/env ruby
+  #   require "llm"
+  #   require "opentelemetry-exporter-otlp"
+  #
+  #   endpoint = "https://api.smith.langchain.com/otel/v1/traces"
+  #   exporter = OpenTelemetry::Exporter::OTLP::Exporter.new(endpoint:)
+  #
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   llm.tracer = LLM::Tracer::Telemetry.new(llm, exporter:)
+  #
+  #   bot = LLM::Bot.new(llm)
+  #   bot.chat "hello"
+  #   bot.chat "how are you?"
   class Tracer::Telemetry < Tracer
     ##
     # param [LLM::Provider] provider
@@ -30,6 +45,7 @@ module LLM
     # @return [LLM::Tracer::Telemetry]
     def initialize(provider, options = {})
       super
+      @exporter = options.delete(:exporter)
       setup!
     end
 
@@ -112,10 +128,28 @@ module LLM
     end
 
     ##
+    # @note
+    # This method returns an empty array for exporters that
+    # do not implement 'finished_spans' such as the OTLP
+    # exporter
     # @return [Array<OpenTelemetry::SDK::Trace::SpanData>]
     def spans
-      @tracer_provider.force_flush
+      return [] unless @exporter.respond_to?(:finished_spans)
+      flush!
       @exporter.finished_spans
+    end
+
+    ##
+    # Flushes queued telemetry to the configured exporter.
+    # @note
+    #  Exports are batched in the background by default.
+    #  Long-lived processes usually do not need to call this method.
+    #  Short-lived scripts should call {#flush!} before exit to reduce
+    #  the risk of losing spans that are still buffered.
+    # @return (see LLM::Tracer#flush!)
+    def flush!
+      @tracer_provider.force_flush
+      nil
     end
 
     private
@@ -124,7 +158,7 @@ module LLM
     # @api private
     def setup!
       require "opentelemetry/sdk" unless defined?(OpenTelemetry)
-      @exporter = OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
+      @exporter ||= OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
       processor = OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor.new(@exporter)
       @tracer_provider = OpenTelemetry::SDK::Trace::TracerProvider.new
       @tracer_provider.add_span_processor(processor)

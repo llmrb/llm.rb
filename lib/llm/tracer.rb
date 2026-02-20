@@ -99,6 +99,16 @@ module LLM
       []
     end
 
+    ##
+    # Flush the tracer
+    # @note
+    #  This method is only implemented by the {LLM::Tracer::Telemetry} tracer.
+    #  It is a noop for other tracers.
+    # @return [nil]
+    def flush!
+      nil
+    end
+
     private
 
     ##

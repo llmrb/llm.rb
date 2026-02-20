@@ -28,7 +28,7 @@ jobs:
         JSON_PARSER: ${{ matrix.json-parser }}
       run: bundle exec rake
 
-  hardenedbsd:
+  H16:
     runs-on: ubuntu-latest
     name: HBSD (Ruby33)
     steps:

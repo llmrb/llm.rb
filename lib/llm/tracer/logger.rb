@@ -26,7 +26,7 @@ module LLM
     def on_request_start(operation:, model: nil)
       case operation
       when "chat" then start_chat(operation:, model:)
-      when "retrieval" then start_retrieval(operation:, model:)
+      when "retrieval" then start_retrieval(operation:)
       else nil
       end
     end
@@ -139,7 +139,7 @@ module LLM
       )
     end
 
-    def start_retrieval(operation:, res:)
+    def start_retrieval(operation:)
       @logger.info(
         tracer: "llm.rb (logger)",
         event: "request.start",

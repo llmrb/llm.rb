@@ -120,53 +120,15 @@ module LLM
 
     private
 
-    def start_chat(operation:, model:)
-      attributes = {
-        "gen_ai.operation.name" => operation,
-        "gen_ai.request.model" => model,
-        "gen_ai.provider.name" => provider_name,
-        "server.address" => provider_host,
-        "server.port" => provider_port
-      }.compact
-      span_name = [operation, model].compact.join(" ")
-      span = @tracer.start_span(span_name.empty? ? "gen_ai.request" : span_name, kind: :client, attributes:)
-      span.add_event("gen_ai.request.start")
-      span
-    end
-
-    def start_retrieval(operation:)
-      attributes = {
-        "gen_ai.operation.name" => operation,
-        "gen_ai.provider.name" => provider_name,
-        "server.address" => provider_host,
-        "server.port" => provider_port
-      }.compact
-      span = @tracer.start_span(operation, kind: :client, attributes:)
-      span.add_event("gen_ai.request.start")
-      span
-    end
-
-    def finish_chat(operation:, model:, res:, span:)
-      attributes = {
-        "gen_ai.operation.name" => operation,
-        "gen_ai.request.model" => model,
-        "gen_ai.response.id" => res.id,
-        "gen_ai.response.model" => model,
-        "gen_ai.usage.input_tokens" => res.usage.input_tokens,
-        "gen_ai.usage.output_tokens" => res.usage.output_tokens
-      }.merge!(finish_attributes(res, operation)).compact
-      attributes.each { span.set_attribute(_1, _2) }
-      span.add_event("gen_ai.request.finish")
-      span.tap(&:finish)
-    end
-
-    def finish_retrieval(operation:, res:, span:)
-      attributes = {
-        "gen_ai.operation.name" => operation
-      }.merge!(finish_attributes(res, operation)).compact
-      attributes.each { span.set_attribute(_1, _2) }
-      span.add_event("gen_ai.request.finish")
-      span.tap(&:finish)
+    ##
+    # @api private
+    def setup!
+      require "opentelemetry/sdk" unless defined?(OpenTelemetry)
+      @exporter = OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
+      processor = OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor.new(@exporter)
+      @tracer_provider = OpenTelemetry::SDK::Trace::TracerProvider.new
+      @tracer_provider.add_span_processor(processor)
+      @tracer = @tracer_provider.tracer("llm.rb", LLM::VERSION)
     end
 
     ##
@@ -193,14 +155,57 @@ module LLM
     end
 
     ##
-    # @api private
-    def setup!
-      require "opentelemetry/sdk" unless defined?(OpenTelemetry)
-      @exporter = OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
-      processor = OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor.new(@exporter)
-      @tracer_provider = OpenTelemetry::SDK::Trace::TracerProvider.new
-      @tracer_provider.add_span_processor(processor)
-      @tracer = @tracer_provider.tracer("llm.rb", LLM::VERSION)
+    # start_*
+    def start_chat(operation:, model:)
+      attributes = {
+        "gen_ai.operation.name" => operation,
+        "gen_ai.request.model" => model,
+        "gen_ai.provider.name" => provider_name,
+        "server.address" => provider_host,
+        "server.port" => provider_port
+      }.compact
+      span_name = [operation, model].compact.join(" ")
+      span = @tracer.start_span(span_name.empty? ? "gen_ai.request" : span_name, kind: :client, attributes:)
+      span.add_event("gen_ai.request.start")
+      span
+    end
+
+    def start_retrieval(operation:)
+      attributes = {
+        "gen_ai.operation.name" => operation,
+        "gen_ai.provider.name" => provider_name,
+        "server.address" => provider_host,
+        "server.port" => provider_port
+      }.compact
+      span = @tracer.start_span(operation, kind: :client, attributes:)
+      span.add_event("gen_ai.request.start")
+      span
+    end
+
+    ##
+    # finish_*
+
+    def finish_chat(operation:, model:, res:, span:)
+      attributes = {
+        "gen_ai.operation.name" => operation,
+        "gen_ai.request.model" => model,
+        "gen_ai.response.id" => res.id,
+        "gen_ai.response.model" => model,
+        "gen_ai.usage.input_tokens" => res.usage.input_tokens,
+        "gen_ai.usage.output_tokens" => res.usage.output_tokens
+      }.merge!(finish_attributes(res, operation)).compact
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.request.finish")
+      span.tap(&:finish)
+    end
+
+    def finish_retrieval(operation:, res:, span:)
+      attributes = {
+        "gen_ai.operation.name" => operation
+      }.merge!(finish_attributes(res, operation)).compact
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.request.finish")
+      span.tap(&:finish)
     end
   end
 end

@@ -23,30 +23,52 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_request_start)
     # @return [void]
-    def on_request_start(operation:, model:)
-      @logger.info(
-        tracer: "llm.rb (logger)",
-        event: "request.start",
-        provider: provider_name,
-        operation:,
-        model:
-      )
+    def on_request_start(operation:, model: nil)
+      case operation
+      when "chat"
+        @logger.info(
+          tracer: "llm.rb (logger)",
+          event: "request.start",
+          provider: provider_name,
+          operation:,
+          model:
+        )
+      when "retrieval"
+        @logger.info(
+          tracer: "llm.rb (logger)",
+          event: "request.start",
+          provider: provider_name,
+          operation:
+        )
+      end
     end
 
     ##
     # @param (see LLM::Tracer#on_request_finish)
     # @return [void]
-    def on_request_finish(operation:, model:, res:, **)
-      @logger.info(
-        tracer: "llm.rb (logger)",
-        event: "request.finish",
-        provider: provider_name,
-        response_id: res.id,
-        input_tokens: res.usage.input_tokens,
-        output_tokens: res.usage.output_tokens,
-        operation:,
-        model:
-      )
+    def on_request_finish(operation:, res:, model: nil, **)
+      case operation
+      when "chat"
+        @logger.info(
+          tracer: "llm.rb (logger)",
+          event: "request.finish",
+          provider: provider_name,
+          operation:,
+          model:,
+          response_id: res.id,
+          input_tokens: res.usage.input_tokens,
+          output_tokens: res.usage.output_tokens,
+          **finish_attributes(res, operation)
+        )
+      when "retrieval"
+        @logger.info(
+          tracer: "llm.rb (logger)",
+          event: "request.finish",
+          provider: provider_name,
+          operation:,
+          **finish_attributes(res, operation)
+        )
+      end
     end
 
     ##
@@ -111,6 +133,26 @@ module LLM
     def setup!(path: nil, io: $stdout)
       require "logger" unless defined?(::Logger)
       @logger = ::Logger.new(path || io)
+    end
+
+    def finish_attributes(res, operation)
+      case @provider.class.to_s
+      when "LLM::OpenAI"
+        case operation
+        when "chat"
+          {
+            openai_service_tier: res.service_tier,
+            openai_system_fingerprint: res.system_fingerprint
+          }.compact
+        when "retrieval"
+          {
+            openai_vector_store_search_result_count: res.size,
+            openai_vector_store_search_has_more: res.has_more
+          }.compact
+        else {}
+        end
+      else {}
+      end
     end
   end
 end

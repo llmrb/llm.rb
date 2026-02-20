@@ -119,9 +119,9 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/search", headers)
       req.body = LLM.json.dump(params.merge({query:}).compact)
-      res, span = execute(request: req, operation: "request")
+      res, span = execute(request: req, operation: "retrieval")
       res = ResponseAdapter.adapt(res, type: :enumerable)
-      finish_trace(operation: "request", res:, span:)
+      finish_trace(operation: "retrieval", res:, span:)
     end
 
     ##

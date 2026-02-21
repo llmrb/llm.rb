@@ -9,12 +9,12 @@
 #
 # @example
 #   llm = LLM.openai(key: ENV["KEY"])
-#   bot = LLM::Bot.new(llm)
-#   prompt = bot.build_prompt do
+#   ses = LLM::Session.new(llm)
+#   prompt = ses.build_prompt do
 #     it.system "Your task is to assist the user"
 #     it.user "Hello. Can you assist me?"
 #   end
-#   res = bot.chat(prompt)
+#   res = ses.talk(prompt)
 class LLM::Builder
   ##
   # @param [Proc] evaluator
@@ -37,7 +37,7 @@ class LLM::Builder
   # @param [Symbol] role
   #  The role (eg user, system)
   # @return [void]
-  def chat(content, role: @provider.user_role)
+  def talk(content, role: @provider.user_role)
     role = case role.to_sym
     when :system then @provider.system_role
     when :user then @provider.user_role
@@ -46,6 +46,7 @@ class LLM::Builder
     end
     @buffer << LLM::Message.new(role, content)
   end
+  alias_method :chat, :talk
 
   ##
   # @param [String] content

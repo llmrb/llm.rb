@@ -9,9 +9,9 @@
 # @example
 #   #!/usr/bin/env ruby
 #   llm = LLM.gemini ENV["KEY"]
-#   bot = LLM::Bot.new(llm, tools: [LLM::ServerTool.new(:google_search)])
-#   bot.chat("Summarize today's news", role: :user)
-#   print bot.messages.find(&:assistant?).content, "\n"
+#   ses = LLM::Session.new(llm, tools: [LLM::ServerTool.new(:google_search)])
+#   ses.talk("Summarize today's news", role: :user)
+#   print ses.messages.find(&:assistant?).content, "\n"
 class LLM::ServerTool < Struct.new(:name, :options, :provider)
   ##
   # @return [String]

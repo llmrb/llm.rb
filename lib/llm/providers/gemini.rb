@@ -14,9 +14,9 @@ module LLM
   #   require "llm"
   #
   #   llm = LLM.gemini(key: ENV["KEY"])
-  #   bot = LLM::Bot.new(llm)
-  #   bot.chat ["Tell me about this photo", File.open("/images/horse.jpg", "rb")]
-  #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ses = LLM::Session.new(llm)
+  #   ses.talk ["Tell me about this photo", ses.local_file("/images/photo.png")]
+  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Gemini < Provider
     require_relative "gemini/error_handler"
     require_relative "gemini/request_adapter"

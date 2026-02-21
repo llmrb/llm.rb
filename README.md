@@ -18,7 +18,7 @@ tool calling, audio, images, files, and structured outputs.
 
 #### REPL
 
-The [LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html) class provides
+The [LLM::Session](https://rubydoc.info/github/llmrb/llm.rb/LLM/Session.html) class provides
 a session with an LLM provider that maintains conversation history and context across
 multiple requests. The following example implements a simple REPL loop:
 
@@ -27,10 +27,10 @@ multiple requests. The following example implements a simple REPL loop:
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, stream: $stdout)
+ses = LLM::Session.new(llm, stream: $stdout)
 loop do
   print "> "
-  bot.chat(STDIN.gets)
+  ses.talk(STDIN.gets)
   puts
 end
 ```
@@ -55,8 +55,8 @@ class Report < LLM::Schema
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, schema: Report)
-res = bot.chat("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
+ses = LLM::Session.new(llm, schema: Report)
+res = ses.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
 pp res.messages.first(&:assistant?).content!
 ```
 
@@ -84,9 +84,9 @@ class System < LLM::Tool
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, tools: [System])
-bot.chat("Run `date`.")
-bot.chat(bot.functions.map(&:call)) # report return value to the LLM
+ses = LLM::Session.new(llm, tools: [System])
+ses.talk("Run `date`.")
+ses.talk(ses.functions.map(&:call)) # report return value to the LLM
 ```
 
 #### Agents
@@ -95,7 +95,7 @@ The [LLM::Agent](https://rubydoc.info/github/llmrb/llm.rb/LLM/Agent.html)
 class provides a class-level DSL for defining reusable, preconfigured
 assistants with defaults for model, tools, schema, and instructions.
 Instructions are injected only on the first request, and unlike
-[LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html),
+[LLM::Session](https://rubydoc.info/github/llmrb/llm.rb/LLM/Session.html),
 an [LLM::Agent](https://rubydoc.info/github/llmrb/llm.rb/LLM/Agent.html)
 will automatically call tools when needed:
 
@@ -112,12 +112,12 @@ end
 
 llm = LLM.openai(key: ENV["KEY"])
 agent = SystemAdmin.new(llm)
-res = agent.chat("Run 'date'")
+res = agent.talk("Run 'date'")
 ```
 
 #### Prompts
 
-The [LLM::Bot#build_prompt](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html#build_prompt-instance_method)
+The [LLM::Session#build_prompt](https://rubydoc.info/github/llmrb/llm.rb/LLM/Session.html#build_prompt-instance_method)
 method provides a simple DSL for building a chain of messages that
 can be sent in a single request. A conversation with an LLM consists
 of messages that have a role (eg system, user), and content:
@@ -127,13 +127,13 @@ of messages that have a role (eg system, user), and content:
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm)
-prompt = bot.build_prompt do
+ses = LLM::Session.new(llm)
+prompt = ses.build_prompt do
   it.system "Be concise and show your reasoning briefly."
   it.user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
   it.user "Now double the speed for the same time."
 end
-bot.chat(prompt)
+ses.talk(prompt)
 ```
 
 ## Features
@@ -287,10 +287,10 @@ require "pp"
 llm = LLM.openai(key: ENV["KEY"])
 llm.tracer = LLM::Tracer::Telemetry.new(llm)
 
-bot = LLM::Bot.new(llm)
-bot.chat "Hello world!"
-bot.chat "Adios."
-bot.tracer.spans.each { |span| pp span }
+ses = LLM::Session.new(llm)
+ses.talk "Hello world!"
+ses.talk "Adios."
+ses.tracer.spans.each { |span| pp span }
 ```
 
 The llm.rb library also supports export through the OpenTelemetry Protocol (OTLP).
@@ -311,9 +311,9 @@ the exporter before they exit &ndash; otherwise some telemetry data could be los
  llm = LLM.openai(key: ENV["KEY"])
  llm.tracer = LLM::Tracer::Telemetry.new(llm, exporter:)
 
- bot = LLM::Bot.new(llm)
- bot.chat "hello"
- bot.chat "how are you?"
+ ses = LLM::Session.new(llm)
+ ses.talk "hello"
+ ses.talk "how are you?"
  ```
 
 #### Logger
@@ -331,9 +331,9 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
 
-bot = LLM::Bot.new(llm)
-bot.chat "Hello world!"
-bot.chat "Adios."
+ses = LLM::Session.new(llm)
+ses.talk "Hello world!"
+ses.talk "Adios."
 ```
 
 #### Thread Safety
@@ -342,7 +342,7 @@ The llm.rb library is thread-safe and can be used in a multi-threaded
 environments but it is important to keep in mind that the
 [LLM::Provider](https://rubydoc.info/github/llmrb/llm.rb/LLM/Provider.html)
 and
-[LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html)
+[LLM::Session](https://rubydoc.info/github/llmrb/llm.rb/LLM/Session.html)
 classes should be instantiated once per thread, and not shared
 between threads. Generally the library tries to avoid global or
 shared state but where it exists reentrant locks are used to
@@ -377,14 +377,14 @@ tool = LLM.function(:system) do |fn|
   end
 end
 
-bot = LLM::Bot.new(llm, tools: [tool])
-bot.chat "Your task is to run shell commands via a tool.", role: :user
+ses = LLM::Session.new(llm, tools: [tool])
+ses.talk "Your task is to run shell commands via a tool.", role: :user
 
-bot.chat "What is the current date?", role: :user
-bot.chat bot.functions.map(&:call) # report return value to the LLM
+ses.talk "What is the current date?", role: :user
+ses.talk ses.functions.map(&:call) # report return value to the LLM
 
-bot.chat "What operating system am I running?", role: :user
-bot.chat bot.functions.map(&:call) # report return value to the LLM
+ses.talk "What operating system am I running?", role: :user
+ses.talk ses.functions.map(&:call) # report return value to the LLM
 
 ##
 # {stderr: "", stdout: "Thu May  1 10:01:02 UTC 2025"}
@@ -424,14 +424,14 @@ class System < LLM::Tool
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, tools: [System])
-bot.chat "Your task is to run shell commands via a tool.", role: :user
+ses = LLM::Session.new(llm, tools: [System])
+ses.talk "Your task is to run shell commands via a tool.", role: :user
 
-bot.chat "What is the current date?", role: :user
-bot.chat bot.functions.map(&:call) # report return value to the LLM
+ses.talk "What is the current date?", role: :user
+ses.talk ses.functions.map(&:call) # report return value to the LLM
 
-bot.chat "What operating system am I running?", role: :user
-bot.chat bot.functions.map(&:call) # report return value to the LLM
+ses.talk "What operating system am I running?", role: :user
+ses.talk ses.functions.map(&:call) # report return value to the LLM
 
 ##
 # {stderr: "", stdout: "Thu May  1 10:01:02 UTC 2025"}
@@ -454,9 +454,9 @@ it has been uploaded. The file (a specialized instance of
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm)
+ses = LLM::Session.new(llm)
 file = llm.files.create(file: "/tmp/llm-book.pdf")
-res = bot.chat ["Tell me about this file", file]
+res = ses.talk ["Tell me about this file", file]
 res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
@@ -471,19 +471,19 @@ where each element is a part of the input. See the example below for
 details, in the meantime here are the methods to know for multimodal
 inputs:
 
-* `bot.image_url` for an image URL
-* `bot.local_file` for a local file
-* `bot.remote_file` for a file already uploaded via the provider's Files API
+* `ses.image_url` for an image URL
+* `ses.local_file` for a local file
+* `ses.remote_file` for a file already uploaded via the provider's Files API
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm)
-res = bot.chat ["Tell me about this image URL", bot.image_url(url)]
-res = bot.chat ["Tell me about this PDF", bot.remote_file(file)]
-res = bot.chat ["Tell me about this image", bot.local_file(path)]}
+ses = LLM::Session.new(llm)
+res = ses.talk ["Tell me about this image URL", ses.image_url(url)]
+res = ses.talk ["Tell me about this PDF", ses.remote_file(file)]
+res = ses.talk ["Tell me about this image", ses.local_file(path)]
 ```
 
 ### Audio
@@ -661,8 +661,8 @@ end
 ##
 # Select a model
 model = llm.models.all.find { |m| m.id == "gpt-3.5-turbo" }
-bot = LLM::Bot.new(llm, model: model.id)
-res = bot.chat "Hello #{model.id} :)"
+ses = LLM::Session.new(llm, model: model.id)
+res = ses.talk "Hello #{model.id} :)"
 res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 

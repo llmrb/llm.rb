@@ -11,8 +11,8 @@ module LLM
   #   require "llm"
   #
   #   llm = LLM.zai(key: ENV["KEY"])
-  #   bot = LLM::Bot.new(llm, stream: $stdout)
-  #   bot.chat("Greetings Robot", role: :user).flush
+  #   ses = LLM::Session.new(llm, stream: $stdout)
+  #   ses.talk "Hello"
   class ZAI < OpenAI
     ##
     # @param [String] host A regional host or the default ("api.z.ai")

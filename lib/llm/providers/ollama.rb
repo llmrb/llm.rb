@@ -12,9 +12,9 @@ module LLM
   #   require "llm"
   #
   #   llm = LLM.ollama(key: nil)
-  #   bot = LLM::Bot.new(llm, model: "llava")
-  #   bot.chat ["Tell me about this image", File.open("/images/parrot.png", "rb")]
-  #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ses = LLM::Session.new(llm, model: "llava")
+  #   ses.talk ["Tell me about this image", ses.local_file("/images/photo.png")]
+  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Ollama < Provider
     require_relative "ollama/error_handler"
     require_relative "ollama/request_adapter"

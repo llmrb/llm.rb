@@ -2,7 +2,7 @@
 
 module LLM
   ##
-  # {LLM::Bot LLM::Bot} provides an object that can maintain a
+  # {LLM::Session LLM::Session} provides an object that can maintain a
   # conversation. A conversation can use the chat completions API
   # that all LLM providers support or the responses API that currently
   # only OpenAI supports.
@@ -12,15 +12,15 @@ module LLM
   #   require "llm"
   #
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   bot = LLM::Bot.new(llm)
-  #   prompt = bot.build_prompt do
+  #   ses = LLM::Session.new(llm)
+  #   prompt = ses.build_prompt do
   #     it.system "Be concise and show your reasoning briefly."
   #     it.user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
   #     it.user "Now double the speed for the same time."
   #   end
-  #   res = bot.chat(prompt)
+  #   res = ses.talk(prompt)
   #   res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
-  class Bot
+  class Session
     ##
     # Returns an Enumerable for the messages in a conversation
     # @return [LLM::Buffer<LLM::Message>]
@@ -50,10 +50,10 @@ module LLM
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
-    #   bot = LLM::Bot.new(llm)
-    #   response = bot.chat("Hello, what is your name?")
+    #   ses = LLM::Session.new(llm)
+    #   response = ses.talk("Hello, what is your name?")
     #   puts response.choices[0].content
-    def chat(prompt, params = {})
+    def talk(prompt, params = {})
       prompt, params, messages = fetch(prompt, params)
       params = params.merge(messages: [*@messages.to_a, *messages])
       params = @params.merge(params)
@@ -63,6 +63,7 @@ module LLM
       @messages.concat [res.choices[-1]]
       res
     end
+    alias_method :chat, :talk
 
     ##
     # Maintain a conversation via the responses API.
@@ -74,8 +75,8 @@ module LLM
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
-    #   bot = LLM::Bot.new(llm)
-    #   res = bot.respond("What is the capital of France?")
+    #   ses = LLM::Session.new(llm)
+    #   res = ses.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
       prompt, params, messages = fetch(prompt, params)
@@ -126,11 +127,11 @@ module LLM
     ##
     # Build a prompt
     # @example
-    #   prompt = bot.build_prompt do
+    #   prompt = ses.build_prompt do
     #     it.system "Your task is to assist the user"
     #     it.user "Hello, can you assist me?"
     #   end
-    #   bot.chat(prompt)
+    #   ses.talk(prompt)
     def build_prompt(&)
       LLM::Builder.new(@provider, &).tap(&:call)
     end
@@ -173,7 +174,7 @@ module LLM
     end
 
     ##
-    # Returns the model a Bot is actively using
+    # Returns the model a Session is actively using
     # @return [String]
     def model
       messages.find(&:assistant?)&.model || @params[:model]
@@ -189,4 +190,7 @@ module LLM
       [prompt.content, params, messages]
     end
   end
+
+  # Backward-compatible alias
+  Bot = Session
 end

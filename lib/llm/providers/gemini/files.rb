@@ -18,10 +18,10 @@ class LLM::Gemini
   #   require "llm"
   #
   #   llm = LLM.gemini(key: ENV["KEY"])
-  #   bot = LLM::Bot.new(llm)
+  #   ses = LLM::Session.new(llm)
   #   file = llm.files.create(file: "/audio/haiku.mp3")
-  #   bot.chat ["Tell me about this file", file]
-  #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ses.talk ["Tell me about this file", file]
+  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Files
     ##
     # Returns a new Files object

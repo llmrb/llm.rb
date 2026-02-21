@@ -16,9 +16,9 @@ module LLM
   #   require "llm"
   #
   #   llm = LLM.llamacpp(key: nil)
-  #   bot = LLM::Bot.new(llm)
-  #   bot.chat ["Tell me about this photo", File.open("/images/frog.jpg", "rb")]
-  #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ses = LLM::Session.new(llm)
+  #   ses.talk ["Tell me about this photo", ses.local_file("/images/photo.png")]
+  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class LlamaCpp < OpenAI
     ##
     # @param (see LLM::Provider#initialize)

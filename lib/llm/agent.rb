@@ -7,7 +7,7 @@ module LLM
   # tools, schema, and instructions.
   #
   # @note
-  # Unlike {LLM::Bot LLM::Bot}, this class will automatically run
+  # Unlike {LLM::Session LLM::Session}, this class will automatically run
   # tool calls for you.
   #
   # @note
@@ -26,7 +26,7 @@ module LLM
   #
   #   llm = LLM.openai(key: ENV["KEY"])
   #   agent = SystemAdmin.new(llm)
-  #   agent.chat("Run 'date'")
+  #   agent.talk("Run 'date'")
   class Agent
     ##
     # Set or get the default model
@@ -85,7 +85,7 @@ module LLM
     def initialize(provider, params = {})
       defaults = {model: self.class.model, tools: self.class.tools, schema: self.class.schema}.compact
       @provider = provider
-      @bot = LLM::Bot.new(provider, defaults.merge(params))
+      @ses = LLM::Session.new(provider, defaults.merge(params))
       @instructions_applied = false
     end
 
@@ -100,19 +100,20 @@ module LLM
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
     #   agent = LLM::Agent.new(llm)
-    #   response = agent.chat("Hello, what is your name?")
+    #   response = agent.talk("Hello, what is your name?")
     #   puts response.choices[0].content
-    def chat(prompt, params = {})
+    def talk(prompt, params = {})
       i, max = 0, Integer(params.delete(:max_tool_rounds) || 10)
-      res = @bot.chat(apply_instructions(prompt), params)
-      until @bot.functions.empty?
+      res = @ses.talk(apply_instructions(prompt), params)
+      until @ses.functions.empty?
         raise LLM::ToolLoopError, "pending tool calls remain" if i >= max
-        res = @bot.chat @bot.functions.map(&:call), params
+        res = @ses.talk @ses.functions.map(&:call), params
         i += 1
       end
       @instructions_applied = true
       res
     end
+    alias_method :chat, :talk
 
     ##
     # Maintain a conversation via the responses API.
@@ -130,10 +131,10 @@ module LLM
     #   puts res.output_text
     def respond(prompt, params = {})
       i, max = 0, Integer(params.delete(:max_tool_rounds) || 10)
-      res = @bot.respond(apply_instructions(prompt), params)
-      until @bot.functions.empty?
+      res = @ses.respond(apply_instructions(prompt), params)
+      until @ses.functions.empty?
         raise LLM::ToolLoopError, "pending tool calls remain" if i >= max
-        res = @bot.respond @bot.functions.map(&:call), params
+        res = @ses.respond @ses.functions.map(&:call), params
         i += 1
       end
       @instructions_applied = true
@@ -143,25 +144,25 @@ module LLM
     ##
     # @return [LLM::Buffer<LLM::Message>]
     def messages
-      @bot.messages
+      @ses.messages
     end
 
     ##
     # @return [Array<LLM::Function>]
     def functions
-      @bot.functions
+      @ses.functions
     end
 
     ##
     # @return [LLM::Object]
     def usage
-      @bot.usage
+      @ses.usage
     end
 
     ##
     # @return [LLM::Builder]
     def build_prompt(&)
-      @bot.build_prompt(&)
+      @ses.build_prompt(&)
     end
 
     ##
@@ -170,7 +171,7 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def image_url(url)
-      @bot.image_url(url)
+      @ses.image_url(url)
     end
 
     ##
@@ -179,7 +180,7 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def local_file(path)
-      @bot.local_file(path)
+      @ses.local_file(path)
     end
 
     ##
@@ -188,21 +189,21 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def remote_file(res)
-      @bot.remote_file(res)
+      @ses.remote_file(res)
     end
 
     ##
     # @return [LLM::Tracer]
     #  Returns an LLM tracer
     def tracer
-      @bot.tracer
+      @ses.tracer
     end
 
     ##
     # Returns the model an Agent is actively using
     # @return [String]
     def model
-      @bot.model
+      @ses.model
     end
 
     private
@@ -214,7 +215,7 @@ module LLM
         messages = prompt.to_a
         builder = LLM::Builder.new(@provider) do |builder|
           builder.system instr unless @instructions_applied
-          messages.each { |msg| builder.chat(msg.content, role: msg.role) }
+          messages.each { |msg| builder.talk(msg.content, role: msg.role) }
         end
         builder.tap(&:call)
       else

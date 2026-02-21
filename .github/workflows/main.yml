@@ -61,7 +61,7 @@ jobs:
 
   freebsd:
     runs-on: ubuntu-latest
-    name: FreeBSD (fork)
+    name: FreeBSD
     steps:
     - uses: actions/checkout@v4
     - name: Run tests

@@ -44,16 +44,16 @@ jobs:
           bundle33 install
           bundle33 exec rake
 
- # hardenedbsd:
- #   runs-on: ubuntu-latest
- #   name: hardenedBSD
- #   steps:
- #   - uses: actions/checkout@v4
- #   - name: Run tests (hardenedBSD)
- #     uses: 0x1eef/hardenedbsd-vm@v1
- #     with:
- #       release: '16-CURRENT'
- #       run: |
- #         mdo -u root pkg-static install -y rubygem-bundler
- #         bundle install
- #         bundle exec rake
+  hardenedbsd:
+    runs-on: ubuntu-latest
+    name: hardenedBSD
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run tests
+      uses: 0x1eef/hardenedbsd-vm@v1
+      with:
+        release: '16-CURRENT'
+        run: |
+          mdo -u root pkg-static install -y rubygem-bundler
+          bundle install
+          bundle exec rake

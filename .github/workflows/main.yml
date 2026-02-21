@@ -59,9 +59,9 @@ jobs:
           bundle33 install
           bundle33 exec rake
 
-  hardenedbsd:
+  freebsd:
     runs-on: ubuntu-latest
-    name: hardenedBSD
+    name: FreeBSD (fork)
     steps:
     - uses: actions/checkout@v4
     - name: Run tests

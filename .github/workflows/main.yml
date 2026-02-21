@@ -34,7 +34,7 @@ jobs:
     env:
       bundler: "bundle33"
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     - name: Run tests
       uses: vmactions/openbsd-vm@v1
       with:
@@ -42,6 +42,20 @@ jobs:
         envs: "bundler"
         run: |
           pkg_add ruby-3.3.9
+          bundle33 install
+          bundle33 exec rake
+
+  netbsd:
+    runs-on: ubuntu-latest
+    name: NetBSD
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run tests
+      uses: vmactions/netbsd-vm@v1
+      with:
+        copyback: false
+        run: |
+          pkg_add ruby-3.3.10
           bundle33 install
           bundle33 exec rake
 

@@ -5,11 +5,12 @@ require "rspec/core/rake_task"
 
 cassettes = File.join(__dir__, "spec", "fixtures", "cassettes")
 remotes = %w[openai gemini anthropic deepseek]
-locals = %w[ollama llamacpp]
+locals  = %w[ollama llamacpp]
+bundler = ENV["bundler"] || "bundle"
 
 desc "Run linter"
 task :rubocop do
-  sh "bundle exec rubocop"
+  sh "#{bundler} exec rubocop"
 end
 
 namespace :spec do
@@ -24,7 +25,7 @@ namespace :spec do
   task :remote do
     paths = ["spec/readme_spec.rb", "spec/{#{remotes.join(",")}}/**/*.rb"]
     specs = Dir[*paths].shuffle
-    sh "bundle exec rspec #{specs.join(' ')}"
+    sh "#{bundler} exec rspec #{specs.join(' ')}"
   end
 
   namespace :local do
@@ -37,7 +38,7 @@ end
 
 desc "Run all tests"
 task :spec do
-  sh "bundle exec rspec spec"
+  sh "#{bundler} exec rspec spec"
 end
 
 desc "Start a console with all providers loaded"

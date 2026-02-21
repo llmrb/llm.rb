@@ -10,7 +10,7 @@ on:
 jobs:
   linux:
     runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby-version }}
+    name: Linux (Ruby ${{ matrix.ruby-version }})
     strategy:
       matrix:
         ruby-version: ['3.2', '3.3', '3.4', '4.0']
@@ -27,6 +27,22 @@ jobs:
       env:
         JSON_PARSER: ${{ matrix.json-parser }}
       run: bundle exec rake
+
+  openbsd:
+    runs-on: ubuntu-latest
+    name: OpenBSD
+    env:
+      bundler: "bundle33"
+    steps:
+    - uses: actions/checkout@v6
+    - name: Run tests
+      uses: vmactions/openbsd-vm@v1
+      with:
+        envs: "bundler"
+        run: |
+          pkg_add ruby-3.3.9
+          bundle33 install
+          bundle33 exec rake
 
  # hardenedbsd:
  #   runs-on: ubuntu-latest

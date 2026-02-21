@@ -38,6 +38,7 @@ jobs:
     - name: Run tests
       uses: vmactions/openbsd-vm@v1
       with:
+        copyback: false
         envs: "bundler"
         run: |
           pkg_add ruby-3.3.9

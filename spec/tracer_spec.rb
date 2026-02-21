@@ -64,11 +64,9 @@ RSpec.describe LLM::Tracer::Telemetry do
 
       before { tracer.on_request_finish(operation: "chat", model: "test-model", res:, span:) }
 
-      subject(:last_span) { tracer.spans.last }
-
       it "finishes the span" do
-        expect(last_span.name).to eq("chat test-model")
-        expect(last_span.attributes).to match(hash_including(attributes))
+        expect(span.name).to eq("chat test-model")
+        expect(span.attributes).to match(hash_including(attributes))
       end
     end
 
@@ -79,11 +77,9 @@ RSpec.describe LLM::Tracer::Telemetry do
 
       before { tracer.on_request_finish(operation: "retrieval", res:, span:) }
 
-      subject(:last_span) { tracer.spans.last }
-
       it "finishes the span" do
-        expect(last_span.name).to eq("retrieval")
-        expect(last_span.attributes).to match(hash_including(attributes))
+        expect(span.name).to eq("retrieval")
+        expect(span.attributes).to match(hash_including(attributes))
       end
     end
   end

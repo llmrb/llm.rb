@@ -59,3 +59,5 @@ Style/MissingRespondToMissing:
 Style/NestedTernaryOperator:
   Exclude:
     - lib/llm/provider.rb
+Style/TernaryParentheses:
+  Enabled: false

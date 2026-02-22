@@ -1,34 +1,38 @@
 # frozen_string_literal: true
 
 ##
-# The {LLM::Builder LLM::Builder} class can build a collection
-# of messages that can be sent in a single request.
+# {LLM::Prompt LLM::Prompt} is a small object for composing
+# a single request from multiple role-aware messages.
 #
-# @note
-# This API is not meant to be used directly.
+# A prompt is not just a string. It is an ordered chain of
+# messages with explicit roles (for example +system+ and +user+).
+#
+# Use {LLM::Session#prompt} when building a prompt inside a session.
+# Use +LLM::Prompt.new(provider)+ directly when you want to construct
+# or pass prompt objects around explicitly.
 #
 # @example
 #   llm = LLM.openai(key: ENV["KEY"])
 #   ses = LLM::Session.new(llm)
-#   prompt = ses.build_prompt do
-#     it.system "Your task is to assist the user"
-#     it.user "Hello. Can you assist me?"
+#   prompt = ses.prompt do
+#     system "Your task is to assist the user"
+#     user "Hello. Can you assist me?"
 #   end
 #   res = ses.talk(prompt)
-class LLM::Builder
+class LLM::Prompt
   ##
-  # @param [Proc] evaluator
-  #  The evaluator
-  def initialize(provider, &evaluator)
+  # @param [LLM::Provider] provider
+  #  A provider used to resolve provider-specific role names.
+  # @param [Proc] b
+  #  A block that composes messages. If the block takes one argument,
+  #  it receives the prompt object. Otherwise the block runs in the
+  #  prompt context via +instance_eval+.
+  def initialize(provider, &b)
     @provider = provider
     @buffer = []
-    @evaluator = evaluator
-  end
-
-  ##
-  # @return [void]
-  def call
-    @evaluator.call(self)
+    unless b.nil?
+      (b.arity == 1) ? b.call(self) : instance_eval(&b)
+    end
   end
 
   ##
@@ -73,7 +77,8 @@ class LLM::Builder
   end
 
   ##
-  # @return [Array]
+  # @return [Array<LLM::Message>]
+  #  Returns the prompt messages in order.
   def to_a
     @buffer.dup
   end

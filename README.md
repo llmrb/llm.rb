@@ -117,10 +117,11 @@ res = agent.talk("Run 'date'")
 
 #### Prompts
 
-The [LLM::Session#build_prompt](https://rubydoc.info/github/llmrb/llm.rb/LLM/Session.html#build_prompt-instance_method)
-method provides a simple DSL for building a chain of messages that
-can be sent in a single request. A conversation with an LLM consists
-of messages that have a role (eg system, user), and content:
+The [LLM::Prompt](https://rubydoc.info/github/llmrb/llm.rb/LLM/Prompt.html)
+class represents a single request composed of multiple messages.
+It is useful when a single turn needs more than one message, for example:
+system instructions plus one or more user messages, or a replay of
+prior context:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -128,11 +129,13 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm)
-prompt = ses.build_prompt do
-  it.system "Be concise and show your reasoning briefly."
-  it.user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
-  it.user "Now double the speed for the same time."
+
+prompt = ses.prompt do
+  system "Be concise and show your reasoning briefly."
+  user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
+  user "Now double the speed for the same time."
 end
+
 ses.talk(prompt)
 ```
 

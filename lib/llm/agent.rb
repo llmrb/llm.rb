@@ -160,10 +160,13 @@ module LLM
     end
 
     ##
-    # @return [LLM::Builder]
-    def build_prompt(&)
-      @ses.build_prompt(&)
+    # @param (see LLM::Session#prompt)
+    # @return (see LLM::Session#prompt)
+    # @see LLM::Session#prompt
+    def prompt(&)
+      @ses.prompt(&)
     end
+    alias_method :build_prompt, :prompt
 
     ##
     # @param [String] url
@@ -211,17 +214,16 @@ module LLM
     def apply_instructions(prompt)
       instr = self.class.instructions
       return prompt unless instr
-      if LLM::Builder === prompt
+      if LLM::Prompt === prompt
         messages = prompt.to_a
-        builder = LLM::Builder.new(@provider) do |builder|
-          builder.system instr unless @instructions_applied
-          messages.each { |msg| builder.talk(msg.content, role: msg.role) }
-        end
-        builder.tap(&:call)
+        prompt = LLM::Prompt.new(@provider)
+        prompt.system instr unless @instructions_applied
+        messages.each { |msg| prompt.talk(msg.content, role: msg.role) }
+        prompt
       else
-        build_prompt do
-          _1.system instr unless @instructions_applied
-          _1.user prompt
+        prompt do
+          system instr unless @instructions_applied
+          user prompt
         end
       end
     end

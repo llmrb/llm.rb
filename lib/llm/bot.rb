@@ -13,10 +13,10 @@ module LLM
   #
   #   llm = LLM.openai(key: ENV["KEY"])
   #   ses = LLM::Session.new(llm)
-  #   prompt = ses.build_prompt do
-  #     it.system "Be concise and show your reasoning briefly."
-  #     it.user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
-  #     it.user "Now double the speed for the same time."
+  #   prompt = LLM::Prompt.new(llm) do
+  #     system "Be concise and show your reasoning briefly."
+  #     user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
+  #     user "Now double the speed for the same time."
   #   end
   #   res = ses.talk(prompt)
   #   res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
@@ -125,16 +125,21 @@ module LLM
     end
 
     ##
-    # Build a prompt
+    # Build a role-aware prompt for a single request.
+    #
+    # Prefer this method over {#build_prompt}. The older
+    # method name is kept for backward compatibility.
     # @example
-    #   prompt = ses.build_prompt do
-    #     it.system "Your task is to assist the user"
-    #     it.user "Hello, can you assist me?"
+    #   prompt = ses.prompt do
+    #     system "Your task is to assist the user"
+    #     user "Hello, can you assist me?"
     #   end
     #   ses.talk(prompt)
-    def build_prompt(&)
-      LLM::Builder.new(@provider, &).tap(&:call)
+    # @return [LLM::Prompt]
+    def prompt(&)
+      LLM::Prompt.new(@provider, &)
     end
+    alias_method :build_prompt, :prompt
 
     ##
     # Recongize an object as a URL to an image
@@ -183,7 +188,7 @@ module LLM
     private
 
     def fetch(prompt, params)
-      return [prompt, params, []] unless LLM::Builder === prompt
+      return [prompt, params, []] unless LLM::Prompt === prompt
       messages = prompt.to_a
       prompt = messages.shift
       params.merge!(role: prompt.role)

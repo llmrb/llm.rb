@@ -62,7 +62,7 @@ class LLM::Schema
     lock do
       if LLM::Schema::Leaf === type
         prop = type
-      elsif Class === type && type.ancestors.include?(LLM::Schema)
+      elsif Class === type && type.respond_to?(:object)
         prop = type.object
       else
         target = type.name.split("::").last.downcase

@@ -53,19 +53,28 @@ RSpec.describe LLM::Schema do
       end
     end
 
-    it "configures nested object properties" do
-      address = person_schema.object["address"]
-      street = address["street"]
-      expect(address).to be_a(LLM::Schema::Object)
-      expect(address.description).to eq("address description")
-      expect(address).to be_required
-      expect(address.keys).to eq(["street"])
-      expect(street).to be_a(LLM::Schema::String)
-      expect(street.description).to eq("street description")
-      expect(street).to be_required
+    context "when given the address" do
+      subject(:address) { person_schema.object["address"] }
+
+      it "is configured properly" do
+        expect(address).to be_a(LLM::Schema::Object)
+        expect(address.description).to eq("address description")
+        expect(address).to be_required
+        expect(address.keys).to eq(["street"])
+      end
     end
 
-    it "serializes nested required keys" do
+    context "when given the street" do
+      subject(:street) { person_schema.object["address"]["street"] }
+
+      it "is configured properly" do
+        expect(street).to be_a(LLM::Schema::String)
+        expect(street.description).to eq("street description")
+        expect(street).to be_required
+      end
+    end
+
+    it "requires certain keys" do
       object = person_schema.object
       expect(object.to_h[:required]).to eq(%w[name address])
       expect(object["address"].to_h[:required]).to eq(["street"])

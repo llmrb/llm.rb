@@ -36,7 +36,7 @@ class LLM::Schema
     ##
     # @return [Hash]
     def to_h
-      super.merge!({type: "object", properties:, required:})
+      super.merge!({type: "object", properties:, required: required_items})
     end
 
     ##
@@ -64,7 +64,7 @@ class LLM::Schema
 
     private
 
-    def required
+    def required_items
       @properties.filter_map {  _2.required? ? _1 : nil }
     end
   end

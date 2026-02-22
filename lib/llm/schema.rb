@@ -14,19 +14,19 @@
 #  schema.object({
 #    name: schema.string.enum("John", "Jane").required,
 #    age: schema.integer.required,
-#    hobbies: schema.array(schema.string, schema.null).required,
+#    hobbies: schema.array(schema.string).required,
 #    address: schema.object({street: schema.string}).required,
 #  })
 #
 # @example Ruby-style
 #  class Address < LLM::Schema
-#    property :address, String, "Street address", required: true
+#    property :street, String, "Street address", required: true
 #  end
 #
 #  class Person < LLM::Schema
 #    property :name, String, "Person's name", required: true
 #    property :age, Integer, "Person's age", required: true
-#    property :hobbies, Array[String, Null], "Person's hobbies", required: true
+#    property :hobbies, Array[String], "Person's hobbies", required: true
 #    property :address, Address, "Person's address", required: true
 #  end
 class LLM::Schema
@@ -62,6 +62,8 @@ class LLM::Schema
     lock do
       if LLM::Schema::Leaf === type
         prop = type
+      elsif Class === type && type.ancestors.include?(LLM::Schema)
+        prop = type.object
       else
         target = type.name.split("::").last.downcase
         prop = schema.public_send(target)

@@ -72,6 +72,12 @@ module LLM
 
     ##
     # @return [String]
+    def to_json(...)
+      LLM.json.dump(@messages, ...)
+    end
+
+    ##
+    # @return [String]
     def inspect
       "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
       "message_count=#{@messages.size}>"

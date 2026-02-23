@@ -35,16 +35,16 @@ module LLM
   class JSONAdapter::JSON < JSONAdapter
     ##
     # @return (see JSONAdapter#dump)
-    def self.dump(obj)
+    def self.dump(obj, ...)
       require "json" unless defined?(::JSON)
-      ::JSON.dump(obj)
+      ::JSON.dump(obj, ...)
     end
 
     ##
     # @return (see JSONAdapter#load)
-    def self.load(string)
+    def self.load(string, ...)
       require "json" unless defined?(::JSON)
-      ::JSON.parse(string)
+      ::JSON.parse(string, ...)
     end
 
     ##
@@ -61,16 +61,16 @@ module LLM
   class JSONAdapter::Oj < JSONAdapter
     ##
     # @return (see JSONAdapter#dump)
-    def self.dump(obj)
+    def self.dump(obj, options = {})
       require "oj" unless defined?(::Oj)
-      ::Oj.dump(obj, mode: :compat)
+      ::Oj.dump(obj, options.merge(mode: :compat))
     end
 
     ##
     # @return (see JSONAdapter#load)
-    def self.load(string)
+    def self.load(string, options = {})
       require "oj" unless defined?(::Oj)
-      ::Oj.load(string, mode: :compat, symbol_keys: false, symbolize_names: false)
+      ::Oj.load(string, options.merge(mode: :compat, symbol_keys: false, symbolize_names: false))
     end
 
     ##
@@ -87,16 +87,16 @@ module LLM
   class JSONAdapter::Yajl < JSONAdapter
     ##
     # @return (see JSONAdapter#dump)
-    def self.dump(obj)
+    def self.dump(obj, ...)
       require "yajl" unless defined?(::Yajl)
-      ::Yajl::Encoder.encode(obj)
+      ::Yajl::Encoder.encode(obj, ...)
     end
 
     ##
     # @return (see JSONAdapter#load)
-    def self.load(string)
+    def self.load(string, ...)
       require "yajl" unless defined?(::Yajl)
-      ::Yajl::Parser.parse(string)
+      ::Yajl::Parser.parse(string, ...)
     end
 
     ##

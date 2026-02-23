@@ -30,10 +30,18 @@ module LLM
     end
 
     ##
-    # Returns a hash representation of the message
+    # Returns a Hash representation of the message.
     # @return [Hash]
     def to_h
-      {role:, content:}
+      {role:, content:,
+       tools: @extra[:tool_calls],
+       original_tool_calls: extra[:original_tool_calls]}.compact
+    end
+
+    ##
+    # @return [String]
+    def to_json(...)
+      LLM.json.dump(to_h, ...)
     end
 
     ##
@@ -62,7 +70,7 @@ module LLM
     # @return [Array<LLM::Function>]
     def functions
       @functions ||= tool_calls.map do |fn|
-        function = tools.find { _1.name.to_s == fn["name"] }.dup
+        function = available_tools.find { _1.name.to_s == fn["name"] }.dup
         function.tap { _1.id = fn.id }
         function.tap { _1.arguments = fn.arguments }
       end
@@ -158,7 +166,7 @@ module LLM
       @tool_calls ||= LLM::Object.from(@extra[:tool_calls] || [])
     end
 
-    def tools
+    def available_tools
       response&.__tools__ || []
     end
   end

@@ -23,6 +23,9 @@ module LLM
   #   ses.talk(prompt)
   #   ses.messages.each { |m| puts "[#{m.role}] #{m.content}" }
   class Session
+    require_relative "session/deserializer"
+    include Deserializer
+
     ##
     # Returns an Enumerable for the messages in a conversation
     # @return [LLM::Buffer<LLM::Message>]
@@ -60,7 +63,9 @@ module LLM
       params = params.merge(messages: [*@messages.to_a, *messages])
       params = @params.merge(params)
       res = @provider.complete(prompt, params)
-      @messages.concat [LLM::Message.new(params[:role] || :user, prompt)]
+      role = params[:role] || @provider.user_role
+      role = @provider.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
+      @messages.concat [LLM::Message.new(role, prompt)]
       @messages.concat messages
       @messages.concat [res.choices[-1]]
       res
@@ -86,7 +91,8 @@ module LLM
       params = params.merge(previous_response_id: res_id, input: messages).compact
       params = @params.merge(params)
       res = @provider.responses.create(prompt, params)
-      @messages.concat [LLM::Message.new(params[:role] || :user, prompt)]
+      role = params[:role] || @provider.user_role
+      @messages.concat [LLM::Message.new(role, prompt)]
       @messages.concat messages
       @messages.concat [res.choices[-1]]
       res
@@ -189,6 +195,56 @@ module LLM
     def model
       messages.find(&:assistant?)&.model || @params[:model]
     end
+
+    ##
+    # @return [Hash]
+    def to_h
+      {model:, messages:}
+    end
+
+    ##
+    # @return [String]
+    def to_json(...)
+      {schema_version: 1}.merge!(to_h).to_json(...)
+    end
+
+    ##
+    # Save a session
+    # @example
+    #  llm = LLM.openai(key: ENV["KEY"])
+    #  ses = LLM::Session.new(llm)
+    #  ses.talk "Hello"
+    #  ses.save(path: "session.json")
+    # @raise [SystemCallError]
+    #  Might raise a number of SystemCallError subclasses
+    # @return [void]
+    def serialize(path:)
+      ::File.binwrite path, LLM.json.dump(self)
+    end
+    alias_method :save, :serialize
+
+    ##
+    # Restore a session
+    # @param [String, nil] path
+    #  The path to a JSON file
+    # @param [String, nil] string
+    #  A raw JSON string
+    # @raise [SystemCallError]
+    #  Might raise a number of SystemCallError subclasses
+    # @return [LLM::Session]
+    def deserialize(path: nil, string: nil)
+      payload = if path.nil? and string.nil?
+        raise ArgumentError, "a path or string is required"
+      elsif path
+        ::File.binread(path)
+      else
+        string
+      end
+      ses = LLM.json.load(payload)
+      @messages.concat [*ses["messages"]].map { deserialize_message(_1) }
+      self
+    end
+    alias_method :restore, :deserialize
 
     private
 

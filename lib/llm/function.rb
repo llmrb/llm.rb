@@ -33,6 +33,18 @@ class LLM::Function
   prepend LLM::Function::Tracing
 
   class Return < Struct.new(:id, :name, :value)
+    ##
+    # Returns a Hash representation of {LLM::Function::Return}
+    # @return [Hash]
+    def to_h
+      {id:, name:, value:}
+    end
+
+    ##
+    # @return [String]
+    def to_json(...)
+      LLM.json.dump(to_h, ...)
+    end
   end
 
   ##

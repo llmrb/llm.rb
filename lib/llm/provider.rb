@@ -254,6 +254,12 @@ class LLM::Provider
   end
 
   ##
+  # @return [Symbol]
+  def tool_role
+    :tool
+  end
+
+  ##
   # @return [LLM::Tracer]
   #  Returns an LLM tracer
   def tracer

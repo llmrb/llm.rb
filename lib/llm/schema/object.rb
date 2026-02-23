@@ -52,8 +52,8 @@ class LLM::Schema
 
     ##
     # @return [String]
-    def to_json(options = {})
-      to_h.to_json(options)
+    def to_json(...)
+      LLM.json.dump(to_h, ...)
     end
 
     ##

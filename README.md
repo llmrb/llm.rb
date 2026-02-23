@@ -193,6 +193,7 @@ ses.talk(prompt)
 
 #### Chat, Agents
 - 🧠  Stateless + stateful chat (completions + responses)
+- 💾  Save and restore sessions across processes
 - 🤖  Tool calling / function execution
 - 🔁  Agent tool-call auto-execution (bounded)
 - 🗂️  JSON Schema structured output
@@ -381,6 +382,59 @@ llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
 ses = LLM::Session.new(llm)
 ses.talk "Hello world!"
 ses.talk "Adios."
+```
+
+#### Serialization
+
+[LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) can be
+serialized and deserialized across process boundaries and persisted to
+storage such as files, a `jsonb` column (PostgreSQL), or other backends
+through a JSON representation of the history encapsulated by
+[LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html)
+&ndash; inclusive of tool metadata as well:
+
+```ruby
+# Process 1
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm)
+ses.talk "Howdy partner"
+ses.talk "I'll see you later"
+ses.save(path: "session.json")
+
+# Process 2
+#!/usr/bin/env ruby
+require "llm"
+require "pp"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm)
+ses.restore(path: "session.json")
+ses.talk "Howdy partner. I'm back"
+pp ses.messages
+```
+
+But how does it work without a file ? The [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html)
+class implements `#to_json` and it can be used to obtain a JSON representation
+of a session that can be stored in a `jsonb` column in PostgreSQL, or any
+other storage backend. The session can then be restored from the JSON
+representation via the restore method and its `string` argument:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses1 = LLM::Session.new(llm)
+ses1.talk "Howdy partner"
+ses1.talk "I'll see you later"
+
+json = ses1.to_json
+ses2 = LLM::Session.new(llm)
+ses2.restore(string: json)
+ses2.talk "Howdy partner. I'm back"
 ```
 
 #### Thread Safety

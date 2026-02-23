@@ -204,6 +204,22 @@ module LLM
       @ses.model
     end
 
+    ##
+    # @param (see LLM::Session#serialize)
+    # @return (see LLM::Session#serialize)
+    def serialize(**kw)
+      @ses.serialize(**kw)
+    end
+    alias_method :save, :serialize
+
+    ##
+    # @param (see LLM::Session#deserialize)
+    # @return (see LLM::Session#deserialize)
+    def deserialize(**kw)
+      @ses.deserialize(**kw)
+    end
+    alias_method :restore, :deserialize
+
     private
 
     def apply_instructions(prompt)

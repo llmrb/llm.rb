@@ -8,6 +8,10 @@ module LLM
   # and disabled by default. This feature exists to support integration with tools
   # like [LangSmith](https://www.langsmith.com).
   #
+  # The tracer supports hierarchical spans similar to Langfuse, where generation-level
+  # spans act as parents containing all operations (chat, retrieval, tools) for a
+  # conversation turn.
+  #
   # @see https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai Telemetry specs (index)
   # @see https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/openai.md Telemetry specs (OpenAI)
   #
@@ -24,6 +28,25 @@ module LLM
   #   ses.talk "how are you?"
   #   ses.tracer.spans.each { |span| pp span }
   #
+  # @example Hierarchical generation tracking
+  #   #!/usr/bin/env ruby
+  #   require "llm"
+  #
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   llm.tracer = LLM::Tracer::Telemetry.new(llm)
+  #
+  #   # Start a generation span that will contain all operations
+  #   generation_span = llm.tracer.on_generation_start(model: "gpt-4", input: "Hello")
+  #   
+  #   begin
+  #     ses = LLM::Session.new(llm)
+  #     response = ses.talk "hello"
+  #     # All chat operations and tool calls are automatically nested under generation_span
+  #     llm.tracer.on_generation_finish(generation_span:, res: response)
+  #   rescue => ex
+  #     llm.tracer.on_generation_error(generation_span:, ex:)
+  #   end
+  #
   # @example OTLP export
   #   #!/usr/bin/env ruby
   #   require "llm"
@@ -35,9 +58,11 @@ module LLM
   #   llm = LLM.openai(key: ENV["KEY"])
   #   llm.tracer = LLM::Tracer::Telemetry.new(llm, exporter:)
   #
+  #   # Generation spans sent to LangSmith with nested operations
+  #   generation_span = llm.tracer.on_generation_start(model: "gpt-4")
   #   ses = LLM::Session.new(llm)
-  #   ses.talk "hello"
-  #   ses.talk "how are you?"
+  #   response = ses.talk "hello"
+  #   llm.tracer.on_generation_finish(generation_span:, res: response)
   class Tracer::Telemetry < Tracer
     ##
     # param [LLM::Provider] provider
@@ -46,15 +71,74 @@ module LLM
     def initialize(provider, options = {})
       super
       @exporter = options.delete(:exporter)
+      @current_generation = nil
       setup!
     end
 
     ##
+    # @param (see LLM::Tracer#on_generation_start)
+    def on_generation_start(model: nil, input: nil)
+      attributes = {
+        "gen_ai.operation.name" => "generation",
+        "gen_ai.request.model" => model,
+        "gen_ai.provider.name" => provider_name,
+        "server.address" => provider_host,
+        "server.port" => provider_port
+      }.compact
+      span_name = ["generation", model].compact.join(" ")
+      @current_generation = @tracer.start_span(span_name.empty? ? "gen_ai.generation" : span_name, kind: :client, attributes:)
+      @current_generation.add_event("gen_ai.generation.start")
+      @current_generation
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_generation_finish)
+    def on_generation_finish(generation_span: nil, res: nil, model: nil)
+      span = generation_span || @current_generation
+      return nil unless span
+      
+      attributes = {
+        "gen_ai.operation.name" => "generation",
+        "gen_ai.request.model" => model,
+        "gen_ai.response.model" => model
+      }.compact
+      
+      # Add response-specific attributes if available
+      if res
+        attributes.merge!({
+          "gen_ai.response.id" => res.id,
+          "gen_ai.usage.input_tokens" => res.usage&.input_tokens,
+          "gen_ai.usage.output_tokens" => res.usage&.output_tokens
+        }.compact)
+      end
+      
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.generation.finish")
+      span.tap(&:finish)
+      @current_generation = nil
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_generation_error)
+    def on_generation_error(generation_span: nil, ex: nil)
+      span = generation_span || @current_generation
+      return nil unless span
+      
+      attributes = {"error.type" => ex.class.to_s}.compact
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.generation.finish")
+      span.status = ::OpenTelemetry::Trace::Status.error(ex.message)
+      span.tap(&:finish)
+      @current_generation = nil
+    end
+
+    ##
     # @param (see LLM::Tracer#on_request_start)
-    def on_request_start(operation:, model: nil)
+    def on_request_start(operation:, model: nil, parent_span: nil)
+      parent = parent_span || @current_generation
       case operation
-      when "chat" then start_chat(operation:, model:)
-      when "retrieval" then start_retrieval(operation:)
+      when "chat" then start_chat(operation:, model:, parent_span: parent)
+      when "retrieval" then start_retrieval(operation:, parent_span: parent)
       else nil
       end
     end
@@ -84,7 +168,8 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_tool_start)
     # @return (see LLM::Tracer#on_tool_start)
-    def on_tool_start(id:, name:, arguments:, model:)
+    def on_tool_start(id:, name:, arguments:, model:, parent_span: nil)
+      parent = parent_span || @current_generation
       attributes = {
         "gen_ai.operation.name" => "execute_tool",
         "gen_ai.request.model" => model,
@@ -96,7 +181,9 @@ module LLM
         "server.port" => provider_port
       }.compact
       span_name = ["execute_tool", name].compact.join(" ")
-      span = @tracer.start_span(span_name.empty? ? "gen_ai.tool" : span_name, kind: :client, attributes:)
+      span_options = { kind: :client, attributes: }
+      span_options[:parent] = parent if parent
+      span = @tracer.start_span(span_name.empty? ? "gen_ai.tool" : span_name, **span_options)
       span.add_event("gen_ai.tool.start")
       span
     end
@@ -138,6 +225,13 @@ module LLM
       return [] unless @exporter.respond_to?(:finished_spans)
       flush!
       @exporter.finished_spans
+    end
+
+    ##
+    # Returns the current active generation span
+    # @return [Object, nil]
+    def current_generation
+      @current_generation
     end
 
     ##
@@ -200,7 +294,7 @@ module LLM
     ##
     # start_*
 
-    def start_chat(operation:, model:)
+    def start_chat(operation:, model:, parent_span: nil)
       attributes = {
         "gen_ai.operation.name" => operation,
         "gen_ai.request.model" => model,
@@ -209,19 +303,23 @@ module LLM
         "server.port" => provider_port
       }.compact
       span_name = [operation, model].compact.join(" ")
-      span = @tracer.start_span(span_name.empty? ? "gen_ai.request" : span_name, kind: :client, attributes:)
+      span_options = { kind: :client, attributes: }
+      span_options[:parent] = parent_span if parent_span
+      span = @tracer.start_span(span_name.empty? ? "gen_ai.request" : span_name, **span_options)
       span.add_event("gen_ai.request.start")
       span
     end
 
-    def start_retrieval(operation:)
+    def start_retrieval(operation:, parent_span: nil)
       attributes = {
         "gen_ai.operation.name" => operation,
         "gen_ai.provider.name" => provider_name,
         "server.address" => provider_host,
         "server.port" => provider_port
       }.compact
-      span = @tracer.start_span(operation, kind: :client, attributes:)
+      span_options = { kind: :client, attributes: }
+      span_options[:parent] = parent_span if parent_span
+      span = @tracer.start_span(operation, **span_options)
       span.add_event("gen_ai.request.start")
       span
     end

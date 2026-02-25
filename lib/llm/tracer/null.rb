@@ -5,6 +5,27 @@ module LLM
   # A no-op tracer that ignores all tracing callbacks.
   class Tracer::Null < Tracer
     ##
+    # @param (see LLM::Tracer#on_generation_start)
+    # @return [nil]
+    def on_generation_start(**)
+      nil
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_generation_finish)
+    # @return [nil]
+    def on_generation_finish(**)
+      nil
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_generation_error)
+    # @return [nil]
+    def on_generation_error(**)
+      nil
+    end
+
+    ##
     # @param (see LLM::Tracer#on_request_start)
     # @return [nil]
     def on_request_start(**)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module LLM
   ##
   # The {LLM::Tracer::Logger LLM::Tracer::Logger} class provides a
@@ -17,13 +19,64 @@ module LLM
     # @param (see LLM::Tracer#initialize)
     def initialize(provider, options = {})
       super
+      @current_generation_id = nil
       setup!(**options)
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_generation_start)
+    # @return [void]
+    def on_generation_start(model: nil, input: nil)
+      @current_generation_id = SecureRandom.uuid
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "generation.start",
+        generation_id: @current_generation_id,
+        provider: provider_name,
+        model:,
+        input: input&.to_s&.truncate(100)
+      )
+      @current_generation_id
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_generation_finish)
+    # @return [void]
+    def on_generation_finish(generation_span: nil, res: nil, model: nil)
+      generation_id = generation_span || @current_generation_id
+      @logger.info(
+        tracer: "llm.rb (logger)",
+        event: "generation.finish",
+        generation_id:,
+        provider: provider_name,
+        model:,
+        response_id: res&.id,
+        input_tokens: res&.usage&.input_tokens,
+        output_tokens: res&.usage&.output_tokens
+      )
+      @current_generation_id = nil
+    end
+
+    ##
+    # @param (see LLM::Tracer#on_generation_error)
+    # @return [void]
+    def on_generation_error(generation_span: nil, ex: nil)
+      generation_id = generation_span || @current_generation_id
+      @logger.error(
+        tracer: "llm.rb (logger)",
+        event: "generation.error",
+        generation_id:,
+        provider: provider_name,
+        error_class: ex&.class&.to_s,
+        error_message: ex&.message
+      )
+      @current_generation_id = nil
     end
 
     ##
     # @param (see LLM::Tracer#on_request_start)
     # @return [void]
-    def on_request_start(operation:, model: nil)
+    def on_request_start(operation:, model: nil, parent_span: nil)
       case operation
       when "chat" then start_chat(operation:, model:)
       when "retrieval" then start_retrieval(operation:)
@@ -58,10 +111,11 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_tool_start)
     # @return [void]
-    def on_tool_start(id:, name:, arguments:, model:, **)
+    def on_tool_start(id:, name:, arguments:, model:, parent_span: nil, **)
       @logger.info(
         tracer: "llm.rb (logger)",
         event: "tool.start",
+        generation_id: @current_generation_id,
         provider: provider_name,
         operation: "execute_tool",
         tool_id: id,
@@ -78,6 +132,7 @@ module LLM
       @logger.info(
         tracer: "llm.rb (logger)",
         event: "tool.finish",
+        generation_id: @current_generation_id,
         provider: provider_name,
         operation: "execute_tool",
         tool_id: result.id,
@@ -93,6 +148,7 @@ module LLM
       @logger.error(
         tracer: "llm.rb (logger)",
         event: "tool.error",
+        generation_id: @current_generation_id,
         provider: provider_name,
         operation: "execute_tool",
         error_class: ex.class.to_s,

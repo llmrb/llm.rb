@@ -24,11 +24,42 @@ module LLM
     end
 
     ##
+    # Called at the start of a conversation turn/generation.
+    # This creates a parent span that will contain all operations
+    # (chat, retrieval, tools) for this turn.
+    # @param [String] model
+    # @param [Hash] input
+    # @return [Object, nil] generation_span
+    def on_generation_start(model: nil, input: nil)
+      nil
+    end
+
+    ##
+    # Called when a conversation turn/generation completes successfully.
+    # @param [Object, nil] generation_span
+    # @param [LLM::Response] res
+    # @param [String] model
+    # @return [void]
+    def on_generation_finish(generation_span: nil, res: nil, model: nil)
+      nil
+    end
+
+    ##
+    # Called when a conversation turn/generation fails.
+    # @param [Object, nil] generation_span
+    # @param [Exception] ex
+    # @return [void]
+    def on_generation_error(generation_span: nil, ex: nil)
+      nil
+    end
+
+    ##
     # Called before an LLM provider request is executed.
     # @param [String] operation
     # @param [String] model
+    # @param [Object, nil] parent_span
     # @return [void]
-    def on_request_start(operation:, model: nil)
+    def on_request_start(operation:, model: nil, parent_span: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
@@ -62,8 +93,10 @@ module LLM
     #  The parsed tool arguments.
     # @param [String] model
     #  The model name
+    # @param [Object, nil] parent_span
+    #  The parent span to nest this tool span under
     # @return [void]
-    def on_tool_start(id:, name:, arguments:, model:)
+    def on_tool_start(id:, name:, arguments:, model:, parent_span: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 

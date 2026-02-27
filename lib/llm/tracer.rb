@@ -90,6 +90,31 @@ module LLM
     end
 
     ##
+    # Opens a trace group so subsequent LLM spans share the same OpenTelemetry
+    # trace_id (and appear as one trace in backends like Langfuse).
+    # When +trace_group_id+ is a string, it is used to derive the trace_id.
+    #
+    # @param [String, nil] trace_group_id
+    #  Optional. When present, converted to a 16-byte trace_id so all spans
+    #  created until {#stop_trace} are grouped in one trace.
+    # @param [String] name
+    #  Name for the root span (e.g. "chatbot.turn").
+    # @param [Hash] attributes
+    #  OpenTelemetry attributes to set on the root span.
+    # @return [self]
+    def start_trace(trace_group_id: nil, name: "llm", attributes: {})
+      self
+    end
+
+    ##
+    # Finishes the trace group started by {#start_trace}. Safe to call even if
+    # no trace is active.
+    # @return [self]
+    def stop_trace
+      self
+    end
+
+    ##
     # @return [String]
     def inspect
       "#<#{self.class.name}:0x#{object_id.to_s(16)} @provider=#{@provider.class} @tracer=#{@tracer.inspect}>"

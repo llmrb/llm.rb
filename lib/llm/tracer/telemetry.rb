@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "digest"
+
 module LLM
   ##
   # The {LLM::Tracer::Telemetry LLM::Tracer::Telemetry} tracer provides
@@ -46,7 +48,44 @@ module LLM
     def initialize(provider, options = {})
       super
       @exporter = options.delete(:exporter)
+      @root_span = nil
+      @root_context = nil
       setup!
+    end
+
+    ##
+    # When +trace_group_id+ is provided, it is converted to an OpenTelemetry
+    # trace_id (via a deterministic 16-byte hash) so all spans until {#stop_trace}
+    # share that trace_id and appear as one trace in OTLP/Langfuse.
+    #
+    # @param (see LLM::Tracer#start_trace)
+    # @return [self]
+    def start_trace(trace_group_id: nil, name: "llm", attributes: {})
+      return self if trace_group_id.to_s.empty?
+
+      span_context = span_context_from_trace_group_id(trace_group_id.to_s)
+      parent_ctx = ::OpenTelemetry::Trace.context_with_span(
+        ::OpenTelemetry::Trace.non_recording_span(span_context),
+      )
+      attrs = attributes.compact
+      attrs["llm.trace_group_id"] = trace_group_id.to_s
+      @root_span = @tracer.start_span(
+        name,
+        kind: :server,
+        attributes: attrs,
+        with_parent: parent_ctx,
+      )
+      @root_context = ::OpenTelemetry::Trace.context_with_span(@root_span)
+      self
+    end
+
+    ##
+    # @return [self]
+    def stop_trace
+      @root_span&.finish
+      @root_span = nil
+      @root_context = nil
+      self
     end
 
     ##
@@ -96,7 +135,7 @@ module LLM
         "server.port" => provider_port
       }.compact
       span_name = ["execute_tool", name].compact.join(" ")
-      span = @tracer.start_span(span_name.empty? ? "gen_ai.tool" : span_name, kind: :client, attributes:)
+      span = create_span(span_name.empty? ? "gen_ai.tool" : span_name, attributes:)
       span.add_event("gen_ai.tool.start")
       span
     end
@@ -157,6 +196,30 @@ module LLM
 
     ##
     # @api private
+    def create_span(name, kind: :client, attributes: {})
+      opts = {kind:, attributes:}
+      opts[:with_parent] = @root_context if @root_context
+      @tracer.start_span(name, **opts)
+    end
+
+    ##
+    # Converts a string trace_group_id to an OpenTelemetry SpanContext so all
+    # spans created with this context share the same trace_id.
+    # @api private
+    def span_context_from_trace_group_id(trace_group_id)
+      trace_id = Digest::MD5.digest(trace_group_id)
+      trace_id = ::OpenTelemetry::Trace.generate_trace_id if trace_id == ::OpenTelemetry::Trace::INVALID_TRACE_ID
+      span_id = Digest::SHA256.digest(trace_group_id)[0, 8]
+      span_id = ::OpenTelemetry::Trace.generate_span_id if span_id == ::OpenTelemetry::Trace::INVALID_SPAN_ID
+      ::OpenTelemetry::Trace::SpanContext.new(
+        trace_id:,
+        span_id:,
+        trace_flags: ::OpenTelemetry::Trace::TraceFlags::SAMPLED,
+      )
+    end
+
+    ##
+    # @api private
     def setup!
       require "opentelemetry/sdk" unless defined?(OpenTelemetry)
       @exporter ||= OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
@@ -209,7 +272,7 @@ module LLM
         "server.port" => provider_port
       }.compact
       span_name = [operation, model].compact.join(" ")
-      span = @tracer.start_span(span_name.empty? ? "gen_ai.request" : span_name, kind: :client, attributes:)
+      span = create_span(span_name.empty? ? "gen_ai.request" : span_name, attributes:)
       span.add_event("gen_ai.request.start")
       span
     end
@@ -221,7 +284,7 @@ module LLM
         "server.address" => provider_host,
         "server.port" => provider_port
       }.compact
-      span = @tracer.start_span(operation, kind: :client, attributes:)
+      span = create_span(operation, attributes:)
       span.add_event("gen_ai.request.start")
       span
     end

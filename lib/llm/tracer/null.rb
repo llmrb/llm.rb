@@ -45,5 +45,13 @@ module LLM
     def on_tool_error(**)
       nil
     end
+
+    ##
+    # @param (see LLM::Tracer#set_finish_metadata_proc)
+    # @return [self]
+    def set_finish_metadata_proc(_proc = nil)
+      Thread.current[LLM::Tracer::FINISH_METADATA_PROC_KEY] = nil
+      self
+    end
   end
 end

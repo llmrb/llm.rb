@@ -312,7 +312,9 @@ module LLM
       }.merge!(finish_attributes(operation, res)).compact
       attributes.each { span.set_attribute(_1, _2) }
       set_span_attributes(span, consume_extra_outputs.merge(outputs || {}))
-      set_span_attributes(span, (metadata || {}).transform_keys { "langsmith.metadata.#{_1}" })
+      finish_metadata = consume_finish_metadata_proc(res)
+      metadata = (metadata || {}).merge(finish_metadata || {})
+      set_span_attributes(span, metadata.transform_keys { "langsmith.metadata.#{_1}" })
       span.add_event("gen_ai.request.finish")
       span.tap(&:finish)
     end
@@ -332,6 +334,17 @@ module LLM
     # @api private
     # Serialize retrieval response chunks for span attributes (e.g. langsmith.metadata.chunks).
     # Returns a JSON string or nil when res has no data.
+    def consume_finish_metadata_proc(res)
+      key = LLM::Tracer::FINISH_METADATA_PROC_KEY
+      proc = Thread.current[key]
+      Thread.current[key] = nil
+      return {} unless proc.respond_to?(:call)
+
+      proc.call(res) || {}
+    rescue
+      {}
+    end
+
     def retrieval_chunks_json(res)
       return nil unless res.respond_to?(:data)
 

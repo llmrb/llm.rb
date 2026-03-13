@@ -163,6 +163,22 @@ module LLM
     end
 
     ##
+    # Optional: set a proc to supply metadata when the next chat span finishes.
+    # The proc is called with the response (res) and should return a Hash of
+    # metadata (e.g. { intent: "...", confidence: 1.0 }) to merge onto the span
+    # as langsmith.metadata.*. Cleared after use. Used by apps to attach
+    # routing/intent that is only known after the response.
+    #
+    # @param [Proc, nil] proc (res) -> Hash or nil
+    # @return [self]
+    def set_finish_metadata_proc(proc)
+      thread[FINISH_METADATA_PROC_KEY] = proc
+      self
+    end
+
+    FINISH_METADATA_PROC_KEY = :"llm.tracer.finish_metadata_proc"
+
+    ##
     # Returns the current extra bag (metadata, inputs, outputs) for the current
     # thread/trace. Used by subclasses; default returns empty hashes.
     #

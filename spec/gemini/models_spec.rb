@@ -17,9 +17,12 @@ RSpec.describe "LLM::Gemini::Models" do
     include_examples "LLM::Models contract"
 
     it "derives chat support from generation methods" do
-      expect(response.models.find { _1.id == "gemini-2.5-flash" }&.chat?).to be(true)
-      expect(response.models.select { ["gemini-embedding-001", "imagen-4.0-generate-001"].include?(_1.id) }
-        .none?(&:chat?)).to be(true)
+      flash = response.models.find { _1.id == "gemini-2.5-flash" }
+      non_chat = response.models.select { ["gemini-embedding-001", "imagen-4.0-generate-001"].include?(_1.id) }
+      expect(flash).to be_a(LLM::Model)
+      expect(non_chat.size).to eq(2)
+      expect(flash.chat?).to be(true)
+      expect(non_chat.none?(&:chat?)).to be(true)
     end
   end
 end

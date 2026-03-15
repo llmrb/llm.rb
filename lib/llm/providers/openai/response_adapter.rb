@@ -11,6 +11,7 @@ class LLM::OpenAI
     require_relative "response_adapter/file"
     require_relative "response_adapter/image"
     require_relative "response_adapter/moderations"
+    require_relative "response_adapter/models"
     require_relative "response_adapter/responds"
     require_relative "response_adapter/web_search"
 
@@ -37,6 +38,7 @@ class LLM::OpenAI
       when :file then LLM::OpenAI::ResponseAdapter::File
       when :image then LLM::OpenAI::ResponseAdapter::Image
       when :moderations then LLM::OpenAI::ResponseAdapter::Moderations
+      when :models then LLM::OpenAI::ResponseAdapter::Models
       when :responds then LLM::OpenAI::ResponseAdapter::Responds
       when :web_search then LLM::OpenAI::ResponseAdapter::WebSearch
       else

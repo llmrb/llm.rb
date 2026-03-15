@@ -14,8 +14,6 @@ RSpec.describe "LLM::LlamaCpp::Models" do
       is_expected.to be_instance_of(LLM::Response)
     end
 
-    it "returns a list of models" do
-      expect(response.data).to all(be_a(LLM::Object))
-    end
+    include_examples "LLM::Models contract"
   end
 end

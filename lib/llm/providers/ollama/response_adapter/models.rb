@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module LLM::Gemini::ResponseAdapter
+module LLM::Ollama::ResponseAdapter
   module Models
     include LLM::Model::Collection
 

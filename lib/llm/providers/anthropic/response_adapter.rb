@@ -7,6 +7,7 @@ class LLM::Anthropic
     require_relative "response_adapter/completion"
     require_relative "response_adapter/enumerable"
     require_relative "response_adapter/file"
+    require_relative "response_adapter/models"
     require_relative "response_adapter/web_search"
 
     module_function
@@ -27,6 +28,7 @@ class LLM::Anthropic
       when :completion then LLM::Anthropic::ResponseAdapter::Completion
       when :enumerable then LLM::Anthropic::ResponseAdapter::Enumerable
       when :file then LLM::Anthropic::ResponseAdapter::File
+      when :models then LLM::Anthropic::ResponseAdapter::Models
       when :web_search then LLM::Anthropic::ResponseAdapter::WebSearch
       else
         raise ArgumentError, "Unknown response adapter type: #{type.inspect}"

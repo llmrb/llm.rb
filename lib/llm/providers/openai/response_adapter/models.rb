@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-module LLM::Gemini::ResponseAdapter
+module LLM::OpenAI::ResponseAdapter
   module Models
     include LLM::Model::Collection
 
     private
 
     def raw_models
-      body.models || []
+      data || []
     end
   end
 end

@@ -6,6 +6,7 @@ class LLM::Ollama
   module ResponseAdapter
     require_relative "response_adapter/completion"
     require_relative "response_adapter/embedding"
+    require_relative "response_adapter/models"
 
     module_function
 
@@ -24,6 +25,7 @@ class LLM::Ollama
       case type
       when :completion then LLM::Ollama::ResponseAdapter::Completion
       when :embedding then LLM::Ollama::ResponseAdapter::Embedding
+      when :models then LLM::Ollama::ResponseAdapter::Models
       else
         raise ArgumentError, "Unknown response adapter type: #{type.inspect}"
       end

@@ -14,8 +14,10 @@ RSpec.describe "LLM::XAI::Models" do
       is_expected.to be_instance_of(LLM::Response)
     end
 
-    it "returns a list of models" do
-      expect(response.data).to all(be_a(LLM::Object))
+    include_examples "LLM::Models contract"
+
+    it "marks image-only models as not supporting chat" do
+      expect(response.models.select { _1.id == "grok-2-image-1212" }.none?(&:chat?)).to be(true)
     end
   end
 end

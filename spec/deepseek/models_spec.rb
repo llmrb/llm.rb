@@ -14,8 +14,10 @@ RSpec.describe "LLM::Deepseek::Models" do
       is_expected.to be_instance_of(LLM::Response)
     end
 
-    it "returns a list of models" do
-      expect(response.data).to all(be_a(LLM::Object))
+    include_examples "LLM::Models contract"
+
+    it "marks listed models as supporting chat" do
+      expect(response.models.all?(&:chat?)).to be(true)
     end
   end
 end

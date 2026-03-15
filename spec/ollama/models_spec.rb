@@ -8,14 +8,12 @@ RSpec.describe "LLM::Ollama::Models" do
 
   context "when given a successful list operation",
           vcr: {cassette_name: "ollama/models/successful_list"} do
-    subject(:models) { provider.models.all }
+    subject(:response) { provider.models.all }
 
     it "is successful" do
       is_expected.to be_instance_of(LLM::Response)
     end
 
-    it "returns a list of models" do
-      expect(models).to all(be_a(LLM::Object))
-    end
+    include_examples "LLM::Models contract"
   end
 end

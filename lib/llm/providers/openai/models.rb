@@ -41,7 +41,7 @@ class LLM::OpenAI
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/models?#{query}", headers)
       res, span, tracer = execute(request: req, operation: "request")
-      res = ResponseAdapter.adapt(res, type: :enumerable)
+      res = ResponseAdapter.adapt(res, type: :models)
       tracer.on_request_finish(operation: "request", res:, span:)
       res
     end

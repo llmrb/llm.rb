@@ -10,6 +10,7 @@ module LLM
   require_relative "llm/prompt"
   require_relative "llm/schema"
   require_relative "llm/object"
+  require_relative "llm/model"
   require_relative "llm/version"
   require_relative "llm/utils"
   require_relative "llm/message"

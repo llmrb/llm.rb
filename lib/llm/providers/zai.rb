@@ -22,6 +22,13 @@ module LLM
     end
 
     ##
+    # @return [Symbol]
+    #  Returns the provider's name
+    def name
+      :zai
+    end
+
+    ##
     # @raise [NotImplementedError]
     def files
       raise NotImplementedError

@@ -132,6 +132,27 @@ agent = SystemAdmin.new(llm)
 res = agent.talk("Run 'date'")
 ```
 
+#### Registry
+
+The [LLM::Registry](https://0x1eef.github.io/x/llm.rb/LLM/Registry.html) class
+provides access to a local model registry maintained by [models.dev](https://models.dev).
+It is loaded on demand for the active provider and cached in memory to avoid
+repeated disk reads. The registry includes model metadata such as capabilities, pricing,
+modalities, limits, and more. The registry is used to estimate costs without
+making additional API calls. See [data/](data) for the registry contents:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm)
+ses.talk "Hello"
+puts "Estimated cost so far: $#{ses.cost}"
+ses.talk "Tell me a joke"
+puts "Estimated cost so far: $#{ses.cost}"
+```
+
 #### Prompts
 
 The [LLM::Prompt](https://0x1eef.github.io/x/llm.rb/LLM/Prompt.html)

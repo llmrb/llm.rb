@@ -51,6 +51,15 @@ class LLM::Provider
   end
 
   ##
+  # @raise [NotImplementedError]
+  #  When the method is not implemented by a subclass
+  # @return [Symbol]
+  #  Returns the provider's name
+  def name
+    raise NotImplementedError
+  end
+
+  ##
   # Provides an embedding
   # @param [String, Array<String>] input
   #  The input to embed

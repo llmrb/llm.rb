@@ -29,6 +29,13 @@ module LLM
     end
 
     ##
+    # @return [Symbol]
+    #  Returns the provider's name
+    def name
+      :deepseek
+    end
+
+    ##
     # @raise [NotImplementedError]
     def files
       raise NotImplementedError

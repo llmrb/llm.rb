@@ -31,6 +31,13 @@ module LLM
     end
 
     ##
+    # @return [Symbol]
+    #  Returns the provider's name
+    def name
+      :anthropic
+    end
+
+    ##
     # Provides an interface to the chat completions API
     # @see https://docs.anthropic.com/en/api/messages Anthropic docs
     # @param prompt (see LLM::Provider#complete)

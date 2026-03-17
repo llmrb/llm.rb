@@ -6,6 +6,9 @@ module LLM
   require_relative "llm/tracer"
   require_relative "llm/error"
   require_relative "llm/contract"
+  require_relative "llm/registry"
+  require_relative "llm/estimate"
+  require_relative "llm/cost"
   require_relative "llm/usage"
   require_relative "llm/prompt"
   require_relative "llm/schema"
@@ -30,7 +33,22 @@ module LLM
 
   ##
   # Thread-safe monitors for different contexts
-  @monitors = {require: Monitor.new, clients: Monitor.new, inherited: Monitor.new}
+  @monitors = {require: Monitor.new, clients: Monitor.new, inherited: Monitor.new, registry: Monitor.new}
+
+  ##
+  # Model registry
+  @registry = {}
+
+  ##
+  # @param [Symbol, LLM::Provider] llm
+  #  The name of a provider, or an instance of LLM::Provider
+  # @return [LLM::Object]
+  def self.registry_for(llm)
+    lock(:registry) do
+      name = Symbol === llm ? llm : llm.name
+      @registry[name] ||= Registry.for(name)
+    end
+  end
 
   module_function
 

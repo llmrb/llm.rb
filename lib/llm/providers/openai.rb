@@ -37,6 +37,13 @@ module LLM
     end
 
     ##
+    # @return [Symbol]
+    #  Returns the provider's name
+    def name
+      :openai
+    end
+
+    ##
     # Provides an embedding
     # @see https://platform.openai.com/docs/api-reference/embeddings/create OpenAI docs
     # @param input (see LLM::Provider#embed)

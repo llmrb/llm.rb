@@ -33,6 +33,13 @@ module LLM
     end
 
     ##
+    # @return [Symbol]
+    #  Returns the provider's name
+    def name
+      :ollama
+    end
+
+    ##
     # Provides an embedding
     # @param input (see LLM::Provider#embed)
     # @param model (see LLM::Provider#embed)

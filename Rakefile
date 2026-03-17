@@ -54,4 +54,27 @@ task :console do
   binding.irb
 end
 
+namespace :'models.dev' do
+  desc "Download models.dev metadata"
+  task :download do
+    require "net/http"
+    require "json"
+    client = Net::HTTP.new "models.dev", 443
+    client.use_ssl = true
+    res = client.request Net::HTTP::Get.new("/api.json")
+    case res
+    when Net::HTTPOK
+      providers = %w[openai google anthropic xai zai deepseek]
+      models = JSON.parse(res.body)
+      providers.each do |provider|
+        File.binwrite "data/#{provider}.json", JSON.pretty_generate(models[provider])
+      end
+    else
+      warn("error: #{res.class}")
+      exit 1
+    end
+  end
+end
+
+
 task default: %i[spec rubocop]

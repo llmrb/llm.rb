@@ -32,7 +32,12 @@ module LLM
     attr_reader :messages
 
     ##
-    # @param [LLM::Provider] provider
+    # Returns a provider
+    # @return [LLM::Provider]
+    attr_reader :llm
+
+    ##
+    # @param [LLM::Provider] llm
     #  A provider
     # @param [Hash] params
     #  The parameters to maintain throughout the conversation.
@@ -40,10 +45,10 @@ module LLM
     #  not only those listed here.
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
-    def initialize(provider, params = {})
-      @provider = provider
-      @params = {model: provider.default_model, schema: nil}.compact.merge!(params)
-      @messages = LLM::Buffer.new(provider)
+    def initialize(llm, params = {})
+      @llm = llm
+      @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
+      @messages = LLM::Buffer.new(llm)
     end
 
     ##
@@ -62,9 +67,9 @@ module LLM
       prompt, params, messages = fetch(prompt, params)
       params = params.merge(messages: [*@messages.to_a, *messages])
       params = @params.merge(params)
-      res = @provider.complete(prompt, params)
-      role = params[:role] || @provider.user_role
-      role = @provider.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
+      res = @llm.complete(prompt, params)
+      role = params[:role] || @llm.user_role
+      role = @llm.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
       @messages.concat [LLM::Message.new(role, prompt)]
       @messages.concat messages
       @messages.concat [res.choices[-1]]
@@ -90,8 +95,8 @@ module LLM
       res_id = @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: messages).compact
       params = @params.merge(params)
-      res = @provider.responses.create(prompt, params)
-      role = params[:role] || @provider.user_role
+      res = @llm.responses.create(prompt, params)
+      role = params[:role] || @llm.user_role
       @messages.concat [LLM::Message.new(role, prompt)]
       @messages.concat messages
       @messages.concat [res.choices[-1]]
@@ -102,7 +107,7 @@ module LLM
     # @return [String]
     def inspect
       "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
-      "@provider=#{@provider.class}, @params=#{@params.inspect}, " \
+      "@llm=#{@llm.class}, @params=#{@params.inspect}, " \
       "@messages=#{@messages.inspect}>"
     end
 
@@ -148,7 +153,7 @@ module LLM
     #  it receives the prompt object. Otherwise it runs in prompt context.
     # @return [LLM::Prompt]
     def prompt(&b)
-      LLM::Prompt.new(@provider, &b)
+      LLM::Prompt.new(@llm, &b)
     end
     alias_method :build_prompt, :prompt
 
@@ -186,7 +191,7 @@ module LLM
     # @return [LLM::Tracer]
     #  Returns an LLM tracer
     def tracer
-      @provider.tracer
+      @llm.tracer
     end
 
     ##
@@ -245,6 +250,14 @@ module LLM
       self
     end
     alias_method :restore, :deserialize
+
+    ##
+    # @return [BigDecimal]
+    #  Returns an _approximate_ cost for a given session
+    #  based on both the provider, and model
+    def cost
+      LLM::Cost.new(@llm).compute(model:, usage:)
+    end
 
     private
 

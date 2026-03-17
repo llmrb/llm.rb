@@ -28,6 +28,13 @@ module LLM
     end
 
     ##
+    # @return [Symbol]
+    #  Returns the provider's name
+    def name
+      :llamacpp
+    end
+
+    ##
     # @raise [NotImplementedError]
     def files
       raise NotImplementedError

@@ -150,6 +150,22 @@ module LLM
   end
 
   ##
+  # @param [LLM::Provider, nil] llm
+  #  The provider to use for MCP transports that need one
+  # @param [Hash, nil] stdio
+  # @option stdio [Array<String>] :argv
+  #  The command to run for the MCP process
+  # @option stdio [Hash] :env
+  #  The environment variables to set for the MCP process
+  # @option stdio [String, nil] :cwd
+  #  The working directory for the MCP process
+  # @return [LLM::MCP]
+  def mcp(llm = nil, **)
+    lock(:require) { require_relative "llm/mcp" unless defined?(LLM::MCP) }
+    LLM::MCP.new(llm, **)
+  end
+
+  ##
   # Define a function
   # @example
   #   LLM.function(:system) do |fn|

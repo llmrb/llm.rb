@@ -31,6 +31,7 @@
 #  end
 class LLM::Schema
   require_relative "schema/version"
+  require_relative "schema/parser"
   require_relative "schema/leaf"
   require_relative "schema/object"
   require_relative "schema/array"
@@ -40,6 +41,9 @@ class LLM::Schema
   require_relative "schema/integer"
   require_relative "schema/boolean"
   require_relative "schema/null"
+
+  @__monitor = Monitor.new
+  extend LLM::Schema::Parser
 
   ##
   # Configures a monitor for a subclass

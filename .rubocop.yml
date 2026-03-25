@@ -61,3 +61,5 @@ Style/NestedTernaryOperator:
     - lib/llm/provider.rb
 Style/TernaryParentheses:
   Enabled: false
+Style/MethodCallWithoutArgsParentheses:
+  Enabled: false

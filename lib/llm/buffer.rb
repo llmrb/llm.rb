@@ -84,6 +84,13 @@ module LLM
     end
 
     ##
+    # @return [Integer]
+    #  Returns the number of messages in the buffer
+    def size
+      @messages.size
+    end
+
+    ##
     # Returns true when the buffer is empty
     # @return [Boolean]
     def empty?

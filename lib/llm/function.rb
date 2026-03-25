@@ -105,13 +105,15 @@ class LLM::Function
   ##
   # Set (or get) the function parameters
   # @yieldparam [LLM::Schema] schema The schema object
-  # @return [void]
+  # @return [LLM::Schema::Leaf, nil]
   def params
     if block_given?
+      params = yield(@schema)
+      params = LLM::Schema.parse(params) if Hash === params
       if @params
-        @params.merge!(yield(@schema))
+        @params.merge!(params)
       else
-        @params = yield(@schema)
+        @params = params
       end
     else
       @params

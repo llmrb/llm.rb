@@ -11,7 +11,7 @@
 
 llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
 includes OpenAI, Google (Gemini), Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
-and LlamaCpp. The toolkit includes full support for chat, streaming,
+and LlamaCpp. The toolkit includes full support for chat, streaming, MCP,
 tool calling, audio, images, files, and structured outputs.
 
 And it is licensed under the [0BSD License](https://choosealicense.com/licenses/0bsd/) &ndash;
@@ -108,6 +108,30 @@ llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, tools: [System])
 ses.talk("Run `date`.")
 ses.talk(ses.functions.map(&:call)) # report return value to the LLM
+```
+
+#### MCP
+
+The [LLM::MCP](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) class provides
+support for the Model Context Protocol (MCP). The following example starts an
+MCP server over stdio, uses the tools it provides in a session, and reports tool
+results back to the LLM on the next request:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM.mcp(stdio: {argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd]})
+
+begin
+  mcp.start
+  ses = LLM::Session.new(llm, stream: $stdout, tools: mcp.tools)
+  ses.talk("List the directories in this project.")
+  ses.talk(ses.functions.map(&:call)) while ses.functions.any?
+ensure
+  mcp.stop
+end
 ```
 
 #### Agents

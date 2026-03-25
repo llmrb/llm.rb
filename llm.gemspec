@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = <<~SUMMARY
   llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
   includes OpenAI, Gemini, Anthropic, xAI (grok), zAI, DeepSeek, Ollama, and
-  LlamaCpp. The toolkit includes full support for chat, streaming, tool calling,
+  LlamaCpp. The toolkit includes full support for chat, streaming, MCP, tool calling,
   audio, images, files, and structured outputs.
   SUMMARY
 

@@ -31,6 +31,25 @@ class LLM::Tool
   end
 
   ##
+  # @param [LLM::MCP] mcp
+  #  The MCP client that will execute the tool call
+  # @param [Hash] tool
+  #  A tool (as a raw Hash)
+  # @return [Class<LLM::Tool>]
+  #  Returns a subclass of LLM::Tool
+  def self.mcp(mcp, tool)
+    Class.new(LLM::Tool) do
+      name tool["name"]
+      description tool["description"]
+      params { tool["inputSchema"] || {type: "object", properties: {}} }
+
+      define_method(:call) do |**args|
+        mcp.call_tool(tool["name"], args)
+      end
+    end
+  end
+
+  ##
   # Returns all subclasses of LLM::Tool
   # @note
   #  This method excludes tools who haven't defined a name

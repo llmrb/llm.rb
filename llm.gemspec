@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = "https://github.com/llmrb/llm.rb"
   spec.metadata["source_code_uri"] = "https://github.com/llmrb/llm.rb"
   spec.metadata["documentation_uri"] = "https://0x1eef.github.io/x/llm.rb"
-  spec.metadata["changelog_uri"] = "https://github.com/llmrb/llm.rb/blob/main/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = "https://0x1eef.github.io/x/llm.rb/file.CHANGELOG.html"
 
   spec.files = Dir[
     "README.md", "LICENSE",

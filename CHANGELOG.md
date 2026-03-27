@@ -37,7 +37,6 @@ Changes since `v4.8.0`.
 - Fix MCP stdio transport by increasing poll timeout for better reliability.
 - Fix Google provider to properly cast non-Hash tool results into Hash format for API compatibility.
 - Fix schema parser to support recursive normalization of `Array`, `LLM::Object`, and nested structures.
-- Fix RuboCop issues in message handling and schema parsing.
 
 ### Notes
 

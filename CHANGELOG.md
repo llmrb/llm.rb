@@ -33,6 +33,11 @@ Changes since `v4.8.0`.
 - Fix Google tool-call handling to preserve `thoughtSignature`.
 - Fix `LLM::Tracer::Logger` argument handling.
 - Fix packaging/docs issues such as registry files in the gemspec and stale provider docs.
+- Fix Google provider handling of `nil` function IDs during session deserialization.
+- Fix MCP stdio transport by increasing poll timeout for better reliability.
+- Fix Google provider to properly cast non-Hash tool results into Hash format for API compatibility.
+- Fix schema parser to support recursive normalization of `Array`, `LLM::Object`, and nested structures.
+- Fix RuboCop issues in message handling and schema parsing.
 
 ### Notes
 
@@ -42,7 +47,8 @@ Notable merged work in this range includes:
 - `Add LLM::Registry + cost support (#133)`
 - `Consistent model objects across providers (#131)`
 - `Add rack + websocket example (#130)`
+- `feat(gemspec): add changelog URI (#136)`
 
 Comparison base:
 - Latest tag: `v4.8.0` (`6468f2426ee125823b7ae43b4af507b125f96ffc`)
-- HEAD used for this changelog: `2d1ddb3d9897e0e907976bf1e1e950291a4c96a6`
+- HEAD used for this changelog: `612ce8fc40cae4050d9beb3948d37f5b90d95a1b`

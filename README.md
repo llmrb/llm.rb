@@ -87,7 +87,10 @@ The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) class lets you
 define callable tools for the model. Each tool is described to the LLM as a function
 it can invoke to fetch information or perform an action. The model decides when to
 call tools based on the conversation; when it does, llm.rb runs the tool and sends
-the result back on the next request. The following example implements a simple tool
+the result back on the next request. The
+[LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
+method returns an ordinary array of pending functions that is extended with
+`call` and `call!` helpers. The following example implements a simple tool
 that runs shell commands:
 
 ```ruby
@@ -107,7 +110,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, tools: [System])
 ses.talk("Run `date`.")
-ses.talk(ses.functions.map(&:call)) # report return value to the LLM
+ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
 When a provider emits multiple independent tool calls, they can also be
@@ -120,16 +123,15 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
 ses.talk("Summarize the weather, headlines, and stock price.")
-threads = ses.functions.map(&:call!)
-ses.talk(threads.map(&:value))
+ses.talk(ses.functions.call!)
 ```
 
-[LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-provides `#call!`, which returns a `Thread`. Call `#value` on each thread
-to collect the tool results before reporting them back to the model.
-This is most useful for fan-out workflows where the model asks for
-multiple lookups at once and you want the slowest tool call, rather than
-the sum of all tool runtimes, to dominate the turn.
+Under the hood, [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+provides `#call!`, which returns a `Thread`, and `ses.functions.call!`
+waits for those threads and returns their values. This is most useful
+for fan-out workflows where the model asks for multiple lookups at once
+and you want the slowest tool call, rather than the sum of all tool
+runtimes, to dominate the turn.
 
 #### MCP
 

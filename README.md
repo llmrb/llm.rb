@@ -91,9 +91,11 @@ the result back on the next request.
 
 The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
 method returns an ordinary array of pending functions that is extended with
-`call` and `call!` methods. The `call` method executes all functions in a collection
-sequentially, and the `call!` method executes them concurrently. The following example
-implements a simple tool that runs shell commands:
+`call`, `call!`, and `spawn!` methods. The `call` method executes all
+functions in a collection sequentially, the `call!` method executes them
+concurrently and returns their values, and the `spawn!` method returns
+the running threads. The following example implements a simple tool that
+runs shell commands:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -886,7 +888,7 @@ llm.rb can be installed via rubygems.org:
 
 * [GitHub.com](https://github.com/llmrb/llm.rb)
 * [GitLab.com](https://gitlab.com/llmrb/llm.rb)
-* [Codeberg.org](https://codeberg.org/llmrb/llm.rb)
+* [Codeberg.org](https://codeberg.org/llm.rb)
 
 ## License
 

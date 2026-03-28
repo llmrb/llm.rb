@@ -129,6 +129,10 @@ ses.talk(threads.map(&:value))
 Use this pattern when tool calls do not depend on one another and can be
 performed concurrently.
 
+This is most useful for fan-out workflows where the model asks for
+multiple lookups at once and you want the slowest tool call, rather than
+the sum of all tool runtimes, to dominate the turn.
+
 #### MCP
 
 The [LLM::MCP](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) class provides
@@ -300,6 +304,11 @@ end.map(&:value)
 
 vals.each { |val| puts val }
 ```
+
+Independent tool calls can follow the same model. When the LLM returns
+multiple tool calls that do not depend on each other, use `#call!` to
+run them concurrently and then collect their `Thread#value`s before the
+next `ses.talk` call.
 
 ## Features
 

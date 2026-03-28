@@ -87,10 +87,11 @@ The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) class lets you
 define callable tools for the model. Each tool is described to the LLM as a function
 it can invoke to fetch information or perform an action. The model decides when to
 call tools based on the conversation; when it does, llm.rb runs the tool and sends
-the result back on the next request. The
-[LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
+the result back on the next request.
+
+The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
 method returns an ordinary array of pending functions that is extended with
-`call` and `call!` helpers. The following example implements a simple tool
+`call` and `call!` methods. The following example implements a simple tool
 that runs shell commands:
 
 ```ruby

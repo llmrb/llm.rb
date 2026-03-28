@@ -91,8 +91,9 @@ the result back on the next request.
 
 The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
 method returns an ordinary array of pending functions that is extended with
-`call` and `call!` methods. The following example implements a simple tool
-that runs shell commands:
+`call` and `call!` methods. The `call` method executes all functions in a collection
+sequentially, and the `call!` method executes them concurrently. The following example
+implements a simple tool that runs shell commands:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -115,7 +116,12 @@ ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
 When a provider emits multiple independent tool calls, they can also be
-executed concurrently:
+executed concurrently. Under the hood, [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+provides `#call!`, which returns a `Thread`, and `ses.functions.call!`
+waits for those threads and returns their values. This is most useful
+for fan-out workflows where the model asks for multiple lookups at once
+and you want the slowest tool call, rather than the sum of all tool
+runtimes, to dominate the turn:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -126,13 +132,6 @@ ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
 ses.talk("Summarize the weather, headlines, and stock price.")
 ses.talk(ses.functions.call!)
 ```
-
-Under the hood, [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-provides `#call!`, which returns a `Thread`, and `ses.functions.call!`
-waits for those threads and returns their values. This is most useful
-for fan-out workflows where the model asks for multiple lookups at once
-and you want the slowest tool call, rather than the sum of all tool
-runtimes, to dominate the turn.
 
 #### MCP
 

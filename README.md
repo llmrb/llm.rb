@@ -115,13 +115,8 @@ ses.talk("Run `date`.")
 ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
-When a provider emits multiple independent tool calls, they can also be
-executed concurrently. Under the hood, [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-provides `#call!`, which returns a `Thread`, and `ses.functions.call!`
-waits for those threads and returns their values. This is most useful
-for fan-out workflows where the model asks for multiple lookups at once
-and you want the slowest tool call, rather than the sum of all tool
-runtimes, to dominate the turn:
+When a provider emits multiple tool calls, `ses.functions.call!` runs
+them concurrently:
 
 ```ruby
 #!/usr/bin/env ruby

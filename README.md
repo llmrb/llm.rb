@@ -306,11 +306,6 @@ end.map(&:value)
 vals.each { |val| puts val }
 ```
 
-Independent tool calls can follow the same model. When the LLM returns
-multiple tool calls that do not depend on each other, use `#call!` to
-run them concurrently and then collect their `Thread#value`s before the
-next `ses.talk` call.
-
 ## Features
 
 #### General

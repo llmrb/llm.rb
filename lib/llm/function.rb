@@ -142,6 +142,26 @@ class LLM::Function
   end
 
   ##
+  # Call the function in a separate thread
+  # @example
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   ses = LLM::Session.new(llm, tools: [x,y,z])
+  #   thrs = ses.functions.map(&:call!)
+  #   ses.talk thrs.map(&:value)
+  # @return [Thread]
+  #  Returns a separate thread
+  def call!
+    Thread.new do
+      runner = ((Class === @runner) ? @runner.new : @runner)
+      Return.new(id, name, runner.call(**arguments))
+    rescue => ex
+      Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
+    end
+  ensure
+    @called = true
+  end
+
+  ##
   # Returns a value that communicates that the function call was cancelled
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])

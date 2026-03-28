@@ -112,8 +112,8 @@ ses.talk(ses.functions.map(&:call)) # report return value to the LLM
 
 When a provider emits multiple independent tool calls, they can also be
 executed in parallel. [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-provides `#call!`, which returns a `Thread` whose `#value` is the tool
-result:
+provides `#call!`, which returns a `Thread`. Call `#value` on each thread
+to collect the tool results before reporting them back to the model:
 
 ```ruby
 #!/usr/bin/env ruby

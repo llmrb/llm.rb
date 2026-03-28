@@ -319,6 +319,7 @@ vals.each { |val| puts val }
 - 🧠  Stateless + stateful chat (completions + responses)
 - 💾  Save and restore sessions across processes
 - 🤖  Tool calling / function execution
+- ⚡ Concurrent execution of independent tool calls
 - 🔁  Agent tool-call auto-execution (bounded)
 - 🗂️  JSON Schema structured output
 - 📡  Streaming responses

@@ -91,11 +91,11 @@ the result back on the next request.
 
 The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
 method returns an ordinary array of pending functions that is extended with
-`call`, `call!`, and `spawn!` methods. The `call` method executes all
-functions in a collection sequentially, the `call!` method executes them
-concurrently and returns their values, and the `spawn!` method returns
-the running threads. The following example implements a simple tool that
-runs shell commands:
+`call` and `spawn` methods. The `call` method executes all functions in a
+collection sequentially, and the `spawn` method executes them concurrently
+and returns a thread group whose `wait` method yields the function return
+values. The following example implements a simple tool that runs shell
+commands:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -117,8 +117,8 @@ ses.talk("Run `date`.")
 ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
-When a provider emits multiple tool calls, `ses.functions.call!` runs
-them concurrently:
+When a provider emits multiple tool calls, `ses.functions.spawn.wait`
+runs them concurrently:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -127,7 +127,7 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
 ses.talk("Summarize the weather, headlines, and stock price.")
-ses.talk(ses.functions.call!)
+ses.talk(ses.functions.spawn.wait)
 ```
 
 #### MCP

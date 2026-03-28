@@ -31,6 +31,7 @@
 class LLM::Function
   require_relative "function/tracing"
   require_relative "function/array"
+  require_relative "function/thread_group"
 
   prepend LLM::Function::Tracing
 
@@ -147,13 +148,13 @@ class LLM::Function
   # Call the function in a separate thread
   # @note
   #   This method is usually not called directly. Prefer
-  #   `ses.functions.call!` when working with the collection returned by
+  #   `ses.functions.spawn.wait` when working with the collection returned by
   #   {LLM::Session#functions}.
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   ses = LLM::Session.new(llm, tools: [x,y,z])
   #   ses.talk "Run the tools"
-  #   ses.talk ses.functions.call!
+  #   ses.talk ses.functions.spawn.wait
   # @return [Thread]
   #  Returns a separate thread
   def call!

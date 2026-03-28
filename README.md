@@ -110,6 +110,25 @@ ses.talk("Run `date`.")
 ses.talk(ses.functions.map(&:call)) # report return value to the LLM
 ```
 
+When a provider emits multiple independent tool calls, they can also be
+executed in parallel. [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+provides `#call!`, which returns a `Thread` whose `#value` is the tool
+result:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ses.talk("Summarize the weather, headlines, and stock price.")
+threads = ses.functions.map(&:call!)
+ses.talk(threads.map(&:value))
+```
+
+Use this pattern when tool calls do not depend on one another and can be
+performed concurrently.
+
 #### MCP
 
 The [LLM::MCP](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) class provides
@@ -263,7 +282,6 @@ for more about the underlying behavior.
 The recommended pattern is to keep one session, tracer, or agent per
 thread and share a provider across multiple threads:
 
-
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
@@ -341,7 +359,6 @@ vals.each { |val| puts val }
 | **Moderations**                      | ✅     | ❌        | ❌     | ❌       | ❌         | ❌     | ❌     | ❌       |
 
 \* JSON Schema support in Ollama/LlamaCpp depends on the model, not the API.
-
 
 ## Examples
 

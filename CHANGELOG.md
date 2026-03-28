@@ -14,6 +14,7 @@ Changes since `v4.8.0`.
 - Add top-level Anthropic system instruction support using Anthropic's provider-specific request format.
 - Add richer tracing hooks and extra metadata support for LangSmith/OpenTelemetry-style traces.
 - Add rack/websocket and Relay-related example work, including MCP-focused examples.
+- Add `LLM::Function#call!` for running independent tool calls in parallel threads.
 
 ### Change
 
@@ -21,7 +22,7 @@ Changes since `v4.8.0`.
 - Standardize model objects across providers around a smaller common interface.
 - Switch registry cost internals from `LLM::Estimate` to `LLM::Cost`.
 - Update image generation defaults so OpenAI and xAI consistently return base64-encoded image data by default.
-- Expand README and screencast documentation for MCP, registry, context windows, enums, prompts, and concurrency.
+- Expand README and screencast documentation for MCP, registry, context windows, enums, prompts, concurrency, and parallel tool execution.
 
 ### Fix
 

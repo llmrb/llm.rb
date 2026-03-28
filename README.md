@@ -886,7 +886,7 @@ llm.rb can be installed via rubygems.org:
 
 * [GitHub.com](https://github.com/llmrb/llm.rb)
 * [GitLab.com](https://gitlab.com/llmrb/llm.rb)
-* [Codeberg.org](https://codeberg.org/llm.rb)
+* [Codeberg.org](https://codeberg.org/llmrb/llm.rb)
 
 ## License
 

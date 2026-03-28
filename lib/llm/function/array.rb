@@ -23,7 +23,16 @@ class LLM::Function
     # @return [Array<LLM::Function::Return>]
     #  Returns values to be reported back to the LLM.
     def call!
-      map(&:call!).map(&:value)
+      spawn.map(&:value)
+    end
+
+    ##
+    # Calls all functions in a collection concurrently.
+    # This method returns an array of Thread objects that
+    # can be waited on later.
+    # @return [Array<Thread>]
+    def spawn!
+      map(&:call!)
     end
   end
 end

@@ -127,11 +127,8 @@ ses.talk(threads.map(&:value))
 ```
 
 Use this pattern when tool calls do not depend on one another and can be
-performed concurrently.
-
-This is most useful for fan-out workflows where the model asks for
-multiple lookups at once and you want the slowest tool call, rather than
-the sum of all tool runtimes, to dominate the turn.
+performed concurrently. The regular `#call` method remains the right
+choice when tool calls must happen in sequence.
 
 #### MCP
 
@@ -304,11 +301,6 @@ end.map(&:value)
 
 vals.each { |val| puts val }
 ```
-
-Independent tool calls can follow the same model. When the LLM returns
-multiple tool calls that do not depend on each other, use `#call!` to
-run them concurrently and then collect their `Thread#value`s before the
-next `ses.talk` call.
 
 ## Features
 
@@ -895,7 +887,7 @@ llm.rb can be installed via rubygems.org:
 
 * [GitHub.com](https://github.com/llmrb/llm.rb)
 * [GitLab.com](https://gitlab.com/llmrb/llm.rb)
-* [Codeberg.org](https://codeberg.org/llmrb/llm.rb)
+* [Codeberg.org](https://codeberg.org/llm.rb)
 
 ## License
 

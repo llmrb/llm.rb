@@ -111,9 +111,7 @@ ses.talk(ses.functions.map(&:call)) # report return value to the LLM
 ```
 
 When a provider emits multiple independent tool calls, they can also be
-executed concurrently. [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-provides `#call!`, which returns a `Thread`. Call `#value` on each thread
-to collect the tool results before reporting them back to the model:
+executed concurrently:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -126,10 +124,9 @@ threads = ses.functions.map(&:call!)
 ses.talk(threads.map(&:value))
 ```
 
-Use this pattern when tool calls do not depend on one another and can be
-performed concurrently. The regular `#call` method remains the right
-choice when tool calls must happen in sequence.
-
+[LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+provides `#call!`, which returns a `Thread`. Call `#value` on each thread
+to collect the tool results before reporting them back to the model.
 This is most useful for fan-out workflows where the model asks for
 multiple lookups at once and you want the slowest tool call, rather than
 the sum of all tool runtimes, to dominate the turn.

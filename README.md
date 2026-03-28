@@ -111,7 +111,7 @@ ses.talk(ses.functions.map(&:call)) # report return value to the LLM
 ```
 
 When a provider emits multiple independent tool calls, they can also be
-executed in parallel. [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+executed concurrently. [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
 provides `#call!`, which returns a `Thread`. Call `#value` on each thread
 to collect the tool results before reporting them back to the model:
 
@@ -896,7 +896,7 @@ llm.rb can be installed via rubygems.org:
 
 * [GitHub.com](https://github.com/llmrb/llm.rb)
 * [GitLab.com](https://gitlab.com/llmrb/llm.rb)
-* [Codeberg.org](https://codeberg.org/llm.rb)
+* [Codeberg.org](https://codeberg.org/llmrb/llm.rb)
 
 ## License
 

@@ -30,6 +30,8 @@
 #   end
 class LLM::Function
   require_relative "function/tracing"
+  require_relative "function/array"
+
   prepend LLM::Function::Tracing
 
   class Return < Struct.new(:id, :name, :value)

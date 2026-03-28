@@ -119,7 +119,7 @@ module LLM
             fn.tracer = tracer
             fn.model  = msg.model
           end
-        end
+        end.extend(LLM::Function::Array)
     end
 
     ##

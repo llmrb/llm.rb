@@ -31,7 +31,7 @@ class LLM::Function
     # This method returns an array of Thread objects that
     # can be waited on later.
     # @return [Array<Thread>]
-    def spawn!
+    def spawn
       map(&:call!)
     end
   end

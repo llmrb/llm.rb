@@ -145,11 +145,15 @@ class LLM::Function
 
   ##
   # Call the function in a separate thread
+  # @note
+  #   This method is usually not called directly. Prefer
+  #   `ses.functions.call!` when working with the collection returned by
+  #   {LLM::Session#functions}.
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   ses = LLM::Session.new(llm, tools: [x,y,z])
-  #   thrs = ses.functions.map(&:call!)
-  #   ses.talk thrs.map(&:value)
+  #   ses.talk "Run the tools"
+  #   ses.talk ses.functions.call!
   # @return [Thread]
   #  Returns a separate thread
   def call!

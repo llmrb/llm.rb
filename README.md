@@ -128,10 +128,6 @@ ses.talk("Summarize the weather, headlines, and stock price.")
 ses.talk(ses.functions.call!)
 ```
 
-The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
-method returns an array of pending functions extended with `call` and
-`call!`.
-
 #### MCP
 
 The [LLM::MCP](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) class provides
@@ -889,7 +885,7 @@ llm.rb can be installed via rubygems.org:
 
 * [GitHub.com](https://github.com/llmrb/llm.rb)
 * [GitLab.com](https://gitlab.com/llmrb/llm.rb)
-* [Codeberg.org](https://codeberg.org/llmrb/llm.rb)
+* [Codeberg.org](https://codeberg.org/llm.rb)
 
 ## License
 

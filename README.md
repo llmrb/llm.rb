@@ -9,16 +9,62 @@
 
 ## About
 
-llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
-includes OpenAI, Google (Gemini), Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
-and LlamaCpp. The toolkit includes full support for chat, streaming, MCP,
-tool calling, audio, images, files, and structured outputs.
+llm.rb is a Ruby toolkit for building applications with Large Language
+Models.
+
+It provides a unified, Ruby-first interface for OpenAI, Google
+(Gemini), Anthropic, xAI (Grok), zAI, DeepSeek, Ollama, and LlamaCpp,
+with support for chat, streaming, MCP, tool calling, audio, images,
+files, and structured outputs.
+
+llm.rb is designed for real applications, not just single prompts. It
+keeps the core interface small while still exposing provider-specific
+capabilities when needed.
 
 And it is licensed under the [0BSD License](https://choosealicense.com/licenses/0bsd/) &ndash;
 one of the most permissive open source licenses, with minimal conditions for use,
 modification, and/or distribution. Attribution is appreciated, but not required
 by the license. Built with [good music](https://www.youtube.com/watch?v=SNvaqwTbn14)
 and a lot of ☕️.
+
+## Why llm.rb?
+
+- Unified provider API across hosted and local models
+- Zero runtime dependencies
+- Ruby-native tools, prompts, sessions, and schemas
+- Built-in streaming, MCP, and structured output support
+- Designed for threaded and fibered application workloads
+
+## Quick start
+
+Install:
+
+```sh
+gem install llm.rb
+```
+
+Requires Ruby 3.2+.
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["OPENAI_SECRET"])
+ses = LLM::Session.new(llm, stream: $stdout)
+ses.talk "Write a haiku about Ruby"
+puts
+```
+
+## Choose your abstraction
+
+Use the layer that fits your app:
+
+- `LLM::Provider` — raw provider APIs like models, files, images, and audio
+- `LLM::Session` — stateful conversations with message history
+- `LLM::Agent` — preconfigured assistants with automatic tool execution
+- `LLM::Tool` / `LLM::Function` — define tools the model can call
+- `LLM::Schema` — define structured outputs with a Ruby DSL
+- `LLM::MCP` — connect to MCP servers and use their tools
 
 ## Screencast
 

@@ -25,5 +25,14 @@ class LLM::Function
     def spawn
       ThreadGroup.new(map(&:call!))
     end
+
+    ##
+    # Calls all functions in a collection concurrently
+    # and waits for the thread return values.
+    # @return [Array<LLM::Function::Return>]
+    #  Returns values to be reported back to the LLM.
+    def wait
+      spawn.wait
+    end
   end
 end

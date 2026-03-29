@@ -89,7 +89,7 @@ it can invoke to fetch information or perform an action. The model decides when 
 call tools based on the conversation; when it does, llm.rb runs the tool and sends
 the result back on the next request. For concurrent tool execution and more
 details on [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method),
-see [Advanced tools](#tools-1).
+see [Advanced tool execution](#tool-execution).
 
 The following example implements a simple tool that runs shell commands:
 

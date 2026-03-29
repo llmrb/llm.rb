@@ -688,6 +688,13 @@ grp = ses.functions.spawn
 ses.talk(grp.wait)
 ```
 
+Something to keep in mind:
+
+Tool concurrency is the tool's responsibility. Each tool is initialized on a
+separate thread, so tools are thread-safe by default when they keep state local
+to that thread. Take care when a tool uses shared resources such as files,
+network clients, caches, database connections, or other mutable global state.
+
 ### Files
 
 #### Create

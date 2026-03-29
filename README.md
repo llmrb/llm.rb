@@ -560,47 +560,6 @@ ses2.talk "Howdy partner. I'm back"
 
 ### Tools
 
-#### Tool execution
-
-The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
-method returns an ordinary array of pending functions that is extended with
-`call`, `spawn`, and `wait` methods. The `call` method executes all functions
-in a collection sequentially. The `spawn` method executes them concurrently and
-returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html),
-whose `wait` method collects the
-[LLM::Function::Return](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
-values from those threads. The `wait` method on the collection is a shorthand
-for `spawn.wait`.
-
-When a provider emits multiple tool calls, `ses.functions.wait` is the
-shortest way to run them concurrently and collect their return values:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
-ses.talk("Summarize the weather, headlines, and stock price.")
-ses.talk(ses.functions.wait)
-```
-
-If you want to start the tool calls now and wait on them later, use
-`spawn` directly:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
-ses.talk("Summarize the weather, headlines, and stock price.")
-grp = ses.functions.spawn
-# do other stuff while tools run...
-# finally, collect tool results and report back to the LLM:
-ses.talk(grp.wait)
-```
-
 #### LLM::Function
 
 The following example demonstrates [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
@@ -687,6 +646,47 @@ ses.talk ses.functions.map(&:call) # report return value to the LLM
 ##
 # {stderr: "", stdout: "Thu May  1 10:01:02 UTC 2025"}
 # {stderr: "", stdout: "FreeBSD"}
+```
+
+#### Tool execution
+
+The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
+method returns an ordinary array of pending functions that is extended with
+`call`, `spawn`, and `wait` methods. The `call` method executes all functions
+in a collection sequentially. The `spawn` method executes them concurrently and
+returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html),
+whose `wait` method collects the
+[LLM::Function::Return](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
+values from those threads. The `wait` method on the collection is a shorthand
+for `spawn.wait`.
+
+When a provider emits multiple tool calls, `ses.functions.wait` is the
+shortest way to run them concurrently and collect their return values:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ses.talk("Summarize the weather, headlines, and stock price.")
+ses.talk(ses.functions.wait)
+```
+
+If you want to start the tool calls now and wait on them later, use
+`spawn` directly:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ses.talk("Summarize the weather, headlines, and stock price.")
+grp = ses.functions.spawn
+# do other stuff while tools run...
+# finally, collect tool results and report back to the LLM:
+ses.talk(grp.wait)
 ```
 
 ### Files

@@ -14,7 +14,7 @@ Changes since `v4.8.0`.
 - Add top-level Anthropic system instruction support using Anthropic's provider-specific request format.
 - Add richer tracing hooks and extra metadata support for LangSmith/OpenTelemetry-style traces.
 - Add rack/websocket and Relay-related example work, including MCP-focused examples.
-- Add `LLM::Function#call!` for running independent tool calls in concurrent threads.
+- Add concurrent tool execution with `LLM::Function#call!`, `LLM::Function::Array` (`call`, `wait`, `spawn`), and `LLM::Function::ThreadGroup`.
 
 ### Change
 

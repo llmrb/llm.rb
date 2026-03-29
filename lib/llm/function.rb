@@ -145,18 +145,20 @@ class LLM::Function
   end
 
   ##
-  # Call the function in a separate thread
+  # Calls the function in a separate thread.
   # @note
   #   This method is usually not called directly. Prefer
-  #   `ses.functions.spawn.wait` when working with the collection returned by
-  #   {LLM::Session#functions}.
+  #   {LLM::Function::ThreadGroup#wait} when working with the
+  #   collection returned by {LLM::Session#functions}.
+  #   The thread's {Thread#value} will be an
+  #   {LLM::Function::Return}.
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   ses = LLM::Session.new(llm, tools: [x,y,z])
   #   ses.talk "Run the tools"
   #   ses.talk ses.functions.spawn.wait
   # @return [Thread]
-  #  Returns a separate thread
+  #  Returns a thread whose value is an {LLM::Function::Return}
   def call!
     Thread.new do
       runner = ((Class === @runner) ? @runner.new : @runner)

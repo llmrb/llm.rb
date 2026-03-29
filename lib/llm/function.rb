@@ -156,7 +156,7 @@ class LLM::Function
   #   llm = LLM.openai(key: ENV["KEY"])
   #   ses = LLM::Session.new(llm, tools: [x,y,z])
   #   ses.talk "Run the tools"
-  #   ses.talk ses.functions.spawn.wait
+  #   ses.talk ses.functions.wait
   # @return [Thread]
   #  Returns a thread whose value is an {LLM::Function::Return}
   def call!

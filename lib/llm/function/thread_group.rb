@@ -41,6 +41,31 @@ class LLM::Function
     end
 
     ##
+    # Returns whether any thread in the group is still alive.
+    #
+    # This method checks if any of the threads in the group are
+    # still running. It can be useful for monitoring concurrent
+    # tool execution without blocking.
+    #
+    # @example
+    #   llm = LLM.openai(key: ENV["KEY"])
+    #   ses = LLM::Session.new(llm, tools: [Weather, News, Stocks])
+    #   ses.talk "Summarize the weather, headlines, and stock price."
+    #   grp = ses.functions.spawn
+    #   while grp.alive?
+    #     puts "Tools are still running..."
+    #     sleep 1
+    #   end
+    #   ses.talk(grp.wait)
+    #
+    # @return [Boolean]
+    #   Returns true if any thread in the group is still alive,
+    #   false otherwise.
+    def alive?
+      @threads.any?(&:alive?)
+    end
+
+    ##
     # Waits for all threads in the group to finish and returns
     # their {LLM::Function::Return} values.
     #

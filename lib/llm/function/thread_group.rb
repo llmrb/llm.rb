@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module LLM::Function
+class LLM::Function
   class ThreadGroup
     ##
     # @param [Array<Thread>] threads

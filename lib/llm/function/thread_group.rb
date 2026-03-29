@@ -9,9 +9,10 @@ class LLM::Function
   # threads.
   #
   # This class is returned by {LLM::Function::Array#spawn}
-  # when you call {LLM::Session#functions}.spawn. It is a
-  # lightweight wrapper that does not inherit from Ruby's
-  # built-in {::ThreadGroup}.
+  # when you call `ses.functions.spawn` on the collection
+  # returned by {LLM::Session#functions}. It is a lightweight
+  # wrapper that does not inherit from Ruby's built-in
+  # {::ThreadGroup}.
   #
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])

@@ -652,16 +652,16 @@ ses.talk ses.functions.map(&:call) # report return value to the LLM
 
 The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
 method returns an ordinary array of pending functions that is extended with
-`call`, `spawn`, and `wait` methods. The `call` method executes all functions
-in a collection sequentially. The `spawn` method executes them concurrently and
-returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html),
-whose `wait` method collects the
-[LLM::Function::Return](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
-values from those threads. The `wait` method on the collection is a shorthand
-for `spawn.wait`.
+`call`, `spawn`, and `wait` methods:
 
-When a provider emits multiple tool calls, `ses.functions.wait` is the
-shortest way to run them concurrently and collect their return values:
+* `ses.functions.call` runs tools one after another
+* `ses.functions.wait` runs tools concurrently and waits for them all to finish
+* `ses.functions.spawn` runs tools concurrently and returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html)
+
+When an LLM asks for multiple independent tools, you can choose the execution
+style that best fits the work.
+
+Use `ses.functions.wait` when you want the shortest concurrent path:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -673,8 +673,7 @@ ses.talk("Summarize the weather, headlines, and stock price.")
 ses.talk(ses.functions.wait)
 ```
 
-If you want to start the tool calls now and wait on them later, use
-`spawn` directly:
+Use `spawn` when you want to start the tool calls now and wait on them later:
 
 ```ruby
 #!/usr/bin/env ruby

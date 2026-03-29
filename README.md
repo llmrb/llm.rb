@@ -92,10 +92,12 @@ the result back on the next request.
 The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
 method returns an ordinary array of pending functions that is extended with
 `call` and `spawn` methods. The `call` method executes all functions in a
-collection sequentially, and the `spawn` method executes them concurrently
-and returns a thread group whose `wait` method yields the function return
-values. The following example implements a simple tool that runs shell
-commands:
+collection sequentially. The `spawn` method executes them concurrently and
+returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html),
+whose `wait` method collects the
+[LLM::Function::Return](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
+values from those threads. The following example implements a simple tool
+that runs shell commands:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -117,8 +119,8 @@ ses.talk("Run `date`.")
 ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
-When a provider emits multiple tool calls, `ses.functions.spawn.wait`
-runs them concurrently:
+When a provider emits multiple tool calls, `ses.functions.spawn` starts
+them concurrently and `wait` collects their return values:
 
 ```ruby
 #!/usr/bin/env ruby

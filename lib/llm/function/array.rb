@@ -23,7 +23,7 @@ class LLM::Function
     # values.
     # @return [LLM::Function::ThreadGroup]
     def spawn
-      ThreadGroup.new(map(&:call!))
+      ThreadGroup.new(map(&:spawn))
     end
 
     ##

@@ -159,7 +159,7 @@ class LLM::Function
   #   ses.talk ses.functions.wait
   # @return [Thread]
   #  Returns a thread whose value is an {LLM::Function::Return}
-  def call!
+  def spawn
     Thread.new do
       runner = ((Class === @runner) ? @runner.new : @runner)
       Return.new(id, name, runner.call(**arguments))

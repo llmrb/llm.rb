@@ -459,7 +459,9 @@ llm.rb includes `plugin :llm` for this shape. If your model already uses the
 default columns (`provider`, `model`, `data`, `input_tokens`,
 `output_tokens`, and `total_tokens`), you usually only need to set whether
 the provider should be persistent and how to resolve provider options such as
-the API key:
+the API key.
+
+**Migration:**
 
 ```ruby
 create_table :contexts do
@@ -473,9 +475,11 @@ create_table :contexts do
 end
 ```
 
+**Model:**
+
 ```ruby
 require "llm"
-require "llm/sequel"
+require "sequel/plugins/llm"
 
 class Context < Sequel::Model
   plugin :llm,
@@ -484,6 +488,8 @@ class Context < Sequel::Model
     }
 end
 ```
+
+**Usage:**
 
 That gives the record the same small wrapper shape. If your schema uses
 different column names, the plugin can map those too, but the default column

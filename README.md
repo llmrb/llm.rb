@@ -51,47 +51,47 @@ same context object.
 
 ### Execution Model
 
-- **A system layer, not just an API wrapper**
+- **A system layer, not just an API wrapper** <br>
   Put providers, tools, MCP servers, and application APIs behind one runtime
   model instead of stitching them together by hand.
-- **Contexts are central**
+- **Contexts are central** <br>
   Keep history, tools, schema, usage, persistence, and execution state in one
   place instead of spreading them across your app.
-- **Contexts can be serialized**
+- **Contexts can be serialized** <br>
   Save and restore live state for jobs, databases, retries, or long-running
   workflows.
 
 ### Runtime Behavior
 
-- **Streaming and tool execution work together**
+- **Streaming and tool execution work together** <br>
   Start tool work while output is still streaming so you can hide latency
   instead of waiting for turns to finish.
-- **Tool calls have an explicit lifecycle**
+- **Tool calls have an explicit lifecycle** <br>
   A tool call can be executed, cancelled through
   [`LLM::Function#cancel`](https://0x1eef.github.io/x/llm.rb/LLM/Function.html#cancel-instance_method),
   or left unresolved for manual handling, but the normal runtime contract is
   still that a model-issued tool request is answered with a tool return.
-- **Requests can be interrupted cleanly**
+- **Requests can be interrupted cleanly** <br>
   Stop in-flight provider work through the same runtime instead of treating
   cancellation as a separate concern.
   [`LLM::Context#cancel!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#cancel-21-instance_method)
   is inspired by Go's context cancellation model.
-- **Concurrency is a first-class feature**
+- **Concurrency is a first-class feature** <br>
   Use threads, fibers, or async tasks without rewriting your tool layer.
-- **Advanced workloads are built in, not bolted on**
+- **Advanced workloads are built in, not bolted on** <br>
   Streaming, concurrent tool execution, persistence, tracing, and MCP support
   all fit the same runtime model.
 
 ### Integration
 
-- **MCP is built in**
+- **MCP is built in** <br>
   Connect to MCP servers over stdio or HTTP without bolting on a separate
   integration stack.
-- **Sequel persistence is built in**
+- **Sequel persistence is built in** <br>
   Use `plugin :llm` to persist `LLM::Context` state on a Sequel model with
   sensible default columns, then pass provider setup through
   `provider:` when you need it.
-- **Persistent HTTP pooling is shared process-wide**
+- **Persistent HTTP pooling is shared process-wide** <br>
   When enabled, separate
   [`LLM::Provider`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
   instances with the same endpoint settings can share one persistent
@@ -99,39 +99,39 @@ same context object.
   [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html)
   instances can do the same, instead of each object creating its own
   isolated per-instance transport.
-- **Provider support is broad**
+- **Provider support is broad** <br>
   Work with OpenAI, OpenAI-compatible endpoints, Anthropic, Google, DeepSeek,
   Z.ai, xAI, llama.cpp, and Ollama through the same runtime.
-- **Tools are explicit**
+- **Tools are explicit** <br>
   Run local tools, provider-native tools, and MCP tools through the same path
   with fewer special cases.
-- **Providers are normalized, not flattened**
+- **Providers are normalized, not flattened** <br>
   Share one API surface across providers without losing access to provider-
   specific capabilities where they matter.
-- **Responses keep a uniform shape**
+- **Responses keep a uniform shape** <br>
   Provider calls return
   [`LLM::Response`](https://0x1eef.github.io/x/llm.rb/LLM/Response.html)
   objects as a common base shape, then extend them with endpoint- or
   provider-specific behavior when needed.
-- **Low-level access is still there**
+- **Low-level access is still there** <br>
   Normalized responses still keep the raw `Net::HTTPResponse` available when
   you need headers, status, or other HTTP details.
-- **Local model metadata is included**
+- **Local model metadata is included** <br>
   Model capabilities, pricing, and limits are available locally without extra
   API calls.
 
 ### Design Philosophy
 
-- **Runs on the stdlib**
+- **Runs on the stdlib** <br>
   Start with Ruby's standard library and add extra dependencies only when you
   need them.
-- **It is highly pluggable**
+- **It is highly pluggable** <br>
   Add tools, swap providers, change JSON backends, plug in tracing, or layer
   internal APIs and MCP servers into the same execution path.
-- **It scales from scripts to long-lived systems**
+- **It scales from scripts to long-lived systems** <br>
   The same primitives work for one-off scripts, background jobs, and more
   demanding application workloads with streaming, persistence, and tracing.
-- **Thread boundaries are clear**
+- **Thread boundaries are clear** <br>
   Providers are shareable. Contexts are stateful and should stay thread-local.
 
 ## Capabilities

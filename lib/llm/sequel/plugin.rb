@@ -24,11 +24,31 @@ module LLM::Sequel
       context: EMPTY_HASH
     }.freeze
 
+    ##
+    # Called by Sequel when the plugin is first applied to a model class.
+    #
+    # This hook installs the plugin's class- and instance-level behavior on
+    # the target model. It runs before {configure}, so it should only attach
+    # methods and not depend on per-model plugin options.
+    #
+    # @param [Class] model
+    # @return [void]
     def self.apply(model, **)
       model.extend ClassMethods
       model.include InstanceMethods
     end
 
+    ##
+    # Called by Sequel after {apply} with the options passed to
+    # `plugin :llm, ...`.
+    #
+    # This hook merges plugin defaults with the model's explicit settings and
+    # stores the resolved configuration on the model class for later use by
+    # instance methods such as {InstanceMethods#llm} and {InstanceMethods#ctx}.
+    #
+    # @param [Class] model
+    # @param [Hash] options
+    # @return [void]
     def self.configure(model, options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
       usage_columns = DEFAULT_USAGE_COLUMNS.merge(options[:usage_columns] || EMPTY_HASH)

@@ -502,21 +502,41 @@ same hook can also preload schemas, stream handlers, or other context-level
 options:
 
 ```ruby
+#!/usr/bin/env ruby
+require "llm"
+require "sequel"
+require "sequel/plugins/llm"
+
+##
+# A simple tool that the LLM will call when it could answer
+# a user's query. Its return value is consumed by the LLM.
 class System < LLM::Tool
   name "system"
   description "Run a shell command"
   param :command, String, "Command to execute", required: true
 
   def call(command:)
-    {success: system(command)}
+    {output: `#{command}`}
   end
 end
 
+##
+# A sequel model that wraps an instance of LLM::Context. It is highly
+# configurable but lets keep it simple :) The 'persistent' option opts
+# into a process-wide net-http-persistent connection pool.
 class Context < Sequel::Model
   plugin :llm,
-    provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
+    provider: -> { {key: ENV["#{provider.upcase}_KEY"], persistent: true} },
     context: -> { {tools: [System]} }
 end
+
+##
+# We create a new record, then update the record every time we call
+# 'talk' on the model.
+ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx.talk("What files are in my home directory?")
+res = ctx.talk(ctx.functions.call)
+puts res.content
 ```
 
 ## Tools

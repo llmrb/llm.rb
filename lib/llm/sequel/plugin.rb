@@ -66,7 +66,7 @@ module LLM::Sequel
     # Waits for queued tool work to finish and flushes the context.
     # @return [Array<LLM::Function::Return>]
     def wait(...)
-      ctx.wait(...).tap { flush }
+      ctx.wait(...)
     end
 
     ##
@@ -104,6 +104,20 @@ module LLM::Sequel
     end
 
     ##
+    # Returns usage from the mapped usage columns.
+    # @return [LLM::Object]
+    def usage
+      columns = self.class.llm_plugin_options[:usage_columns]
+      LLM::Object.from(
+        input_tokens: self[columns[:input_tokens]] || 0,
+        output_tokens: self[columns[:output_tokens]] || 0,
+        total_tokens: self[columns[:total_tokens]] || 0
+      )
+    end
+
+    private
+
+    ##
     # Returns the resolved provider instance for this record.
     # @return [LLM::Provider]
     def llm
@@ -112,20 +126,6 @@ module LLM::Sequel
       kwargs = resolve_options(options[:provider])
       @llm ||= LLM.method(provider).call(**kwargs)
     end
-
-    ##
-    # Returns usage from the mapped usage columns.
-    # @return [LLM::Object]
-    def usage
-      columns = self.class.llm_plugin_options[:usage_columns]
-      LLM::Object.from(
-        input_tokens: public_send(columns[:input_tokens]) || 0,
-        output_tokens: public_send(columns[:output_tokens]) || 0,
-        total_tokens: public_send(columns[:total_tokens]) || 0
-      )
-    end
-
-    private
 
     def ctx
       @ctx ||= begin

@@ -17,9 +17,9 @@ state.
 It is built for engineers who want control over how these systems run. llm.rb
 stays close to Ruby, runs on the standard library by default, loads optional
 pieces only when needed, and remains easy to extend. It also works well in
-Rails or ActiveRecord applications, where a small wrapper around context
-persistence is enough to save and restore long-lived conversation state across
-requests, jobs, or retries.
+Rails or ActiveRecord applications, and it includes built-in Sequel plugin
+support, where a small wrapper around context persistence is enough to save
+and restore long-lived conversation state across requests, jobs, or retries.
 
 Most LLM libraries stop at request/response APIs. Building real systems means
 stitching together streaming, tools, state, persistence, and external

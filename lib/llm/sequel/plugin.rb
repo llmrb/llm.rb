@@ -76,7 +76,7 @@ module LLM::Sequel
 
       ##
       # @return [String]
-      def model
+      def model_name
         ctx.model
       end
 
@@ -104,7 +104,7 @@ module LLM::Sequel
       # Returns the resolved provider instance for this record.
       # @return [LLM::Provider]
       def llm
-        options = model.llm_plugin_options
+        options = self.class.llm_plugin_options
         provider = self[options[:provider_column]]
         kwargs = resolve_options(options[:provider_params])
         @llm ||= LLM.method(provider).call(**kwargs)
@@ -114,7 +114,7 @@ module LLM::Sequel
       # Returns usage from the mapped usage columns.
       # @return [LLM::Object]
       def usage
-        columns = model.llm_plugin_options[:usage_columns]
+        columns = self.class.llm_plugin_options[:usage_columns]
         LLM::Object.from(
           input_tokens: public_send(columns[:input_tokens]) || 0,
           output_tokens: public_send(columns[:output_tokens]) || 0,
@@ -125,10 +125,10 @@ module LLM::Sequel
       private
 
       def ctx
-        options = model.llm_plugin_options
-        params = resolve_options(options[:context_params]).dup
-        params[:model] ||= self[options[:model_column]]
         @ctx ||= begin
+          options = self.class.llm_plugin_options
+          params = resolve_options(options[:context_params]).dup
+          params[:model] ||= self[options[:model_column]]
           context = LLM::Context.new(llm, params.compact)
           data = self[options[:data_column]]
           data.to_s.empty? ? context : context.restore(string: data)
@@ -136,15 +136,14 @@ module LLM::Sequel
       end
 
       def flush
-        columns = model.llm_plugin_options[:usage_columns]
-        usage = ctx.usage
-        updates = {
-          model.llm_plugin_options[:data_column] => ctx.to_json
-        }
-        updates[columns[:input_tokens]] = usage&.input_tokens || 0
-        updates[columns[:output_tokens]] = usage&.output_tokens || 0
-        updates[columns[:total_tokens]] = usage&.total_tokens || 0
-        update(updates)
+        options = self.class.llm_plugin_options
+        columns = options[:usage_columns]
+        update({
+          options[:data_column] => ctx.to_json,
+          columns[:input_tokens] => ctx.usage.input_tokens,
+          columns[:output_tokens] => ctx.usage.output_tokens,
+          columns[:total_tokens] => ctx.usage.total_tokens
+        })
       end
 
       def resolve_option(option)
@@ -165,8 +164,8 @@ module LLM::Sequel
   end
 end
 
-if defined?(::Sequel::Plugins)
-  module Sequel::Plugins
+module Sequel
+  module Plugins
     Llm = LLM::Sequel::Plugin
   end
 end

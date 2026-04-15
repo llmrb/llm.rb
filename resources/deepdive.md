@@ -459,6 +459,10 @@ storage. The plugin persists `LLM::Context` as JSON, and on PostgreSQL this can
 be optimized further by storing the serialized context in a `jsonb` column
 instead of plain text:
 
+- `format: :string` stores the context as a JSON string in a text column.
+- `format: :json` or `format: :jsonb` stores the context as a structured JSON
+  object, which is useful for native JSON columns such as PostgreSQL `jsonb`.
+
 **Migration:**
 
 ```ruby
@@ -482,6 +486,14 @@ require "sequel/plugins/llm"
 
 class Context < Sequel::Model
   plugin :llm, provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
+end
+```
+
+```ruby
+class Context < Sequel::Model
+  plugin :llm,
+    format: :jsonb,
+    provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
 end
 ```
 

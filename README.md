@@ -90,7 +90,8 @@ same context object.
 - **Sequel persistence is built in** <br>
   Use `plugin :llm` to persist `LLM::Context` state on a Sequel model with
   sensible default columns, then pass provider setup through
-  `provider:` when you need it.
+  `provider:` when you need it. Use `format: :string` for text columns or
+  `format: :jsonb` when you want native PostgreSQL JSON storage.
 - **Persistent HTTP pooling is shared process-wide** <br>
   When enabled, separate
   [`LLM::Provider`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)

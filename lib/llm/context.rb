@@ -277,13 +277,13 @@ module LLM
     ##
     # @return [Hash]
     def to_h
-      {model:, messages:}
+      {schema_version: 1, model:, messages:}
     end
 
     ##
     # @return [String]
     def to_json(...)
-      {schema_version: 1}.merge!(to_h).to_json(...)
+      to_h.to_json(...)
     end
 
     ##

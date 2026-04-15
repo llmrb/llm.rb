@@ -8,6 +8,10 @@ module LLM::Sequel
   # selection, usage accounting, and serialized context data while
   # leaving application-specific concerns such as credentials,
   # associations, and UI shaping to the host app.
+  #
+  # Context state can be stored as a JSON string (`format: :string`, the
+  # default) or as a structured object (`format: :json` / `:jsonb`) for
+  # databases such as PostgreSQL that can persist JSON natively.
   module Plugin
     EMPTY_HASH = {}.freeze
     DEFAULT_USAGE_COLUMNS = {
@@ -19,6 +23,7 @@ module LLM::Sequel
       provider_column: :provider,
       model_column: :model,
       data_column: :data,
+      format: :string,
       usage_columns: DEFAULT_USAGE_COLUMNS,
       provider: EMPTY_HASH,
       context: EMPTY_HASH
@@ -48,6 +53,9 @@ module LLM::Sequel
     #
     # @param [Class] model
     # @param [Hash] options
+    # @option options [Symbol] :format
+    #   Storage format for the serialized context. Use `:string` for text
+    #   columns, or `:json` / `:jsonb` for structured JSON columns.
     # @return [void]
     def self.configure(model, options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
@@ -169,17 +177,27 @@ module LLM::Sequel
         options = self.class.llm_plugin_options
         params = resolve_options(options[:context]).dup
         params[:model] ||= self[columns[:model_column]]
-        context = LLM::Context.new(llm, params.compact)
+        ctx = LLM::Context.new(llm, params.compact)
         data = self[columns[:data_column]]
-        data.to_s.empty? ? context : context.restore(string: data)
+        if data.nil? || data == ""
+          ctx
+        else
+          string = case options[:format]
+          when :string then data
+          when :json, :jsonb then LLM.json.dump(data)
+          else raise ArgumentError, "Unknown format: #{options[:format].inspect}"
+          end
+          ctx.restore(string:)
+        end
       end
     end
 
     ##
     # @return [void]
     def flush
+      options = self.class.llm_plugin_options
       update({
-        columns[:data_column] => ctx.to_json,
+        columns[:data_column] => serialize_context(options[:format]),
         columns[:input_tokens] => ctx.usage.input_tokens,
         columns[:output_tokens] => ctx.usage.output_tokens,
         columns[:total_tokens] => ctx.usage.total_tokens
@@ -202,6 +220,14 @@ module LLM::Sequel
       case option
       when Proc, Hash then resolve_option(option)
       else EMPTY_HASH.dup
+      end
+    end
+
+    def serialize_context(format)
+      case format
+      when :string then ctx.to_json
+      when :json, :jsonb then ctx.to_h
+      else raise ArgumentError, "Unknown format: #{format.inspect}"
       end
     end
 

@@ -189,8 +189,8 @@ See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for mor
 
 ```ruby
 require "llm"
-require "sequel"
 require "llm/plugin/sequel"
+require "sequel"
 
 ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")

@@ -494,6 +494,31 @@ puts ctx.talk("What is my favorite language?").content
 puts ctx.usage.total_tokens
 ```
 
+`context:` lets the plugin inject default options into the constructed
+`LLM::Context`. Those defaults still live at the context layer, so they can be
+overridden on individual `talk` or `respond` calls when a specific turn needs
+different behavior. One common use is setting default tools this way, but the
+same hook can also preload schemas, stream handlers, or other context-level
+options:
+
+```ruby
+class System < LLM::Tool
+  name "system"
+  description "Run a shell command"
+  param :command, String, "Command to execute", required: true
+
+  def call(command:)
+    {success: system(command)}
+  end
+end
+
+class Context < Sequel::Model
+  plugin :llm,
+    provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
+    context: -> { {tools: [System]} }
+end
+```
+
 ## Tools
 
 Tools in llm.rb can be defined as classes inheriting from `LLM::Tool` or as

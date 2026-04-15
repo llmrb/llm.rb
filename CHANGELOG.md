@@ -25,7 +25,7 @@ Changes since `v4.14.0`.
 * **Add a Sequel context persistence plugin** <br>
   Add `plugin :llm` for Sequel models so apps can persist
   `LLM::Context` state with default columns and pass provider setup
-  through `provider_params:` when needed.
+  through `provider:` when needed.
 
 * **Improve streaming parser performance** <br>
   In the local replay-based `stream_parser` benchmark versus

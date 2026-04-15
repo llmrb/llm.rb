@@ -482,10 +482,7 @@ require "llm"
 require "sequel/plugins/llm"
 
 class Context < Sequel::Model
-  plugin :llm,
-    provider_params: -> {
-      {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
-    }
+  plugin :llm, provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
 end
 ```
 

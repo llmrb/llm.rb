@@ -20,8 +20,8 @@ module LLM::Sequel
       model_column: :model,
       data_column: :data,
       usage_columns: DEFAULT_USAGE_COLUMNS,
-      provider_params: EMPTY_HASH,
-      context_params: EMPTY_HASH
+      provider: EMPTY_HASH,
+      context: EMPTY_HASH
     }.freeze
 
     def self.apply(model, **)
@@ -107,7 +107,7 @@ module LLM::Sequel
     def llm
       options = self.class.llm_plugin_options
       provider = self[options[:provider_column]]
-      kwargs = resolve_options(options[:provider_params])
+      kwargs = resolve_options(options[:provider])
       @llm ||= LLM.method(provider).call(**kwargs)
     end
 
@@ -128,7 +128,7 @@ module LLM::Sequel
     def ctx
       @ctx ||= begin
         options = self.class.llm_plugin_options
-        params = resolve_options(options[:context_params]).dup
+        params = resolve_options(options[:context]).dup
         params[:model] ||= self[options[:model_column]]
         context = LLM::Context.new(llm, params.compact)
         data = self[options[:data_column]]

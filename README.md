@@ -164,7 +164,7 @@ same context object.
 gem install llm.rb
 ```
 
-## Example
+## Examples
 
 **REPL**
 
@@ -185,12 +185,16 @@ end
 
 **Sequel (ORM)**
 
-See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more details on using Sequel.
+See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
 require "sequel"
 require "sequel/plugins/llm"
+
+class Context < Sequel::Model
+  plugin :llm, provider: -> { {key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
+end
 
 ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")

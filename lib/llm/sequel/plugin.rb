@@ -70,6 +70,7 @@ module LLM::Sequel
   module Plugin::InstanceMethods
     ##
     # Continues the stored context with new input and flushes it.
+    # @see LLM::Context#talk
     # @return [LLM::Response]
     def talk(...)
       ctx.talk(...).tap { flush }
@@ -77,19 +78,30 @@ module LLM::Sequel
 
     ##
     # Continues the stored context through the Responses API and flushes it.
+    # @see LLM::Context#respond
     # @return [LLM::Response]
     def respond(...)
       ctx.respond(...).tap { flush }
     end
 
     ##
-    # Waits for queued tool work to finish and flushes the context.
+    # Waits for queued tool work to finish.
+    # @see LLM::Context#wait
     # @return [Array<LLM::Function::Return>]
     def wait(...)
       ctx.wait(...)
     end
 
     ##
+    # Calls into the stored context.
+    # @see LLM::Context#call
+    # @return [Object]
+    def call(...)
+      ctx.call(...)
+    end
+
+    ##
+    # @see LLM::Context#messages
     # @return [Array<LLM::Message>]
     def messages
       ctx.messages
@@ -98,24 +110,28 @@ module LLM::Sequel
     ##
     # @note The bang is used because Sequel reserves `model` for the
     #   underlying model class on instances.
+    # @see LLM::Context#model
     # @return [String]
     def model!
       ctx.model
     end
 
     ##
+    # @see LLM::Context#functions
     # @return [Array<LLM::Function>]
     def functions
       ctx.functions
     end
 
     ##
+    # @see LLM::Context#cost
     # @return [LLM::Cost]
     def cost
       ctx.cost
     end
 
     ##
+    # @see LLM::Context#context_window
     # @return [Integer]
     def context_window
       ctx.context_window
@@ -127,7 +143,6 @@ module LLM::Sequel
     # Returns usage from the mapped usage columns.
     # @return [LLM::Object]
     def usage
-      columns = self.class.llm_plugin_options[:usage_columns]
       LLM::Object.from(
         input_tokens: self[columns[:input_tokens]] || 0,
         output_tokens: self[columns[:output_tokens]] || 0,
@@ -142,33 +157,37 @@ module LLM::Sequel
     # @return [LLM::Provider]
     def llm
       options = self.class.llm_plugin_options
-      provider = self[options[:provider_column]]
+      provider = self[columns[:provider_column]]
       kwargs = resolve_options(options[:provider])
       @llm ||= LLM.method(provider).call(**kwargs)
     end
 
+    ##
+    # @return [LLM::Context]
     def ctx
       @ctx ||= begin
         options = self.class.llm_plugin_options
         params = resolve_options(options[:context]).dup
-        params[:model] ||= self[options[:model_column]]
+        params[:model] ||= self[columns[:model_column]]
         context = LLM::Context.new(llm, params.compact)
-        data = self[options[:data_column]]
+        data = self[columns[:data_column]]
         data.to_s.empty? ? context : context.restore(string: data)
       end
     end
 
+    ##
+    # @return [void]
     def flush
-      options = self.class.llm_plugin_options
-      columns = options[:usage_columns]
       update({
-        options[:data_column] => ctx.to_json,
+        columns[:data_column] => ctx.to_json,
         columns[:input_tokens] => ctx.usage.input_tokens,
         columns[:output_tokens] => ctx.usage.output_tokens,
         columns[:total_tokens] => ctx.usage.total_tokens
       })
     end
 
+    ##
+    # @return [Hash]
     def resolve_option(option)
       case option
       when Proc then instance_exec(&option)
@@ -177,10 +196,27 @@ module LLM::Sequel
       end
     end
 
+    ##
+    # @return [Hash]
     def resolve_options(option)
       case option
       when Proc, Hash then resolve_option(option)
       else EMPTY_HASH.dup
+      end
+    end
+
+    def columns
+      @columns ||= begin
+        options = self.class.llm_plugin_options
+        usage_columns = options[:usage_columns]
+        {
+          provider_column: options[:provider_column],
+          model_column: options[:model_column],
+          data_column: options[:data_column],
+          input_tokens: usage_columns[:input_tokens],
+          output_tokens: usage_columns[:output_tokens],
+          total_tokens: usage_columns[:total_tokens]
+        }.freeze
       end
     end
   end

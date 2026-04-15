@@ -38,7 +38,7 @@ module LLM::Sequel
       )
     end
   end
-  
+
   module Plugin::ClassMethods
     ##
     # @return [Hash]

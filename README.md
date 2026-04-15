@@ -168,7 +168,7 @@ gem install llm.rb
 
 **REPL**
 
-See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more details on building a REPL with llm.rb.
+See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
@@ -185,12 +185,12 @@ end
 
 **Sequel (ORM)**
 
-See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more details on using llm.rb with Sequel.
+See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more details on using Sequel.
 
 ```ruby
 require "llm"
-require "llm/plugin/sequel"
 require "sequel"
+require "sequel/plugins/llm"
 
 ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")

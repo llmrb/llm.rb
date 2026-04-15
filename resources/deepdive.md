@@ -477,6 +477,7 @@ end
 
 ```ruby
 require "llm"
+require "sequel"
 require "sequel/plugins/llm"
 
 class Context < Sequel::Model

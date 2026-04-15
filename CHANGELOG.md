@@ -22,6 +22,11 @@ Changes since `v4.14.0`.
   output item and content part so streamed output text deltas do less
   repeated nested lookup work.
 
+* **Add a Sequel context persistence plugin** <br>
+  Add `plugin :llm` for Sequel models so apps can persist
+  `LLM::Context` state with default columns and pass provider setup
+  through `provider_params:` when needed.
+
 * **Improve streaming parser performance** <br>
   In the local replay-based `stream_parser` benchmark versus
   `v4.14.0` (median of 20 samples, 5000 iterations), plain Ruby is a

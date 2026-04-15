@@ -36,6 +36,7 @@ Most features extend these, rather than introducing new abstractions.
 - [Persistence](#persistence)
   - [Save To A File](#save-to-a-file)
   - [Persist With ActiveRecord](#persist-with-activerecord)
+  - [Persist With Sequel](#persist-with-sequel)
 - [Tools](#tools)
   - [Tool Calling](#tool-calling)
   - [Cancelling A Function](#cancelling-a-function)
@@ -448,6 +449,56 @@ class Context < ApplicationRecord
   end
 end
 ```
+
+### Persist With Sequel
+
+Sequel can follow the same pattern. The record owns the persisted state, while
+the `LLM::Context` is rebuilt on demand and flushed back after each turn.
+
+llm.rb includes `plugin :llm` for this shape. If your model already uses the
+default columns (`provider`, `model`, `data`, `input_tokens`,
+`output_tokens`, and `total_tokens`), you usually only need to set whether
+the provider should be persistent and how to resolve provider options such as
+the API key:
+
+```ruby
+create_table :contexts do
+  primary_key :id
+  String :provider, null: false
+  String :model
+  String :data, text: true
+  Integer :input_tokens
+  Integer :output_tokens
+  Integer :total_tokens
+end
+```
+
+```ruby
+require "llm"
+require "llm/sequel"
+
+class Context < Sequel::Model
+  plugin :llm,
+    provider_params: -> {
+      {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+    }
+end
+```
+
+That gives the record the same small wrapper shape. If your schema uses
+different column names, the plugin can map those too, but the default column
+layout is meant to cover the normal case:
+
+```ruby
+ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx.talk("Remember that my favorite language is Ruby")
+puts ctx.talk("What is my favorite language?").content
+puts ctx.usage.total_tokens
+```
+
+The plugin keeps the persistence boundary small. Your application still owns
+associations, validation, credential lookup policy, and everything else around
+the record itself.
 
 ## Tools
 

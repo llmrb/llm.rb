@@ -1,3 +1,6 @@
 # frozen_string_literal: true
 
-require "llm/sequel"
+module Sequel::Plugins
+  require "llm/sequel/plugin"
+  Llm = LLM::Sequel::Plugin
+end

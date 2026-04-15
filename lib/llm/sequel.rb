@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-module LLM
-  module Sequel
-  end
-end
-
 module LLM::Sequel
   ##
   # Sequel plugin for persisting {LLM::Context LLM::Context} state.
@@ -166,11 +161,5 @@ module LLM::Sequel
         end
       end
     end
-  end
-end
-
-module Sequel
-  module Plugins
-    Llm = LLM::Sequel::Plugin
   end
 end

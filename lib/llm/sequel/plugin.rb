@@ -76,8 +76,10 @@ module LLM::Sequel
     end
 
     ##
+    # @note The bang is used because Sequel reserves `model` for the
+    #   underlying model class on instances.
     # @return [String]
-    def model_name
+    def model!
       ctx.model
     end
 

@@ -17,9 +17,9 @@ backed up by research. Maybe it won't always be true, and that would be good new
 because it would mean the Ruby ecosystem is getting stronger.
 
 llm.rb is not just an API wrapper: it gives you one runtime for providers,
-contexts, agents, tools, MCP servers, streaming, schemas, files, and persisted
-state, so real systems can be built out of one coherent execution model instead
-of a pile of adapters.
+contexts, agents, tools, skills, MCP servers, streaming, schemas, files, and
+persisted state, so real systems can be built out of one coherent execution
+model instead of a pile of adapters.
 
 llm.rb is designed for Ruby, and although it works great in Rails, it is not tightly
 coupled to it. It runs on the standard library by default (zero dependencies),
@@ -137,6 +137,11 @@ same context object.
 - **Tools are explicit** <br>
   Run local tools, provider-native tools, and MCP tools through the same path
   with fewer special cases.
+- **Skills are just tools loaded from directories** <br>
+  Point llm.rb at directories with a `SKILL.md`, resolve named tools through
+  the registry, and run those skills through `LLM::Context` or `LLM::Agent`
+  without creating a second execution model. If you are familiar with skills
+  in Claude or Codex, llm.rb supports the same general idea.
 - **Providers are normalized, not flattened** <br>
   Share one API surface across providers without losing access to provider-
   specific capabilities where they matter.
@@ -176,6 +181,7 @@ same context object.
 - **Run Tools While Streaming** — overlap model output with tool latency
 - **Concurrent Execution** — threads, async tasks, and fibers
 - **Agents** — reusable assistants with tool auto-execution
+- **Skills** — directory-backed capabilities loaded from `SKILL.md`
 - **Structured Outputs** — JSON Schema-based responses
 - **Responses API** — stateful response workflows where providers support them
 - **MCP Support** — stdio and HTTP MCP clients with prompt and tool support
@@ -383,6 +389,23 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 agent = ShellAgent.new(llm)
 puts agent.talk("What time is it on this system?").content
+```
+
+#### Skills
+
+This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) with directory-backed skills so `SKILL.md` capabilities run through the normal tool path. If you have used skills in Claude or Codex, this is the same kind of building block. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+
+```ruby
+require "llm"
+
+class Agent < LLM::Agent
+  model "gpt-5.4-mini"
+  instructions "You are a concise release assistant."
+  skills "./skills/release", "./skills/review"
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+puts Agent.new(llm).talk("Use the review skill.").content
 ```
 
 #### MCP

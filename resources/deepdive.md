@@ -44,6 +44,7 @@ Most features extend these, rather than introducing new abstractions.
   - [Closure-Based Tools](#closure-based-tools)
   - [Concurrent Tools](#concurrent-tools)
 - [Agents](#agents)
+- [Skills](#skills)
 - [MCP](#mcp)
   - [MCP Tools Over Stdio](#mcp-tools-over-stdio)
   - [MCP Tools Over HTTP](#mcp-tools-over-http)
@@ -893,6 +894,39 @@ llm = LLM.openai(key: ENV["KEY"])
 agent = SystemAdmin.new(llm)
 res = agent.talk("Run 'date' and summarize the result.")
 puts res.content
+```
+
+## Skills
+
+[`LLM::Skill`](https://0x1eef.github.io/x/llm.rb/LLM/Skill.html) lets you
+package a capability as a directory with a `SKILL.md` file and then run that
+capability through the normal llm.rb tool path. Frontmatter can define `name`,
+`description`, and `tools`, where `tools` are resolved by name through the
+tool registry. [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html)
+can declare skills with `skills ...`, and
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) also
+accepts `skills:` directly when you want lower-level control. If you are
+familiar with skills in Claude or Codex, llm.rb supports the same general
+pattern.
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class SearchDocs < LLM::Tool
+  name "search_docs"
+  description "Search the docs"
+  def call(**) = {results: ["..."]}
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+class Agent < LLM::Agent
+  model "gpt-5.4-mini"
+  instructions "You are a concise release assistant."
+  skills "./skills/release"
+end
+
+puts Agent.new(llm).talk("Use the release skill.").content
 ```
 
 ## MCP

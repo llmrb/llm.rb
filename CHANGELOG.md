@@ -11,6 +11,11 @@ Changes since `v4.20.2`.
   `acts_as_agent`, so models can wrap `LLM::Agent` with built-in
   persistence.
 
+* **Load directory-backed skills through `LLM::Context` and `LLM::Agent`** <br>
+  Add `skills:` to `LLM::Context` and `skills ...` to `LLM::Agent` so
+  directories with `SKILL.md` can be loaded, resolved into tools, and run
+  through the normal llm.rb tool path.
+
 ## v4.20.2
 
 Changes since `v4.20.1`.

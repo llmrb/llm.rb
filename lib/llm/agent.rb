@@ -60,6 +60,17 @@ module LLM
     end
 
     ##
+    # Set or get the default skills
+    # @param [Array<String>, nil] skills
+    #  One or more skill directories
+    # @return [Array<String>, nil]
+    #  Returns the current skills when no argument is provided
+    def self.skills(*skills)
+      return @skills if skills.empty?
+      @skills = skills.flatten
+    end
+
+    ##
     # Set or get the default schema
     # @param [#to_json, nil] schema
     #  The schema
@@ -110,10 +121,11 @@ module LLM
     #  not only those listed here.
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
+    # @option params [Array<String>, nil] :skills Defaults to nil
     # @option params [#to_json, nil] :schema Defaults to nil
     # @option params [Symbol, Array<Symbol>, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
-      defaults = {model: self.class.model, tools: self.class.tools, schema: self.class.schema}.compact
+      defaults = {model: self.class.model, tools: self.class.tools, skills: self.class.skills, schema: self.class.schema}.compact
       @concurrency = params.delete(:concurrency) || self.class.concurrency
       @llm = llm
       @ctx = LLM::Context.new(llm, defaults.merge(params))

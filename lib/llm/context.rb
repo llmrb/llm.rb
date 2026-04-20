@@ -64,10 +64,13 @@ module LLM
     # @option params [Symbol] :mode Defaults to :completions
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
+    # @option params [Array<String>, nil] :skills Defaults to nil
     def initialize(llm, params = {})
       @llm = llm
       @mode = params.delete(:mode) || :completions
+      tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
+      @params[:tools] = tools unless tools.empty?
       @messages = LLM::Buffer.new(llm)
     end
 
@@ -344,6 +347,10 @@ module LLM
       return unless LLM::Stream === stream
       stream.extra[:tracer] = tracer
       stream.extra[:model] = model
+    end
+
+    def load_skills(skills)
+      [*skills].map { LLM::Skill.load(_1).to_tool(llm) }
     end
   end
 

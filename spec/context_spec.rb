@@ -73,6 +73,20 @@ RSpec.describe LLM::Context do
     end
   end
 
+  context "when configured with skills" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:skill_path) { "/tmp/weather" }
+    let(:tool) { double("tool") }
+    let(:skill) { double("skill", to_tool: tool) }
+
+    it "loads skills into tools" do
+      expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
+      ctx = described_class.new(provider, model:, skills: [skill_path])
+      expect(ctx.instance_variable_get(:@params)[:tools]).to eq([tool])
+    end
+  end
+
   context "when serializing tagged prompt objects" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }

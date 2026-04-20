@@ -53,6 +53,21 @@ RSpec.describe LLM::Agent do
         ).and_call_original
         expect(klass.new(provider).concurrency).to eq(:thread)
       end
+
+      it "passes DSL skills to the context" do
+        skill_path = "/tmp/weather"
+        skill = double("skill", to_tool: tool)
+        klass = Class.new(described_class) do
+          model "gpt-4.1"
+          skills skill_path
+        end
+        expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
+        expect(LLM::Context).to receive(:new).with(
+          provider,
+          {model: "gpt-4.1", tools: [], skills: [skill_path]}
+        ).and_call_original
+        klass.new(provider)
+      end
     end
 
     describe "#talk" do

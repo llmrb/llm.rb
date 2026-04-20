@@ -29,6 +29,7 @@ module LLM
   require_relative "llm/eventstream"
   require_relative "llm/eventhandler"
   require_relative "llm/tool"
+  require_relative "llm/skill"
   require_relative "llm/server_tool"
   require_relative "llm/mcp"
 

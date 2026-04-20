@@ -65,3 +65,5 @@ Style/MethodCallWithoutArgsParentheses:
   Enabled: false
 Style/ParenthesesAroundCondition:
   Enabled: false
+Lint/ConstantDefinitionInBlock:
+  Enabled: false

@@ -13,7 +13,7 @@ RSpec.shared_examples "LLM::Context: schema" do |dirname, options = {}|
       subject { ctx.messages.find(&:assistant?).content! }
 
       before do
-        ctx.talk "Does the earth orbit the sun?"
+        ctx.talk "Return probability 1 for true and 0 for false. Does the earth orbit the sun?"
       end
 
       it "returns the probability" do
@@ -57,9 +57,8 @@ RSpec.shared_examples "LLM::Context: schema" do |dirname, options = {}|
 
       let(:prompt) do
         ctx.build_prompt do |prompt|
-          prompt.user "Answer all of my questions"
-          prompt.user "Tell me the answer to 5 + 5"
-          prompt.user "Tell me the answer to 5 + 7"
+          prompt.user "Return the numbers 10 and 12"
+          prompt.user "Keep them in the same order"
         end
       end
 

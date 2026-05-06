@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/deepseek.v3.2/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"Your favorite fruit
+        is pineapple"}]},{"role":"user","content":[{"text":"What fruit is your favorite?"}]}],"inferenceConfig":{"maxTokens":2048},"outputConfig":{"textFormat":{"type":"json_schema","structure":{"jsonSchema":{"name":"response","schema":"{\"type\":\"object\",\"properties\":{\"fruit\":{\"description\":\"The
+        favorite fruit\",\"enum\":[\"apple\",\"pineapple\",\"orange\"],\"type\":\"string\"}},\"required\":[\"fruit\"]}"}}}}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053647Z
+      X-Amz-Content-Sha256:
+      - 1a8f99f675450dacb1d11cf9d2d3853f9bf6f6a486ee769aa1ec182fd82c9315
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=270243b0bc1bbf598b5e09ecb41dc38a80b956269a40dbcddd80ff460c8fae89
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:54 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '231'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - c7b49063-b5e7-41ad-aba5-42dd42313286
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":5882},"output":{"message":{"content":[{"text":"{
+        \"fruit\": \"pineapple\" }"}],"role":"assistant"}},"stopReason":"end_turn","usage":{"inputTokens":16,"outputTokens":10,"serverToolUsage":{},"totalTokens":26}}'
+  recorded_at: Wed, 06 May 2026 05:36:53 GMT
+recorded_with: VCR 6.3.1

@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/deepseek.v3.2/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"Return probability
+        1 for true and 0 for false. Does the earth orbit the sun?"}]}],"inferenceConfig":{"maxTokens":2048},"outputConfig":{"textFormat":{"type":"json_schema","structure":{"jsonSchema":{"name":"response","schema":"{\"type\":\"object\",\"properties\":{\"probability\":{\"description\":\"The
+        answer''s probability\",\"type\":\"integer\"}},\"required\":[\"probability\"]}"}}}}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053643Z
+      X-Amz-Content-Sha256:
+      - 902450d12d59876655e1b43a611c0fa3934d7fb99f91cf0964e29f773bbe1f15
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=0a2766e568583f9ee8ff717aadca124e2c81ebf0f38371eecfcbe2ffc0fe64bd
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:47 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '225'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - a084855c-b9c5-445f-81d6-1e299783f4e6
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":3496},"output":{"message":{"content":[{"text":"{
+        \"probability\": 1 }"}],"role":"assistant"}},"stopReason":"end_turn","usage":{"inputTokens":23,"outputTokens":11,"serverToolUsage":{},"totalTokens":34}}'
+  recorded_at: Wed, 06 May 2026 05:36:47 GMT
+recorded_with: VCR 6.3.1

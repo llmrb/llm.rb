@@ -92,7 +92,7 @@ module LLM::Provider::Transport
         if stream
           http.request(request) do |res|
             if Net::HTTPSuccess === res
-              parser = StreamDecoder.new(stream_parser.new(stream))
+              parser = stream_decoder.new(stream_parser.new(stream))
               res.read_body(parser)
               body = parser.body
               res.body = (Hash === body || Array === body) ? LLM::Object.from(body) : body

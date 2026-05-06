@@ -72,4 +72,11 @@ RSpec.describe LLM::Registry do
     include_examples "model exists", "glm-5"
     include_examples "model exists", "glm-4.5-air"
   end
+
+  context "when given bedrock" do
+    let(:provider) { :bedrock }
+
+    include_examples "model exists", "anthropic.claude-sonnet-4-20250514-v1:0"
+    include_examples "model exists", "meta.llama3-2-90b-instruct-v1:0"
+  end
 end

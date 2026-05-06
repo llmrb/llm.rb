@@ -1,0 +1,113 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1:0/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"You are a bot that
+        can run UNIX commands"}]},{"role":"user","content":[{"text":"Can you run the
+        date command ? Can you run the pwd command ? Can you run the whoami command
+        ?"}]}],"inferenceConfig":{"maxTokens":2048},"toolConfig":{"tools":[{"toolSpec":{"name":"system","description":"Run
+        a shell command","inputSchema":{"json":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}}]}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053638Z
+      X-Amz-Content-Sha256:
+      - 7e90e4beaef8a152bbea99034278143fdd46e858e8938497e7911135e1cf608e
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=b47cd7e39f2d8519459171c614506ae91a2ca287b305b1be1403969f19b5c7f4
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:39 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '691'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 0a857f87-816c-443f-9a5e-f680262bb864
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":590},"output":{"message":{"content":[{"text":"<thinking>
+        The User is asking if I can run the `date`, `pwd`, and `whoami` commands.
+        I can use the ''system'' tool to execute these commands and retrieve their
+        results. </thinking>\n"},{"toolUse":{"input":{"command":"date"},"name":"system","toolUseId":"tooluse_soqkPdD9icqFEtWak9uTXs"}},{"toolUse":{"input":{"command":"pwd"},"name":"system","toolUseId":"tooluse_kYi40AQ5jCs8V2dgr1rPx9"}},{"toolUse":{"input":{"command":"whoami"},"name":"system","toolUseId":"tooluse_M4aGVHDnXqF0vM1OoeSTDF"}}],"role":"assistant"}},"stopReason":"tool_use","usage":{"inputTokens":422,"outputTokens":72,"serverToolUsage":{},"totalTokens":494}}'
+  recorded_at: Wed, 06 May 2026 05:36:39 GMT
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1:0/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"You are a bot that
+        can run UNIX commands"}]},{"role":"user","content":[{"text":"Can you run the
+        date command ? Can you run the pwd command ? Can you run the whoami command
+        ?"}]},{"role":"assistant","content":[{"text":"<thinking> The User is asking
+        if I can run the `date`, `pwd`, and `whoami` commands. I can use the ''system''
+        tool to execute these commands and retrieve their results. </thinking>\n"},{"toolUse":{"toolUseId":"tooluse_soqkPdD9icqFEtWak9uTXs","name":"system","input":{"command":"date"}}},{"toolUse":{"toolUseId":"tooluse_kYi40AQ5jCs8V2dgr1rPx9","name":"system","input":{"command":"pwd"}}},{"toolUse":{"toolUseId":"tooluse_M4aGVHDnXqF0vM1OoeSTDF","name":"system","input":{"command":"whoami"}}}]},{"role":"user","content":[{"toolResult":{"toolUseId":"tooluse_soqkPdD9icqFEtWak9uTXs","content":[{"text":"{\"stderr\":\"\",\"stdout\":\"Wed
+        May  6 02:36:39 -03 2026\\n\"}"}]}},{"toolResult":{"toolUseId":"tooluse_kYi40AQ5jCs8V2dgr1rPx9","content":[{"text":"{\"stderr\":\"\",\"stdout\":\"/home/developer/p/git.home.network/llmrb/llm.rb\\n\"}"}]}},{"toolResult":{"toolUseId":"tooluse_M4aGVHDnXqF0vM1OoeSTDF","content":[{"text":"{\"stderr\":\"\",\"stdout\":\"developer\\n\"}"}]}}]}],"inferenceConfig":{"maxTokens":2048},"toolConfig":{"tools":[{"toolSpec":{"name":"system","description":"Run
+        a shell command","inputSchema":{"json":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}}]}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053639Z
+      X-Amz-Content-Sha256:
+      - 21b7107549280996e376c90d3b0b6516459a37b7437f37b197c452fb485006b1
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=327255881d516a72ce28d66eb2cef061c4e46bc18d2feb5a7cee3ca693577ad1
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:41 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '657'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 85a35adf-498f-4d57-9f80-2ee3a0489a44
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":930},"output":{"message":{"content":[{"text":"<thinking>
+        I have executed the `date`, `pwd`, and `whoami` commands successfully. I can
+        now provide the results to the User. </thinking>\n\nHere are the results of
+        the commands you asked for:\n\n1. The current date and time is: **Wed May  6
+        02:36:39 -03 2026**\n2. The current working directory is: **/home/developer/p/git.home.network/llmrb/llm.rb**\n3.
+        The user currently logged in is: **developer**\n\nLet me know if you need
+        any further assistance."}],"role":"assistant"}},"stopReason":"end_turn","usage":{"inputTokens":608,"outputTokens":131,"serverToolUsage":{},"totalTokens":739}}'
+  recorded_at: Wed, 06 May 2026 05:36:43 GMT
+recorded_with: VCR 6.3.1

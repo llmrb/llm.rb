@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Add
+
+* **Add AWS Bedrock provider support** <br>
+  Add `LLM.bedrock(...)` with Bedrock Converse chat support, AWS SigV4
+  request signing, Bedrock event stream decoding, structured output
+  support through `schema:`, and models.dev-backed `bedrock.json`
+  registry generation.
+
 ## v8.0.0
 
 Changes since `v7.0.0`.

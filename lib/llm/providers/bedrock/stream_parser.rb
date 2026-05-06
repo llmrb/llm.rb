@@ -1,0 +1,167 @@
+# frozen_string_literal: true
+
+class LLM::Bedrock
+  ##
+  # Parses Bedrock Converse Stream events into a response body
+  # and emits stream callbacks (on_content, on_tool_call, etc.).
+  #
+  # Receives decoded JSON payloads from {StreamDecoder} along with
+  # the AWS Event Stream event type header.
+  #
+  # Bedrock Converse Stream event types:
+  #   messageStart — initial role
+  #   contentBlockStart — tool use or reasoning start
+  #   contentBlockDelta — text delta, tool input JSON, or reasoning text
+  #   contentBlockStop — content block finished
+  #   messageStop — final stop reason, usage metadata
+  #
+  # @api private
+  class StreamParser
+    ##
+    # @return [Hash] Fully constructed response body
+    attr_reader :body
+
+    ##
+    # @param [#<<, LLM::Stream] stream
+    def initialize(stream)
+      @body = {"output" => {"message" => {"role" => "assistant", "content" => []}}}
+      @stream = stream
+      @can_emit_content = stream.respond_to?(:on_content)
+      @can_emit_reasoning_content = stream.respond_to?(:on_reasoning_content)
+      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
+      @can_push_content = stream.respond_to?(:<<)
+    end
+
+    ##
+    # @param [Hash] payload Decoded JSON from an event stream frame
+    # @param [String, nil] event_type The :event-type header value
+    # @return [self]
+    def parse!(payload, event_type: nil)
+      type = event_type || payload["type"]
+      case type
+      when "messageStart"
+        # { "role" => "assistant" }
+      when "contentBlockStart"
+        # { "contentBlockIndex" => 0, "start" => { "toolUse" => {...} } }
+        handle_content_block_start(payload)
+      when "contentBlockDelta"
+        # { "contentBlockIndex" => 0, "delta" => { "text" => "..." } }
+        handle_content_block_delta(payload)
+      when "contentBlockStop"
+        handle_content_block_stop(payload)
+      when "messageStop"
+        # { "stopReason" => "end_turn", "metadata" => {"usage" => {...}} }
+        merge_metadata(payload)
+      when "metadata"
+        # { "usage" => {...} }
+        merge_metadata(payload)
+      end
+      self
+    end
+
+    ##
+    # @return [void]
+    def free
+    end
+
+    private
+
+    def handle_content_block_start(payload)
+      index = payload["contentBlockIndex"]
+      start_data = payload["start"] || {}
+      if (tool_use = start_data["toolUse"])
+        content[index] = {"toolUse" => {"toolUseId" => tool_use["toolUseId"], "name" => tool_use["name"], "input" => +""}}
+      elsif (reasoning = start_data["reasoningContent"])
+        content[index] = {"reasoningContent" => {"text" => +"", "signature" => reasoning["signature"]}.compact}
+      end
+    end
+
+    def handle_content_block_delta(payload)
+      index = payload["contentBlockIndex"]
+      delta = payload["delta"] || {}
+      if (text = delta["text"])
+        ensure_content_block(index, "text")
+        content[index]["text"] ||= +""
+        content[index]["text"] << text
+        emit_content(text)
+      elsif (tool_input = delta.dig("toolUse", "input"))
+        ensure_content_block(index, "tool_use")
+        content[index]["toolUse"]["input"] ||= +""
+        content[index]["toolUse"]["input"] << tool_input
+      elsif (reasoning = delta["reasoningContent"])
+        ensure_content_block(index, "reasoning")
+        if reasoning["text"]
+          content[index]["reasoningContent"]["text"] ||= +""
+          content[index]["reasoningContent"]["text"] << reasoning["text"]
+          emit_reasoning_content(reasoning["text"])
+        end
+        if reasoning["signature"]
+          content[index]["reasoningContent"]["signature"] = reasoning["signature"]
+        end
+      end
+    end
+
+    def handle_content_block_stop(payload)
+      index = payload["contentBlockIndex"]
+      item = content[index]
+      return unless item
+      if item["toolUse"] && item["toolUse"]["input"].is_a?(String)
+        parsed = LLM.json.load(item["toolUse"]["input"])
+        item["toolUse"]["input"] = parsed.is_a?(Hash) ? parsed : {}
+        emit_tool(item)
+      end
+    rescue *LLM.json.parser_error
+      item["toolUse"]["input"] = {} if item&.dig("toolUse")
+    end
+
+    def ensure_content_block(index, type)
+      content[index] ||= case type
+      when "tool_use" then {"toolUse" => {"input" => +""}}
+      when "reasoning" then {"reasoningContent" => {"text" => +""}}
+      else {}
+      end
+    end
+
+    def merge_metadata(payload)
+      metadata = payload["metadata"] || payload
+      return unless metadata.is_a?(Hash)
+      usage = metadata["usage"]
+      @body["usage"] = usage if usage
+      @body["stopReason"] = payload["stopReason"] if payload["stopReason"]
+    end
+
+    def emit_content(value)
+      if @can_emit_content
+        @stream.on_content(value)
+      elsif @can_push_content
+        @stream << value
+      end
+    end
+
+    def emit_reasoning_content(value)
+      @stream.on_reasoning_content(value) if @can_emit_reasoning_content
+    end
+
+    def emit_tool(tool)
+      return unless @can_emit_tool_call
+      function, error = resolve_tool(tool)
+      @stream.on_tool_call(function, error)
+    end
+
+    def resolve_tool(tool)
+      payload = tool["toolUse"] || {}
+      registered = @stream.find_tool(payload["name"])
+      fn = (registered || LLM::Function.new(payload["name"])).dup.tap do |f|
+        f.id = payload["toolUseId"]
+        f.arguments = payload["input"] || {}
+        f.tracer = @stream.extra[:tracer]
+        f.model = @stream.extra[:model]
+      end
+      [fn, registered ? nil : @stream.tool_not_found(fn)]
+    end
+
+    def content
+      @body["output"]["message"]["content"]
+    end
+  end
+end

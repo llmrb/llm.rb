@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1:0/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"Hello, world!"}]}],"inferenceConfig":{"maxTokens":2048}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053633Z
+      X-Amz-Content-Sha256:
+      - 1aff731830200f8144200fdf8e27394dd9f42838f96e64f949362d9beba7fa4d
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=d4779609c480c03cdbb2c5c11416e4c46f4c57dc28e9101cf7580829c5cb7723
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:35 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '433'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 12497d32-a47b-4619-9ddf-b45b34201d80
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":349},"output":{"message":{"content":[{"text":"Hello!
+        How can I assist you today? If you have any questions or need information
+        on a particular topic, feel free to ask. Whether it''s about science, technology,
+        general knowledge, or something else, I''m here to help. Happy to chat!"}],"role":"assistant"}},"stopReason":"end_turn","usage":{"inputTokens":4,"outputTokens":55,"serverToolUsage":{},"totalTokens":59}}'
+  recorded_at: Wed, 06 May 2026 05:36:34 GMT
+recorded_with: VCR 6.3.1

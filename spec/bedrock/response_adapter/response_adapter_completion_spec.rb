@@ -10,9 +10,42 @@ RSpec.describe "LLM::Bedrock::ResponseAdapter::Completion" do
       modelId: "test-model"
     )
   end
-  let(:http_response) { Struct.new(:body).new(body) }
+  let(:request_id) { nil }
+  let(:http_response) do
+    Class.new do
+      attr_reader :body
+
+      def initialize(body, request_id)
+        @body = body
+        @request_id = request_id
+      end
+
+      def [](key)
+        return @request_id if key == "x-amzn-requestid"
+      end
+    end.new(body, request_id)
+  end
   let(:response) { LLM::Response.new(http_response) }
   let(:completion) { LLM::Bedrock::ResponseAdapter.adapt(response, type: :completion) }
+
+  context "when the response includes a request id" do
+    let(:content) { [] }
+    let(:usage) { nil }
+    let(:request_id) { "bedrock-request-123" }
+
+    it "returns the response id" do
+      expect(completion.id).to eq("bedrock-request-123")
+    end
+  end
+
+  context "when the response does not include a request id" do
+    let(:content) { [] }
+    let(:usage) { nil }
+
+    it "returns nil" do
+      expect(completion.id).to be_nil
+    end
+  end
 
   context "when usage is nil" do
     let(:content) { [] }

@@ -32,6 +32,13 @@ module LLM::Bedrock::ResponseAdapter
     alias_method :choices, :messages
 
     ##
+    # Returns the Bedrock request id when present.
+    # @return [String, nil]
+    def id
+      res["x-amzn-requestid"] || res["x-amzn-request-id"]
+    end
+
+    ##
     # (see LLM::Contract::Completion#input_tokens)
     def input_tokens
       body.usage&.inputTokens || 0

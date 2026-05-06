@@ -30,7 +30,9 @@ good for IO-bound work and the last two are good for CPU-bound work. Ractor supp
 experimental and comes with limitations.
 
 Want to see some code? Jump to [the examples](#examples) section. <br>
-Want to see a self-hosted LLM environment built on llm.rb? Check out [relay.app](https://github.com/llmrb/relay.app).
+Want to see a self-hosted LLM environment built on llm.rb? Check out [relay.app](https://github.com/llmrb/relay.app). <br>
+Want to use llm.rb with mruby ? Check out [mruby-llm](https://github.com/llmrb/mruby-llm)
+
 
 ## Architecture
 

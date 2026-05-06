@@ -36,8 +36,8 @@ class LLM::Bedrock
     # @param [LLM::Object] credentials AWS signing credentials and host
     # @param [String] method HTTP method ("POST", "GET", etc.)
     # @param [String] path Request path (e.g. "/model/.../converse")
-    # @param [String, nil] query Canonical query string
     # @param [String] body Raw request body
+    # @param [String, nil] query Canonical query string
     def initialize(credentials:, method:, path:, body:, query: nil)
       @credentials = credentials
       @method = method

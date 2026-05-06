@@ -55,6 +55,15 @@ RSpec.describe LLM::Object do
     end
   end
 
+  describe "#transform_values!" do
+    let(:obj) { described_class.from("foo" => 1, "bar" => 2) }
+
+    it "transforms values in place and returns the underlying hash" do
+      expect(obj.transform_values! { |value| value * 10 }).to eq("foo" => 10, "bar" => 20)
+      expect(obj.to_h).to eq("foo" => 10, "bar" => 20)
+    end
+  end
+
   describe "#to_h and #to_hash" do
     let(:obj) { described_class.from("a" => 1, "b" => 2) }
     let(:h) { obj.to_h }

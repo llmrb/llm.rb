@@ -15,6 +15,10 @@
   including SigV4 signing for the control-plane endpoint and normalized
   `LLM::Model` collection responses.
 
+* **Add `LLM::Object#transform_values!`** <br>
+  Let `LLM::Object` transform stored values in place through
+  `#transform_values!`.
+
 ## v8.0.0
 
 Changes since `v7.0.0`.

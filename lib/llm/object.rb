@@ -61,6 +61,14 @@ class LLM::Object < BasicObject
   end
 
   ##
+  # In-place transform of values with a block.
+  # @yieldparam [Object] v
+  # @return [Hash]
+  def transform_values!(&)
+    @h.transform_values!(&)
+  end
+
+  ##
   # @param [Symbol, #to_sym] k
   # @return [Object]
   def [](k)

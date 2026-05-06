@@ -85,7 +85,7 @@ class LLM::Bedrock
       signature = OpenSSL::HMAC.hexdigest(
         "sha256", signing_key, string_to_sign
       )
-      headers["Authorization"] = \
+      headers["Authorization"] =
         "AWS4-HMAC-SHA256 " \
         "Credential=#{@access_key_id}/#{credential_scope}, " \
         "SignedHeaders=#{signed_headers}, Signature=#{signature}"

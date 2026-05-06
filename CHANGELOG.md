@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## v8.1.0
+
+Changes since `v8.0.0`.
+
+This release adds Amazon Bedrock provider support through the Converse
+API, including AWS SigV4 request signing, event stream decoding,
+structured output through `schema:`, and a models.dev-backed registry.
+It exposes `llm.models.all` for Bedrock via the ListFoundationModels
+API and adds `LLM::Object#transform_values!` for in-place value
+transformation. Several Bedrock-specific fixes land as well, including
+response id exposure, blank text block suppression in tool turns, and
+DSML tool-marker filtering in streamed text.
+
 ### Add
 
 * **Add AWS Bedrock provider support** <br>

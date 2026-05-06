@@ -29,13 +29,13 @@
       },
       "open_weights": true,
       "cost": {
-        "input": 0.28,
-        "output": 0.42,
+        "input": 0.14,
+        "output": 0.28,
         "cache_read": 0.028
       },
       "limit": {
-        "context": 131072,
-        "output": 8192
+        "context": 1000000,
+        "output": 384000
       }
     },
     "deepseek-reasoner": {
@@ -62,13 +62,13 @@
       },
       "open_weights": true,
       "cost": {
-        "input": 0.28,
-        "output": 0.42,
+        "input": 0.14,
+        "output": 0.28,
         "cache_read": 0.028
       },
       "limit": {
-        "context": 128000,
-        "output": 64000
+        "context": 1000000,
+        "output": 384000
       }
     },
     "deepseek-v4-flash": {

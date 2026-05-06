@@ -162,6 +162,14 @@ module LLM
   end
 
   ##
+  # @param (see LLM::Bedrock#initialize)
+  # @return (see LLM::Bedrock#initialize)
+  def bedrock(**)
+    lock(:require) { require_relative "llm/providers/bedrock" unless defined?(LLM::Bedrock) }
+    LLM::Bedrock.new(**)
+  end
+
+  ##
   # @param key (see LLM::XAI#initialize)
   # @param host (see LLM::XAI#initialize)
   # @return (see LLM::XAI#initialize)

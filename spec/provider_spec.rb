@@ -24,6 +24,21 @@ RSpec.describe LLM::Provider do
     end
   end
 
+  context "with bedrock" do
+    subject(:provider) do
+      LLM.bedrock(
+        access_key_id: "AKIA_TEST",
+        secret_access_key: "SECRET",
+        region: "us-east-1"
+      )
+    end
+
+    it "builds a Bedrock provider" do
+      expect(provider).to be_a(LLM::Bedrock)
+      expect(provider.name).to eq(:bedrock)
+    end
+  end
+
   context "#interrupt!" do
     let(:provider) { LLM.openai(key: "test") }
     let(:owner) { Fiber.current }

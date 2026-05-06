@@ -1,0 +1,105 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1:0/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"You are a bot that
+        can run UNIX commands"}]},{"role":"user","content":[{"text":"What is the date?"}]}],"inferenceConfig":{"maxTokens":2048},"toolConfig":{"tools":[{"toolSpec":{"name":"system","description":"Runs
+        system commands","inputSchema":{"json":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}}]}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053634Z
+      X-Amz-Content-Sha256:
+      - 8b6a4e7298be175c87d028189203d6e4b5745add451f7a64f2052b8b2c471aa6
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=b67259bcfe33bfcf512117cc9aefd965b474007d6347934d66671b6593d7f2c0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:36 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '459'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 774add5e-7d3e-4210-9208-8d5e89d48fab
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":469},"output":{"message":{"content":[{"text":"<thinking>
+        I don''t have direct access to a UNIX system to run commands, but I can simulate
+        running the ''date'' command to provide an answer. </thinking>\n"},{"toolUse":{"input":{"command":"date"},"name":"system","toolUseId":"tooluse_mPCVze07XLDI43xwTgYM75"}}],"role":"assistant"}},"stopReason":"tool_use","usage":{"inputTokens":401,"outputTokens":50,"serverToolUsage":{},"totalTokens":451}}'
+  recorded_at: Wed, 06 May 2026 05:36:35 GMT
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1:0/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"You are a bot that
+        can run UNIX commands"}]},{"role":"user","content":[{"text":"What is the date?"}]},{"role":"assistant","content":[{"text":"<thinking>
+        I don''t have direct access to a UNIX system to run commands, but I can simulate
+        running the ''date'' command to provide an answer. </thinking>\n"},{"toolUse":{"toolUseId":"tooluse_mPCVze07XLDI43xwTgYM75","name":"system","input":{"command":"date"}}}]},{"role":"user","content":[{"toolResult":{"toolUseId":"tooluse_mPCVze07XLDI43xwTgYM75","content":[{"text":"{\"success\":\"2025-08-24\"}"}]}}]}],"inferenceConfig":{"maxTokens":2048},"toolConfig":{"tools":[{"toolSpec":{"name":"system","description":"Runs
+        system commands","inputSchema":{"json":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}}]}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053635Z
+      X-Amz-Content-Sha256:
+      - a604817ca3d7679c0157f63dddb0149878bffe8a81de0e4cf163836553386ecd
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=5063befb4ed048de7a955cd0a706663b892b7a744bc386f46b8965a271888c56
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:37 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '492'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 95c454f6-4a48-4c6c-b4fb-843316ad2f70
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":580},"output":{"message":{"content":[{"text":"<thinking>
+        The system tool simulated running the ''date'' command and returned a result.
+        I can now provide the simulated date to the User. </thinking>\n\nThe simulated
+        current date is August 24, 2025. \n\nPlease note that this is a simulated
+        response and the actual date might be different."}],"role":"assistant"}},"stopReason":"end_turn","usage":{"inputTokens":489,"outputTokens":66,"serverToolUsage":{},"totalTokens":555}}'
+  recorded_at: Wed, 06 May 2026 05:36:36 GMT
+recorded_with: VCR 6.3.1

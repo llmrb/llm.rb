@@ -10,7 +10,7 @@
   "models": {
     "glm-5v-turbo": {
       "id": "glm-5v-turbo",
-      "name": "glm-5v-turbo",
+      "name": "GLM-5V-Turbo",
       "family": "glm",
       "attachment": true,
       "reasoning": true,

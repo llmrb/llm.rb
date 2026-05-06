@@ -1,0 +1,52 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1:0/converse
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"text":"Keep your answers short
+        and concise, and provide three answers to the three questionsThere should
+        be one answer per lineAn answer should be a number, for example: 5Nothing
+        else"}]},{"role":"user","content":[{"text":"What is 3+2 ?"}]},{"role":"user","content":[{"text":"What
+        is 5+5 ?"}]},{"role":"user","content":[{"text":"What is 5+7 ?"}]}],"inferenceConfig":{"maxTokens":2048}}'
+    headers:
+      User-Agent:
+      - llm.rb v8.0.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Date:
+      - 20260506T053629Z
+      X-Amz-Content-Sha256:
+      - 8d48de8db1fd4e013ffec0c1c5cc2a8832b85050e5a02804c94f03830ba0b7c5
+      Host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=TOKEN/20260506/us-east-1/bedrock/aws4_request,
+        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=46e54ed1ba22e39eb29283fe70b7b2d2fa92621725da8cfa461cd3f82e4a1dce
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 May 2026 05:36:31 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '214'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 83b10c9b-4e2d-4bf1-9f63-eb549ec5f38c
+    body:
+      encoding: UTF-8
+      string: '{"metrics":{"latencyMs":332},"output":{"message":{"content":[{"text":"5  \n10  \n12"}],"role":"assistant"}},"stopReason":"end_turn","usage":{"inputTokens":60,"outputTokens":9,"serverToolUsage":{},"totalTokens":69}}'
+  recorded_at: Wed, 06 May 2026 05:36:30 GMT
+recorded_with: VCR 6.3.1

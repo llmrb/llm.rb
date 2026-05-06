@@ -400,6 +400,13 @@ class LLM::Provider
   end
 
   ##
+  # @return [Class]
+  #  Returns the class responsible for decoding streamed response bodies
+  def stream_decoder
+    LLM::Provider::Transport::HTTP::StreamDecoder
+  end
+
+  ##
   # Resolves tools to their function representations
   # @param [Array<LLM::Function, LLM::Tool>] tools
   #  The tools to map

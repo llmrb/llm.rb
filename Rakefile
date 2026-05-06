@@ -68,10 +68,11 @@ namespace :'models.dev' do
     res = client.request Net::HTTP::Get.new("/api.json")
     case res
     when Net::HTTPOK
-      providers = %w[openai google anthropic xai zai deepseek]
       models = JSON.parse(res.body)
-      providers.each do |provider|
-        File.binwrite "data/#{provider}.json", JSON.pretty_generate(models[provider])
+      providers = %w[openai google anthropic xai zai deepseek].to_h { [_1, _1] }
+      providers["bedrock"] = "amazon-bedrock"
+      providers.each do |target, source|
+        File.binwrite "data/#{target}.json", JSON.pretty_generate(models[source])
       end
     else
       warn("error: #{res.class}")

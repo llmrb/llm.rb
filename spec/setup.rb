@@ -31,6 +31,9 @@ VCR.configure do |config|
   config.filter_sensitive_data("TOKEN") { ENV["DEEPSEEK_SECRET"] }
   config.filter_sensitive_data("TOKEN") { ENV["XAI_SECRET"] }
   config.filter_sensitive_data("TOKEN") { ENV["ZAI_SECRET"] }
+  config.filter_sensitive_data("TOKEN") { ENV["AWS_ACCESS_KEY_ID"] }
+  config.filter_sensitive_data("TOKEN") { ENV["AWS_SECRET_ACCESS_KEY"] }
+  config.filter_sensitive_data("TOKEN") { ENV["AWS_SESSION_TOKEN"] }
   config.filter_sensitive_data("localhost") { ENV["OLLAMA_HOST"] }
 
   config.before_record do

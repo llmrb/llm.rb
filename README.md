@@ -24,6 +24,9 @@ It provides one runtime for providers, agents, tools, skills, MCP servers, strea
 schemas, files, and persisted state, so real systems can be built out of one coherent
 execution model instead of a pile of adapters.
 
+It supports providers including OpenAI, Anthropic, Google Gemini, DeepSeek, xAI,
+Z.ai, and AWS Bedrock.
+
 It provides concurrent tool execution with multiple strategies exposed through a single
 runtime: async-task, threads, fibers, ractors and processes (fork). The first three are
 good for IO-bound work and the last two are good for CPU-bound work. Ractor support is
@@ -442,7 +445,7 @@ worker.join
   preserve OpenAI request shapes but change the API root path.
 - **Provider support is broad** <br>
   Work with OpenAI, OpenAI-compatible endpoints, Anthropic, Google, DeepSeek,
-  Z.ai, xAI, llama.cpp, and Ollama through the same runtime.
+  Z.ai, xAI, AWS Bedrock, llama.cpp, and Ollama through the same runtime.
 - **Tools are explicit** <br>
   Run local tools, provider-native tools, and MCP tools through the same path
   with fewer special cases.

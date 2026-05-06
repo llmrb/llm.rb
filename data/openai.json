@@ -230,8 +230,8 @@
       },
       "limit": {
         "context": 1050000,
-        "input": 920000,
-        "output": 130000
+        "input": 922000,
+        "output": 128000
       },
       "experimental": {
         "modes": {
@@ -1552,6 +1552,43 @@
         "context": 0,
         "input": 0,
         "output": 0
+      }
+    },
+    "gpt-5.5-pro": {
+      "id": "gpt-5.5-pro",
+      "name": "GPT-5.5 Pro",
+      "family": "gpt-pro",
+      "attachment": true,
+      "reasoning": true,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": false,
+      "knowledge": "2025-12-01",
+      "release_date": "2026-04-23",
+      "last_updated": "2026-04-23",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "pdf"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "cost": {
+        "input": 30,
+        "output": 180,
+        "context_over_200k": {
+          "input": 60,
+          "output": 270
+        }
+      },
+      "limit": {
+        "context": 1050000,
+        "input": 922000,
+        "output": 128000
       }
     },
     "gpt-4.1": {

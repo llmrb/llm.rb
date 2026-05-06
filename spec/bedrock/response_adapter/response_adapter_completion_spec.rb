@@ -21,7 +21,7 @@ RSpec.describe "LLM::Bedrock::ResponseAdapter::Completion" do
       end
 
       def [](key)
-        return @request_id if key == "x-amzn-requestid"
+        @request_id if key == "x-amzn-requestid"
       end
     end.new(body, request_id)
   end

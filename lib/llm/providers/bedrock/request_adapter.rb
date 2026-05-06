@@ -12,8 +12,6 @@ class LLM::Bedrock
   #
   # @api private
   module RequestAdapter
-    require_relative "request_adapter/completion"
-
     ##
     # @param [Array<LLM::Message>] messages
     # @return [Hash]

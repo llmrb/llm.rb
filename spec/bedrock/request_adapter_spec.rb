@@ -31,6 +31,27 @@ RSpec.describe "LLM::Bedrock" do
     )
   end
 
+  context "when replaying assistant tool calls" do
+    let(:message) do
+      LLM::Message.new(:assistant, "", tool_calls: [{id: "call_1", name: "system", arguments: {command: "date"}}])
+    end
+
+    it "omits blank text content blocks" do
+      expect(LLM::Bedrock::RequestAdapter::Completion.new(message).adapt).to eq(
+        role: "assistant",
+        content: [
+          {
+            toolUse: {
+              toolUseId: "call_1",
+              name: "system",
+              input: {command: "date"}
+            }
+          }
+        ]
+      )
+    end
+  end
+
   context "when given system messages" do
     let(:prompt) do
       LLM::Prompt.new(provider) do

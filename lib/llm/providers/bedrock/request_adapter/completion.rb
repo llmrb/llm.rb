@@ -36,7 +36,9 @@ module LLM::Bedrock::RequestAdapter
 
     def adapt_message
       if message.tool_call?
-        {role: "assistant", content: [*adapt_content(content), *adapt_tool_calls]}
+        blocks = [*adapt_tool_calls]
+        blocks.unshift(*adapt_content(content)) unless String === content && content.empty?
+        {role: "assistant", content: blocks}
       else
         {role: message.role, content: adapt_content(content)}
       end

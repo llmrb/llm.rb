@@ -79,4 +79,14 @@ RSpec.describe LLM::Bedrock::StreamParser do
     expect(fn.model).to eq("test-model")
     expect(error).to eq(id: "call_1", name: "missing", value: {error: true})
   end
+
+  it "suppresses DSML tool markers from streamed content" do
+    parser.parse!(
+      {"contentBlockIndex" => 0, "delta" => {"text" => "<｜DSML｜function_calls"}},
+      event_type: "contentBlockDelta"
+    )
+    parser.parse!({"contentBlockIndex" => 0}, event_type: "contentBlockStop")
+    expect(stream.content).to eq("")
+    expect(parser.body.dig("output", "message", "content", 0)).to eq({})
+  end
 end

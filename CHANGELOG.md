@@ -19,6 +19,21 @@
   Let `LLM::Object` transform stored values in place through
   `#transform_values!`.
 
+### Fix
+
+* **Expose response ids on Bedrock completion responses** <br>
+  Read the Bedrock request id into `LLM::Response#id` for completion
+  responses adapted from the Converse API.
+
+* **Avoid blank assistant text blocks in Bedrock tool turns** <br>
+  Stop replaying assistant tool-call messages with empty text content
+  blocks that Bedrock rejects.
+
+* **Suppress Bedrock DSML tool markers in streamed text** <br>
+  Filter `"<｜DSML｜function_calls"` markers out of streamed Bedrock
+  assistant text so tool-call sentinels do not leak into user-visible
+  output.
+
 ## v8.0.0
 
 Changes since `v7.0.0`.

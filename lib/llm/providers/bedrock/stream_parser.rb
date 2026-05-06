@@ -17,6 +17,8 @@ class LLM::Bedrock
   #
   # @api private
   class StreamParser
+    TOOL_MARKER = "<｜DSML｜function_calls"
+
     ##
     # @return [Hash] Fully constructed response body
     attr_reader :body
@@ -26,6 +28,7 @@ class LLM::Bedrock
     def initialize(stream)
       @body = {"output" => {"message" => {"role" => "assistant", "content" => []}}}
       @stream = stream
+      @text_markers = {}
       @can_emit_content = stream.respond_to?(:on_content)
       @can_emit_reasoning_content = stream.respond_to?(:on_reasoning_content)
       @can_emit_tool_call = stream.respond_to?(:on_tool_call)
@@ -62,6 +65,7 @@ class LLM::Bedrock
     ##
     # @return [void]
     def free
+      @text_markers.clear
     end
 
     private
@@ -81,9 +85,11 @@ class LLM::Bedrock
       delta = payload["delta"] || {}
       if (text = delta["text"])
         ensure_content_block(index, "text")
+        visible = filtered_text(index, text)
+        return if visible.empty?
         content[index]["text"] ||= +""
-        content[index]["text"] << text
-        emit_content(text)
+        content[index]["text"] << visible
+        emit_content(visible)
       elsif (tool_input = delta.dig("toolUse", "input"))
         ensure_content_block(index, "tool_use")
         content[index]["toolUse"]["input"] ||= +""
@@ -105,6 +111,7 @@ class LLM::Bedrock
       index = payload["contentBlockIndex"]
       item = content[index]
       return unless item
+      flush_text(index, item)
       if item["toolUse"] && item["toolUse"]["input"].is_a?(String)
         parsed = LLM.json.load(item["toolUse"]["input"])
         item["toolUse"]["input"] = parsed.is_a?(Hash) ? parsed : {}
@@ -120,6 +127,33 @@ class LLM::Bedrock
       when "reasoning" then {"reasoningContent" => {"text" => +""}}
       else {}
       end
+    end
+
+    def filtered_text(index, text)
+      state = (@text_markers[index] ||= +"")
+      value = state << text
+      value.gsub!(TOOL_MARKER, "")
+      keep = marker_prefix_length(value)
+      @text_markers[index] = keep.zero? ? +"" : value[-keep..]
+      keep.zero? ? value : value[0...-keep]
+    end
+
+    def flush_text(index, item)
+      value = @text_markers.delete(index).to_s
+      return unless item["text"]
+      if value.empty?
+        content[index] = {} if item["text"].empty?
+      else
+        item["text"] << value
+        emit_content(value)
+      end
+    end
+
+    def marker_prefix_length(value)
+      [value.length, TOOL_MARKER.length - 1].min.downto(1) do |length|
+        return length if TOOL_MARKER.start_with?(value[-length..])
+      end
+      0
     end
 
     def merge_metadata(payload)

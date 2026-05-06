@@ -10,6 +10,11 @@
   support through `schema:`, and models.dev-backed `bedrock.json`
   registry generation.
 
+* **Add AWS Bedrock Models endpoint support** <br>
+  Add `llm.models.all` for Bedrock via the ListFoundationModels API,
+  including SigV4 signing for the control-plane endpoint and normalized
+  `LLM::Model` collection responses.
+
 ## v8.0.0
 
 Changes since `v7.0.0`.

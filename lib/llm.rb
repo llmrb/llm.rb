@@ -188,17 +188,6 @@ module LLM
   end
 
   ##
-  # @param access_key_id (see LLM::Bedrock#initialize)
-  # @param secret_access_key (see LLM::Bedrock#initialize)
-  # @param region (see LLM::Bedrock#initialize)
-  # @param session_token (see LLM::Bedrock#initialize)
-  # @return (see LLM::Bedrock#initialize)
-  def bedrock(**)
-    lock(:require) { require_relative "llm/providers/bedrock" unless defined?(LLM::Bedrock) }
-    LLM::Bedrock.new(**)
-  end
-
-  ##
   # @param [LLM::Provider, nil] llm
   #  The provider to use for MCP transports that need one
   # @param [Hash, nil] stdio

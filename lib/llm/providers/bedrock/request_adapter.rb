@@ -40,7 +40,7 @@ class LLM::Bedrock
       schema = params.delete(:schema)
       schema = schema.respond_to?(:object) ? schema.object : schema
       cleaned = schema.respond_to?(:to_h) ? schema.to_h : schema
-      [:strict, "strict", :"$schema", "$schema"].each { cleaned.delete(_1) }
+      [:strict, "strict", :$schema, "$schema"].each { cleaned.delete(_1) }
       {
         outputConfig: {
           textFormat: {

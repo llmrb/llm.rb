@@ -67,3 +67,5 @@ Style/ParenthesesAroundCondition:
   Enabled: false
 Lint/ConstantDefinitionInBlock:
   Enabled: false
+Layout/ParameterAlignment:
+  Enabled: false

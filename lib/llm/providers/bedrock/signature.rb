@@ -38,7 +38,7 @@ class LLM::Bedrock
     # @param [String] path Request path (e.g. "/model/.../converse")
     # @param [String, nil] query Canonical query string
     # @param [String] body Raw request body
-    def initialize(credentials:, method:, path:, query: nil, body:)
+    def initialize(credentials:, method:, path:, body:, query: nil)
       @credentials = credentials
       @method = method
       @path = path
@@ -81,7 +81,7 @@ class LLM::Bedrock
       signature = OpenSSL::HMAC.hexdigest(
         "sha256", signing_key, string_to_sign
       )
-      headers["Authorization"] = \
+      headers["Authorization"] =
         "AWS4-HMAC-SHA256 " \
         "Credential=#{@credentials.access_key_id}/#{credential_scope}, " \
         "SignedHeaders=#{signed_headers}, Signature=#{signature}"

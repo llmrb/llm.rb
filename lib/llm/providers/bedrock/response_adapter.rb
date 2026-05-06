@@ -14,8 +14,6 @@ class LLM::Bedrock
   #
   # @api private
   module ResponseAdapter
-    require_relative "response_adapter/completion"
-
     module_function
 
     ##
@@ -32,6 +30,7 @@ class LLM::Bedrock
     def select(type)
       case type
       when :completion then LLM::Bedrock::ResponseAdapter::Completion
+      when :models then LLM::Bedrock::ResponseAdapter::Models
       else
         raise ArgumentError,
               "Unknown response adapter type: #{type.inspect}"

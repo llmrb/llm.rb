@@ -15,40 +15,35 @@ class LLM::Bedrock
   #
   # @example
   #   signature = LLM::Bedrock::Signature.new(
-  #     access_key_id: ENV["AWS_ACCESS_KEY_ID"],
-  #     secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
-  #     region: "us-east-1",
+  #     credentials: LLM::Object.from(
+  #       access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+  #       secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
+  #       aws_region: "us-east-1",
+  #       host: "bedrock-runtime.us-east-1.amazonaws.com",
+  #       session_token: nil
+  #     ),
   #     method: "POST",
   #     path: "/model/anthropic.claude-3/converse",
-  #     body: '{"messages":[...]}',
-  #     host: "bedrock-runtime.us-east-1.amazonaws.com",
-  #     session_token: nil
+  #     body: '{"messages":[...]}'
   #   )
-  #   req.merge!(signature.to_h)
+  #   signature.sign!(req)
   #
   # @api private
   class Signature
     SERVICE = "bedrock"
 
     ##
-    # @param access_key_id [String] AWS access key ID
-    # @param secret_access_key [String] AWS secret access key
-    # @param region [String] AWS region (e.g. "us-east-1")
-    # @param method [String] HTTP method ("POST", "GET", etc.)
-    # @param path [String] Request path (e.g. "/model/.../converse")
-    # @param body [String] Raw request body
-    # @param host [String] Request host header value
-    # @param session_token [String, nil] AWS session token
-    def initialize(access_key_id:, secret_access_key:, region:,
-                   method:, path:, body:, host:, session_token: nil)
-      @access_key_id = access_key_id
-      @secret_access_key = secret_access_key
-      @region = region
+    # @param [LLM::Object] credentials AWS signing credentials and host
+    # @param [String] method HTTP method ("POST", "GET", etc.)
+    # @param [String] path Request path (e.g. "/model/.../converse")
+    # @param [String, nil] query Canonical query string
+    # @param [String] body Raw request body
+    def initialize(credentials:, method:, path:, query: nil, body:)
+      @credentials = credentials
       @method = method
       @path = path
+      @query = query
       @body = body
-      @host = host
-      @session_token = session_token
     end
 
     ##
@@ -68,16 +63,17 @@ class LLM::Bedrock
         "X-Amz-Date" => amz_date,
         "X-Amz-Content-Sha256" => payload_hash,
         "Content-Type" => "application/json",
-        "Host" => @host
+        "Host" => @credentials.host
       }
-      headers["X-Amz-Security-Token"] = @session_token if @session_token
+      headers["X-Amz-Security-Token"] = @credentials.session_token if @credentials.session_token
       signed_headers = build_signed_headers
       canonical_headers = build_canonical_headers(headers, signed_headers)
       canonical_uri = build_canonical_uri
+      canonical_query = build_canonical_query
       canonical_request = build_canonical_request(
-        canonical_uri, canonical_headers, signed_headers, payload_hash
+        canonical_uri, canonical_query, canonical_headers, signed_headers, payload_hash
       )
-      credential_scope = "#{date_stamp}/#{@region}/#{SERVICE}/aws4_request"
+      credential_scope = "#{date_stamp}/#{@credentials.aws_region}/#{SERVICE}/aws4_request"
       string_to_sign = build_string_to_sign(
         amz_date, credential_scope, canonical_request
       )
@@ -87,16 +83,24 @@ class LLM::Bedrock
       )
       headers["Authorization"] = \
         "AWS4-HMAC-SHA256 " \
-        "Credential=#{@access_key_id}/#{credential_scope}, " \
+        "Credential=#{@credentials.access_key_id}/#{credential_scope}, " \
         "SignedHeaders=#{signed_headers}, Signature=#{signature}"
       headers
+    end
+
+    ##
+    # @param [Net::HTTPRequest] req
+    # @return [Net::HTTPRequest]
+    def sign!(req)
+      to_h.each { |k, v| req[k] = v }
+      req
     end
 
     private
 
     def build_signed_headers
       %w[host x-amz-date x-amz-content-sha256].tap do |h|
-        h << "x-amz-security-token" if @session_token
+        h << "x-amz-security-token" if @credentials.session_token
         h << "content-type"
       end.sort.join(";")
     end
@@ -116,12 +120,19 @@ class LLM::Bedrock
       canonical.start_with?("/") ? canonical : "/#{canonical}"
     end
 
-    def build_canonical_request(uri, canonical_headers,
+    def build_canonical_query
+      return "" if @query.to_s.empty?
+      URI.decode_www_form(@query).sort.map do |key, value|
+        "#{uri_encode(key)}=#{uri_encode(value)}"
+      end.join("&")
+    end
+
+    def build_canonical_request(uri, query, canonical_headers,
                                 signed_headers, payload_hash)
       [
         @method,
         uri,
-        "",  # canonical query string (always empty for Bedrock)
+        query,
         canonical_headers,
         signed_headers,
         payload_hash
@@ -139,9 +150,9 @@ class LLM::Bedrock
 
     def derive_signing_key(date_stamp)
       k_date = OpenSSL::HMAC.digest(
-        "sha256", "AWS4#{@secret_access_key}", date_stamp
+        "sha256", "AWS4#{@credentials.secret_access_key}", date_stamp
       )
-      k_region = OpenSSL::HMAC.digest("sha256", k_date, @region)
+      k_region = OpenSSL::HMAC.digest("sha256", k_date, @credentials.aws_region)
       k_service = OpenSSL::HMAC.digest("sha256", k_region, SERVICE)
       OpenSSL::HMAC.digest("sha256", k_service, "aws4_request")
     end

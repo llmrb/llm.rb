@@ -34,33 +34,37 @@ module LLM
     require_relative "bedrock/signature"
     require_relative "bedrock/error_handler"
     require_relative "bedrock/request_adapter"
+    require_relative "bedrock/request_adapter/completion"
     require_relative "bedrock/response_adapter"
+    require_relative "bedrock/response_adapter/completion"
+    require_relative "bedrock/response_adapter/models"
     require_relative "bedrock/stream_decoder"
     require_relative "bedrock/stream_parser"
+    require_relative "bedrock/models"
 
     include RequestAdapter
 
     HOST_PATTERN = "bedrock-runtime.%s.amazonaws.com"
 
     ##
-    # @param access_key_id [String] AWS access key ID
-    # @param secret_access_key [String] AWS secret access key
-    # @param region [String] AWS region (e.g. "us-east-1")
-    # @param session_token [String, nil] AWS session token for temporary credentials
-    # @param host [String, nil] Override the Bedrock API host
-    # @param port [Integer] Connection port
-    # @param ssl [Boolean] Whether to use SSL
-    # @param timeout [Integer] Request timeout in seconds
+    # @param [String] access_key_id AWS access key ID
+    # @param [String] secret_access_key AWS secret access key
+    # @param [String] region AWS region (e.g. "us-east-1")
+    # @param [String, nil] session_token AWS session token for temporary credentials
+    # @param [String, nil] host Override the Bedrock API host
+    # @param [Integer] port Connection port
+    # @param [Boolean] ssl Whether to use SSL
+    # @param [Integer] timeout Request timeout in seconds
     def initialize(access_key_id: nil, secret_access_key: nil,
                    region: nil, session_token: nil,
                    host: nil, port: 443, ssl: true, timeout: 60,
                    **)
+      region ||= "us-east-1"
       @access_key_id = access_key_id
       @secret_access_key = secret_access_key
       @aws_region = region
       @session_token = session_token
-      host ||= HOST_PATTERN % region if region
-      host ||= HOST_PATTERN % "us-east-1"
+      host ||= HOST_PATTERN % region
       @aws_host = host
       super(key: @access_key_id, host:, port:, ssl:, timeout:, persistent: false)
     end
@@ -83,23 +87,26 @@ module LLM
       params, stream, tools, role = normalize_complete_params(params)
       req, messages, body = build_complete_request(prompt, params, role, stream:)
       tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))
-      signed_headers = Signature.new(
-        access_key_id: @access_key_id,
-        secret_access_key: @secret_access_key,
-        region: @aws_region,
-        method: req.method,
-        path: req.path,
-        body:,
-        host: @aws_host,
-        session_token: @session_token
-      ).to_h
-      signed_headers.each { |k, v| req[k] = v }
+      sign!(req, body)
       model_id = model_id_for(req.path)
       res, span, tracer = execute(request: req, stream:, operation: "chat", stream_parser:, model: model_id)
       res = ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
       tracer.on_request_finish(operation: "chat", model: model_id, res:, span:)
       res
+    end
+
+    ##
+    # Provides an interface to Bedrock's ListFoundationModels API.
+    #
+    # @note
+    #  Unlike the Converse API (bedrock-runtime), this endpoint lives
+    #  on the control plane (bedrock.<region>.amazonaws.com).
+    #
+    # @see https://docs.aws.amazon.com/bedrock/latest/APIReference/API_ListFoundationModels.html
+    # @return [LLM::Bedrock::Models]
+    def models
+      LLM::Bedrock::Models.new(self)
     end
 
     ##
@@ -172,6 +179,16 @@ module LLM
       end
     end
 
+    def credentials
+      LLM::Object.from(
+        access_key_id: @access_key_id,
+        secret_access_key: @secret_access_key,
+        aws_region: @aws_region,
+        host: @aws_host,
+        session_token: @session_token
+      )
+    end
+
     def stream_parser
       LLM::Bedrock::StreamParser
     end
@@ -241,6 +258,15 @@ module LLM
 
     def model_id_for(path)
       path[%r{\A/model/(.+?)/converse(?:-stream)?\z}, 1] || default_model
+    end
+
+    def sign!(req, body)
+      Signature.new(
+        credentials:,
+        method: req.method,
+        path: req.path,
+        body:
+      ).sign!(req)
     end
   end
 end

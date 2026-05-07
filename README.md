@@ -25,7 +25,7 @@ schemas, files, and persisted state, so real systems can be built out of one coh
 execution model instead of a pile of adapters.
 
 It includes support for OpenAI, OpenAI-compatible endpoints, Anthropic, Google Gemini,
-DeepSeek, xAI, Z.ai, and AWS Bedrock.
+DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. 
 
 It provides concurrent tool execution with multiple strategies exposed through a single
 runtime: async-task, threads, fibers, ractors and processes (fork). The first three are

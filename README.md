@@ -25,7 +25,7 @@ schemas, files, and persisted state, so real systems can be built out of one coh
 execution model instead of a pile of adapters.
 
 It includes support for OpenAI, OpenAI-compatible endpoints, Anthropic, Google Gemini,
-DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. 
+DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
 
 It provides concurrent tool execution with multiple strategies exposed through a single
 runtime: async-task, threads, fibers, ractors and processes (fork). The first three are
@@ -34,8 +34,10 @@ experimental and comes with limitations.
 
 Want to see some code? Jump to [the examples](#examples) section. <br>
 Want to see a self-hosted LLM environment built on llm.rb? Check out [relay.app](https://github.com/llmrb/relay.app). <br>
-Want to use llm.rb with mruby ? Check out [mruby-llm](https://github.com/llmrb/mruby-llm).
-
+Want to use llm.rb with mruby ? Check out [mruby-llm](https://github.com/llmrb/mruby-llm). <br>
+Want support ? [Open an issue](https://github.com/llmrb/llm.rb/issues),
+join us on [irc.libera.chat/#llm.rb](https://web.libera.chat/)
+or [email the maintainer](mailto:0x1eef@hardenedbsd.org).
 
 ## Architecture
 

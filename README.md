@@ -24,8 +24,8 @@ It provides one runtime for providers, agents, tools, skills, MCP servers, strea
 schemas, files, and persisted state, so real systems can be built out of one coherent
 execution model instead of a pile of adapters.
 
-It supports providers including OpenAI, Anthropic, Google Gemini, DeepSeek, xAI,
-Z.ai, and AWS Bedrock.
+It includes support for OpenAI, OpenAI-compatible endpoints, Anthropic, Google Gemini,
+DeepSeek, xAI, Z.ai, and AWS Bedrock.
 
 It provides concurrent tool execution with multiple strategies exposed through a single
 runtime: async-task, threads, fibers, ractors and processes (fork). The first three are
@@ -34,7 +34,7 @@ experimental and comes with limitations.
 
 Want to see some code? Jump to [the examples](#examples) section. <br>
 Want to see a self-hosted LLM environment built on llm.rb? Check out [relay.app](https://github.com/llmrb/relay.app). <br>
-Want to use llm.rb with mruby ? Check out [mruby-llm](https://github.com/llmrb/mruby-llm)
+Want to use llm.rb with mruby ? Check out [mruby-llm](https://github.com/llmrb/mruby-llm).
 
 
 ## Architecture

@@ -12,6 +12,22 @@ RSpec.describe LLM::Context do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
 
+    context "#cost" do
+      let(:cost) { LLM::Cost.new(input_costs: 0.000728125) }
+
+      before do
+        ctx.usage.input_tokens = 100
+        ctx.usage.output_tokens = 50
+        ctx.usage.cache_read_tokens = 25
+        ctx.usage.reasoning_tokens = 10
+      end
+
+      it "delegates cost construction to LLM::Cost" do
+        expect(LLM::Cost).to receive(:from).with(ctx).and_return(cost)
+        expect(ctx.cost).to be(cost)
+      end
+    end
+
     context "#context_window" do
       subject { ctx.context_window }
       it { is_expected.to eq(1050000) }
@@ -482,6 +498,7 @@ RSpec.describe LLM::Context do
       expect(ctx.usage.input_tokens).to eq(3)
       expect(ctx.usage.output_tokens).to eq(0)
       expect(ctx.usage.reasoning_tokens).to eq(0)
+      expect(ctx.usage.cache_write_tokens).to eq(0)
       expect(ctx.usage.total_tokens).to eq(0)
     end
 

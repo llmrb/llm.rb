@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### Add
+
+* **Track cache read and write tokens in usage** <br>
+  Add `cache_read_tokens` and `cache_write_tokens` to `LLM::Usage` and
+  preserve them through completion usage adaptation and context usage
+  aggregation.
+
+* **Read provider cache usage into completion responses** <br>
+  Read cache read tokens from provider usage metadata, including OpenAI
+  `usage.prompt_tokens_details` and Anthropic
+  `usage.cache_read_input_tokens`. Read Anthropic cache write tokens
+  from `usage.cache_creation_input_tokens`, and expose explicit
+  zero-valued `cache_write_tokens` methods on providers that do not
+  report cache creation usage.
+
+* **Extend cost tracking with cache write pricing** <br>
+  Extend `LLM::Cost` with `cache_read_costs`, `cache_write_costs`, and
+  `reasoning_costs` alongside the existing `input_costs` and
+  `output_costs`. Add `#to_h` for structured cost insight and update
+  `ctx.cost` to calculate all available components from registry
+  pricing data.
+
 ## v8.1.0
 
 Changes since `v8.0.0`.

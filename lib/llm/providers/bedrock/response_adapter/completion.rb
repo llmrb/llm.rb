@@ -57,6 +57,18 @@ module LLM::Bedrock::ResponseAdapter
     end
 
     ##
+    # (see LLM::Contract::Completion#cache_read_tokens)
+    def cache_read_tokens
+      0
+    end
+
+    ##
+    # (see LLM::Contract::Completion#cache_write_tokens)
+    def cache_write_tokens
+      0
+    end
+
+    ##
     # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
       input_tokens + output_tokens

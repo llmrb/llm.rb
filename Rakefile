@@ -81,5 +81,11 @@ namespace :'models.dev' do
   end
 end
 
+namespace :agents do
+  desc "Run the release agent"
+  task :release do
+    sh "bundle exec ruby agents/release-agent/main.rb"
+  end
+end
 
 task default: %i[spec rubocop]

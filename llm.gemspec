@@ -8,22 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Antar Azri", "0x1eef", "Christos Maris", "Rodrigo Serrano"]
   spec.email = ["azantar@proton.me", "0x1eef@hardenedbsd.org"]
 
-  spec.summary = "Lightweight runtime for building capable AI systems in Ruby."
-
-  spec.description = <<~DESCRIPTION
-  llm.rb is a lightweight runtime for building capable AI systems in Ruby.
-  It is not just an API wrapper. llm.rb gives you one runtime for providers,
-  contexts, agents, tools, MCP servers, streaming, schemas, files, and
-  persisted state, so real systems can be built out of one coherent
-  execution model instead of a pile of adapters. It stays close to Ruby, runs
-  on the standard library by default, loads optional pieces only when needed,
-  includes built-in ActiveRecord support through acts_as_llm and
-  acts_as_agent, includes built-in Sequel support through plugin :llm,
-  and is designed for engineers who want control over long-lived,
-  tool-capable, stateful AI workflows instead of just request/response
-  helpers.
-  DESCRIPTION
-
+  spec.summary = "Ruby's most capable AI runtime"
+  spec.description = spec.summary
   spec.license = "0BSD"
   spec.required_ruby_version = ">= 3.3.0"
 

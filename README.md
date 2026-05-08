@@ -9,25 +9,27 @@
 
 ## About
 
-llm.rb is the most capable runtime for building AI systems in Ruby.
+llm.rb is Ruby's most capable AI runtime.
+
 <br>
 
-llm.rb is designed for Ruby, and although it works great in Rails, it is not tightly
-coupled to it. It runs on the standard library by default (zero dependencies),
-loads optional pieces only when needed, includes built-in ActiveRecord support through
-`acts_as_llm` and `acts_as_agent`, includes built-in Sequel support through
-`plugin :llm` and `plugin :agent`, and is designed for engineers who want control over
-long-lived, tool-capable, stateful AI workflows instead of just
-request/response helpers.
+llm.rb is designed for Ruby, and although it works great in Rails and other ruby
+web frameworks, it is not tightly coupled to anything beyond Ruby's standard library.
+It runs on the standard library by default and it has zero runtime dependencies. That
+made [porting llm.rb to mruby](https://github.com/llmrb/mruby-llm) easy.
 
-It provides one runtime for providers, agents, tools, skills, MCP servers, streaming,
+llm.rb loads optional pieces only when needed, and it includes built-in ActiveRecord support
+through `acts_as_llm` and `acts_as_agent`. There is also Sequel support through
+`plugin :llm` and `plugin :agent`. Both remain optional and are opt-in.
+
+llm.rb offers one runtime for providers, agents, tools, skills, MCP servers, streaming,
 schemas, files, and persisted state, so real systems can be built out of one coherent
 execution model instead of a pile of adapters.
 
-It includes support for OpenAI, OpenAI-compatible endpoints, Anthropic, Google Gemini,
+llm.rb includes support for OpenAI, OpenAI-compatible endpoints, Anthropic, Google Gemini,
 DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
 
-It provides concurrent tool execution with multiple strategies exposed through a single
+llm.rb provides concurrent tool execution with multiple strategies exposed through a single
 runtime: async-task, threads, fibers, ractors and processes (fork). The first three are
 good for IO-bound work and the last two are good for CPU-bound work. Ractor support is
 experimental and comes with limitations.

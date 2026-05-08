@@ -66,10 +66,11 @@ system commands.
 ---
 name: release
 description: Prepare a release
-tools:
-  - search_docs
-  - git
+tools: ['search-docs', 'git']
 ---
+
+## Task
+
 Review the release state, summarize what changed, and prepare the release.
 ```
 

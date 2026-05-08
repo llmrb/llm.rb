@@ -26,7 +26,15 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
   end
 
   context "when usage is provided" do
-    let(:usage) { LLM::Object.from(prompt_tokens: 10, completion_tokens: 20, total_tokens: 30) }
+    let(:usage) do
+      LLM::Object.from(
+        prompt_tokens: 10,
+        completion_tokens: 20,
+        total_tokens: 30,
+        prompt_tokens_details: {audio_tokens: 2},
+        completion_tokens_details: {audio_tokens: 3}
+      )
+    end
 
     it "returns correct input tokens" do
       expect(completion.input_tokens).to eq(10)
@@ -34,6 +42,14 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
 
     it "returns correct output tokens" do
       expect(completion.output_tokens).to eq(20)
+    end
+
+    it "returns correct input audio tokens" do
+      expect(completion.input_audio_tokens).to eq(2)
+    end
+
+    it "returns correct output audio tokens" do
+      expect(completion.output_audio_tokens).to eq(3)
     end
 
     it "returns correct total tokens" do

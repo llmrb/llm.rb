@@ -28,6 +28,18 @@ module LLM::Anthropic::ResponseAdapter
     end
 
     ##
+    # (see LLM::Contract::Completion#input_audio_tokens)
+    def input_audio_tokens
+      super
+    end
+
+    ##
+    # (see LLM::Contract::Completion#output_audio_tokens)
+    def output_audio_tokens
+      super
+    end
+
+    ##
     # (see LLM::Contract::Completion#cache_read_tokens)
     def cache_read_tokens
       body.usage&.cache_read_input_tokens || 0

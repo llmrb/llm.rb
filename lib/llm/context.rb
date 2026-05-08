@@ -44,6 +44,8 @@ module LLM
       input_tokens: 0,
       output_tokens: 0,
       reasoning_tokens: 0,
+      input_audio_tokens: 0,
+      output_audio_tokens: 0,
       cache_read_tokens: 0,
       cache_write_tokens: 0,
       total_tokens: 0
@@ -352,6 +354,8 @@ module LLM
           input_tokens: usage.input_tokens || 0,
           output_tokens: usage.output_tokens || 0,
           reasoning_tokens: usage.reasoning_tokens || 0,
+          input_audio_tokens: usage.input_audio_tokens || 0,
+          output_audio_tokens: usage.output_audio_tokens || 0,
           cache_read_tokens: usage.cache_read_tokens || 0,
           cache_write_tokens: usage.cache_write_tokens || 0,
           total_tokens: usage.total_tokens || 0

@@ -9,6 +9,7 @@
 # window (which may vary by model).
 class LLM::Usage < Struct.new(
   :input_tokens, :output_tokens, :reasoning_tokens,
+  :input_audio_tokens, :output_audio_tokens,
   :cache_read_tokens, :cache_write_tokens, :total_tokens, keyword_init: true
 )
   ##
@@ -16,7 +17,9 @@ class LLM::Usage < Struct.new(
   def to_json(...)
     LLM.json.dump({
       input_tokens:, output_tokens:,
-      reasoning_tokens:, cache_read_tokens:, cache_write_tokens:, total_tokens:
+      reasoning_tokens:,
+      input_audio_tokens:, output_audio_tokens:,
+      cache_read_tokens:, cache_write_tokens:, total_tokens:
     })
   end
 end

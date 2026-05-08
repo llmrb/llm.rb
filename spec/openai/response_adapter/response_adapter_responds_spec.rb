@@ -7,7 +7,10 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Responds" do
   let(:body) do
     LLM::Object.from(
       model: "test-model",
-      usage: nil,
+      usage: {
+        input_tokens_details: {audio_tokens: 2},
+        output_tokens_details: {audio_tokens: 3}
+      },
       output: [
         {
           type: "message",
@@ -36,5 +39,10 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Responds" do
 
   it "exposes content like a completion response" do
     expect(responds.content).to eq("hello\n")
+  end
+
+  it "returns audio token details" do
+    expect(responds.input_audio_tokens).to eq(2)
+    expect(responds.output_audio_tokens).to eq(3)
   end
 end

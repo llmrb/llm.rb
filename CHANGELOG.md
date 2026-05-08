@@ -24,6 +24,11 @@
   `ctx.cost` to calculate all available components from registry
   pricing data.
 
+* **Price input and output audio separately** <br>
+  Track `input_audio_tokens` and `output_audio_tokens` in usage and
+  include `input_audio_costs` and `output_audio_costs` in `LLM::Cost`
+  so multimodal requests report accurate audio spend.
+
 ## v8.1.0
 
 Changes since `v8.0.0`.

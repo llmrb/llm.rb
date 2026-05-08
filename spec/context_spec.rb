@@ -498,6 +498,8 @@ RSpec.describe LLM::Context do
       expect(ctx.usage.input_tokens).to eq(3)
       expect(ctx.usage.output_tokens).to eq(0)
       expect(ctx.usage.reasoning_tokens).to eq(0)
+      expect(ctx.usage.input_audio_tokens).to eq(0)
+      expect(ctx.usage.output_audio_tokens).to eq(0)
       expect(ctx.usage.cache_write_tokens).to eq(0)
       expect(ctx.usage.total_tokens).to eq(0)
     end

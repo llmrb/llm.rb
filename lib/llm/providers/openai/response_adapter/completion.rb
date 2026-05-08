@@ -41,6 +41,24 @@ module LLM::OpenAI::ResponseAdapter
     end
 
     ##
+    # (see LLM::Contract::Completion#input_audio_tokens)
+    def input_audio_tokens
+      body
+        .usage
+        &.prompt_tokens_details
+        &.audio_tokens || 0
+    end
+
+    ##
+    # (see LLM::Contract::Completion#output_audio_tokens)
+    def output_audio_tokens
+      body
+        .usage
+        &.completion_tokens_details
+        &.audio_tokens || 0
+    end
+
+    ##
     # (see LLM::Contract::Completion#cache_read_tokens)
     def cache_read_tokens
       body

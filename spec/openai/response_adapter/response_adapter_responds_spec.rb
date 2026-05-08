@@ -45,4 +45,8 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Responds" do
     expect(responds.input_audio_tokens).to eq(2)
     expect(responds.output_audio_tokens).to eq(3)
   end
+
+  it "returns 0 for input image tokens" do
+    expect(responds.input_image_tokens).to eq(0)
+  end
 end

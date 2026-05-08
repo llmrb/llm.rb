@@ -3,8 +3,8 @@
 ##
 # The {LLM::Cost LLM::Cost} class represents an approximate
 # cost breakdown for a provider request. It stores input,
-# output, input audio, output audio, cache read, cache write, and reasoning
-# costs separately and can return the total.
+# output, input audio, output audio, input image, cache read, cache write,
+# and reasoning costs separately and can return the total.
 #
 # @attr [Float] input_costs
 #   Returns the input cost
@@ -15,6 +15,9 @@
 #   were used
 # @attr [Float, nil] output_audio_costs
 #   Returns the output audio cost, or nil when no output audio tokens
+#   were used
+# @attr [Float, nil] input_image_costs
+#   Returns the input image cost, or nil when no input image tokens
 #   were used
 # @attr [Float, nil] cache_read_costs
 #   Returns the cache read cost, or nil when no cache tokens
@@ -28,7 +31,8 @@
 class LLM::Cost < Struct.new(
   :input_costs, :output_costs,
   :input_audio_costs, :output_audio_costs,
-  :cache_read_costs, :cache_write_costs, :reasoning_costs,
+  :cache_read_costs, :cache_write_costs,
+  :input_image_costs, :reasoning_costs,
   keyword_init: true
 )
   ##
@@ -43,6 +47,7 @@ class LLM::Cost < Struct.new(
       output_costs: price(pricing.output, ctx.usage.output_tokens),
       input_audio_costs: price(pricing.input_audio, ctx.usage.input_audio_tokens),
       output_audio_costs: price(pricing.output_audio, ctx.usage.output_audio_tokens),
+      input_image_costs: price(pricing.input, ctx.usage.input_image_tokens),
       cache_read_costs: price(pricing.cache_read, ctx.usage.cache_read_tokens),
       cache_write_costs: price(pricing.cache_write, ctx.usage.cache_write_tokens),
       reasoning_costs: price(pricing.output, ctx.usage.reasoning_tokens)
@@ -67,9 +72,9 @@ class LLM::Cost < Struct.new(
     [
       input_costs, output_costs,
       input_audio_costs, output_audio_costs,
-      cache_read_costs, cache_write_costs, reasoning_costs
-    ]
-      .compact.sum.round(12)
+      cache_read_costs, cache_write_costs,
+      input_image_costs, reasoning_costs
+    ].compact.sum.round(12)
   end
 
   ##
@@ -81,6 +86,7 @@ class LLM::Cost < Struct.new(
       output: output_costs,
       input_audio: input_audio_costs,
       output_audio: output_audio_costs,
+      input_image: input_image_costs,
       cache_read: cache_read_costs,
       cache_write: cache_write_costs,
       reasoning: reasoning_costs,

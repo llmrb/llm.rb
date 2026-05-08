@@ -54,6 +54,14 @@ module LLM::Contract
 
     ##
     # @return [Integer]
+    #  Returns the number of input image tokens, or 0 when the
+    #  provider does not report input image usage
+    def input_image_tokens
+      0
+    end
+
+    ##
+    # @return [Integer]
     #  Returns the number of cached input tokens, or 0 when the
     #  provider does not report cache usage
     def cache_read_tokens
@@ -106,6 +114,7 @@ module LLM::Contract
         reasoning_tokens:,
         input_audio_tokens:,
         output_audio_tokens:,
+        input_image_tokens:,
         cache_read_tokens:,
         cache_write_tokens:,
         total_tokens:

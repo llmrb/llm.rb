@@ -13,6 +13,7 @@ RSpec.describe LLM::Cost do
         output_tokens: 2000,
         input_audio_tokens: 300,
         output_audio_tokens: 400,
+        input_image_tokens: 500,
         cache_read_tokens: 3000,
         cache_write_tokens: 500,
         reasoning_tokens: 4000,
@@ -47,10 +48,11 @@ RSpec.describe LLM::Cost do
           output: 0.012,
           input_audio: 0.0009,
           output_audio: 0.0048,
+          input_image: 0.00075,
           cache_read: 0.0015,
           cache_write: 0.000625,
           reasoning: 0.024,
-          total: 0.045325
+          total: 0.046075
         )
       end
     end
@@ -72,6 +74,7 @@ RSpec.describe LLM::Cost do
           output_tokens: 2000,
           input_audio_tokens: 0,
           output_audio_tokens: nil,
+          input_image_tokens: nil,
           cache_read_tokens: 0,
           cache_write_tokens: nil,
           reasoning_tokens: nil,

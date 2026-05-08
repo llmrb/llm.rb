@@ -29,6 +29,11 @@
   include `input_audio_costs` and `output_audio_costs` in `LLM::Cost`
   so multimodal requests report accurate audio spend.
 
+* **Track image tokens in input cost reporting** <br>
+  Add `input_image_tokens` to usage and include `input_image_costs` in
+  `LLM::Cost` using the model's generic input rate so image-bearing
+  prompts report their input spend.
+
 ## v8.1.0
 
 Changes since `v8.0.0`.

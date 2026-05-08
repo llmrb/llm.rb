@@ -31,7 +31,7 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
         prompt_tokens: 10,
         completion_tokens: 20,
         total_tokens: 30,
-        prompt_tokens_details: {audio_tokens: 2},
+        prompt_tokens_details: {audio_tokens: 2, image_tokens: 4},
         completion_tokens_details: {audio_tokens: 3}
       )
     end
@@ -50,6 +50,10 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
 
     it "returns correct output audio tokens" do
       expect(completion.output_audio_tokens).to eq(3)
+    end
+
+    it "returns correct input image tokens" do
+      expect(completion.input_image_tokens).to eq(4)
     end
 
     it "returns correct total tokens" do

@@ -43,8 +43,6 @@ or [email the maintainer](mailto:0x1eef@hardenedbsd.org).
 
 ## Standout features
 
-The following list is **not exhaustive**, but it covers a lot of ground.
-
 #### Skills
 
 Skills are reusable, directory-backed capabilities loaded from `SKILL.md`.

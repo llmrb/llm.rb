@@ -41,7 +41,7 @@ Want support ? [Open an issue](https://github.com/llmrb/llm.rb/issues),
 join us on [irc.libera.chat/#llm.rb](https://web.libera.chat/)
 or [email the maintainer](mailto:0x1eef@hardenedbsd.org).
 
-## Standout features
+## Features
 
 #### Skills
 

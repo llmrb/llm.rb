@@ -11,8 +11,6 @@
 
 llm.rb is Ruby's most capable AI runtime.
 
-<br>
-
 llm.rb is designed for Ruby, and although it works great in Rails and other ruby
 web frameworks, it is not tightly coupled to anything beyond Ruby's standard library.
 It runs on the standard library by default and it has zero runtime dependencies. That

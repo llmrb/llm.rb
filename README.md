@@ -32,33 +32,14 @@ runtime: async-task, threads, fibers, ractors and processes (fork). The first th
 good for IO-bound work and the last two are good for CPU-bound work. Ractor support is
 experimental and comes with limitations.
 
+## Resources
+
 Want to see some code? Jump to [the examples](#examples) section. <br>
 Want to see a self-hosted LLM environment built on llm.rb? Check out [relay.app](https://github.com/llmrb/relay.app). <br>
 Want to use llm.rb with mruby ? Check out [mruby-llm](https://github.com/llmrb/mruby-llm). <br>
 Want support ? [Open an issue](https://github.com/llmrb/llm.rb/issues),
 join us on [irc.libera.chat/#llm.rb](https://web.libera.chat/)
 or [email the maintainer](mailto:0x1eef@hardenedbsd.org).
-
-## Architecture
-
-<p align="center">
-  <img src="https://github.com/llmrb/llm.rb/raw/main/resources/architecture.png" alt="llm.rb architecture" width="790">
-</p>
-
-## Core Concept
-
-[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
-is the execution boundary in llm.rb.
-
-It holds:
-- message history
-- tool state
-- schemas
-- streaming configuration
-- usage and cost tracking
-
-Instead of switching abstractions for each feature, everything builds on the
-same context object.
 
 ## Standout features
 

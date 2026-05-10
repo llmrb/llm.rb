@@ -34,6 +34,12 @@
   `LLM::Cost` using the model's generic input rate so image-bearing
   prompts report their input spend.
 
+### Change
+
+* **Remove unused `LLM::Utils`** <br>
+  Delete the unused `LLM::Utils` module and remove its remaining unused
+  provider includes and top-level require.
+
 ## v8.1.0
 
 Changes since `v8.0.0`.

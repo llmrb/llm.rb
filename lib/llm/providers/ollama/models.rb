@@ -17,8 +17,6 @@ class LLM::Ollama
   #     print "id: ", model.id, "\n"
   #   end
   class Models
-    include LLM::Utils
-
     ##
     # Returns a new Models object
     # @param provider [LLM::Provider]

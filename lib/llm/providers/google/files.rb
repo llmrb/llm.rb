@@ -127,8 +127,6 @@ class LLM::Google
 
     private
 
-    include LLM::Utils
-
     def request_upload_url(file:)
       req = Net::HTTP::Post.new("/upload/v1beta/files?key=#{key}", headers)
       req["X-Goog-Upload-Protocol"] = "resumable"

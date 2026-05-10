@@ -81,6 +81,5 @@ module LLM
     def interrupted?(owner)
       nil
     end
-
   end
 end

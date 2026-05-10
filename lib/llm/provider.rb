@@ -6,11 +6,7 @@
 #
 # @abstract
 class LLM::Provider
-  require "net/http"
-  require_relative "provider/transport"
-  require_relative "provider/transport/http"
-  require_relative "provider/transport/http/execution"
-  include Transport::HTTP::Execution
+  include LLM::Transport::Execution
 
   ##
   # @param [String, nil] key
@@ -28,7 +24,7 @@ class LLM::Provider
   # @param [Boolean] persistent
   #  Whether to use a persistent connection.
   #  Requires the net-http-persistent gem.
-  # @param [LLM::Provider::Transport, nil] transport
+  # @param [LLM::Transport, nil] transport
   #  Optional transport override used to execute requests.
   def initialize(key:, host:, port: 443, timeout: 60, ssl: true, base_path: "", persistent: false, transport: nil)
     @key = key
@@ -39,7 +35,7 @@ class LLM::Provider
     @base_path = normalize_base_path(base_path)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
-    @transport = transport || Transport::HTTP.new(host:, port:, timeout:, ssl:, persistent:)
+    @transport = transport || LLM::Transport::HTTP.new(host:, port:, timeout:, ssl:, persistent:)
     @monitor = Monitor.new
   end
 
@@ -406,7 +402,7 @@ class LLM::Provider
   # @return [Class]
   #  Returns the class responsible for decoding streamed response bodies
   def stream_decoder
-    LLM::Provider::Transport::HTTP::StreamDecoder
+    LLM::Transport::StreamDecoder
   end
 
   ##

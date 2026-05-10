@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
-class LLM::Provider::Transport
+class LLM::Transport
   ##
-  # @private
-  class HTTP::StreamDecoder
+  # {LLM::Transport::StreamDecoder LLM::Transport::StreamDecoder}
+  # incrementally decodes streamed HTTP response bodies into parser
+  # events.
+  #
+  # @api private
+  class StreamDecoder
     ##
     # @return [Object]
     attr_reader :parser
 
     ##
     # @param [#parse!, #body] parser
-    # @return [LLM::Provider::Transport::HTTP::StreamDecoder]
+    # @return [LLM::Transport::StreamDecoder]
     def initialize(parser)
       @buffer = +""
       @cursor = 0

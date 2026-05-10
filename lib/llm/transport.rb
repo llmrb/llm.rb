@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class LLM::Provider
+module LLM
   ##
-  # The {LLM::Provider::Transport LLM::Provider::Transport} class defines
-  # the execution interface used by {LLM::Provider}.
+  # The {LLM::Transport LLM::Transport} class defines the execution
+  # interface used by {LLM::Provider}.
   #
   # Custom transports can subclass this class and override {#request} to
   # execute provider requests without changing request adapters or
@@ -14,12 +14,18 @@ class LLM::Provider
   # and only need to be implemented when the underlying adapter can
   # support them.
   #
-  # Returned responses should remain compatible with
-  # {Net::HTTPResponse Net::HTTPResponse}. In practice this can mean
-  # wrapping another client's response object so existing response
-  # adapters and error handlers can continue to rely on HTTP status,
-  # headers, and body access through the normal net/http interface.
+  # Returned responses should implement the
+  # {LLM::Transport::Response LLM::Transport::Response} interface. In
+  # practice this can mean adapting another client's response object so
+  # existing provider execution, response adapters, and error handlers
+  # can rely on one normalized response contract instead of
+  # transport-specific classes.
   class Transport
+    require_relative "transport/response"
+    require_relative "transport/stream_decoder"
+    require_relative "transport/http"
+    require_relative "transport/execution"
+
     ##
     # Performs a request through the transport.
     # @param [Net::HTTPRequest] request
@@ -63,7 +69,7 @@ class LLM::Provider
 
     ##
     # Configures the transport to use persistence, if supported.
-    # @return [LLM::Provider::Transport]
+    # @return [LLM::Transport]
     def persist!
       self
     end

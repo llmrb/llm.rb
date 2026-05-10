@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class LLM::Provider::Transport::HTTP
+class LLM::Transport::HTTP
   ##
   # Internal request interruption methods for
-  # {LLM::Provider::Transport::HTTP}.
+  # {LLM::Transport::HTTP}.
   #
   # This module tracks active requests by execution owner and provides
   # the logic used to interrupt an in-flight request by closing the

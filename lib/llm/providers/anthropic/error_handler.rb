@@ -5,7 +5,7 @@ class LLM::Anthropic
   # @private
   class ErrorHandler
     ##
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     #  Non-2XX response from the server
     attr_reader :res
 
@@ -19,13 +19,13 @@ class LLM::Anthropic
     #  The tracer
     # @param [Object, nil] span
     #  The span
-    # @param [Net::HTTPResponse] res
+    # @param [LLM::Transport::Response, Net::HTTPResponse] res
     #  The response from the server
     # @return [LLM::Anthropic::ErrorHandler]
     def initialize(tracer, span, res)
       @tracer = tracer
       @span = span
-      @res = res
+      @res = LLM::Transport::Response.from(res)
     end
 
     ##
@@ -43,12 +43,11 @@ class LLM::Anthropic
     ##
     # @return [LLM::Error]
     def error
-      case res
-      when Net::HTTPServerError
+      if res.server_error?
         LLM::ServerError.new("Server error").tap { _1.response = res }
-      when Net::HTTPUnauthorized
+      elsif res.unauthorized?
         LLM::UnauthorizedError.new("Authentication error").tap { _1.response = res }
-      when Net::HTTPTooManyRequests
+      elsif res.rate_limited?
         LLM::RateLimitError.new("Too many requests").tap { _1.response = res }
       else
         LLM::Error.new("Unexpected response").tap { _1.response = res }

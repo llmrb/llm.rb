@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-class LLM::Provider::Transport::HTTP
+class LLM::Transport
   ##
-  # Internal HTTP request execution methods for {LLM::Provider}.
+  # Internal request execution methods for {LLM::Provider}.
   #
-  # This module handles provider-side HTTP execution, response parsing,
-  # streaming, and request body setup through
-  # {LLM::Provider::Transport::HTTP}.
+  # This module handles provider-side transport execution, response
+  # parsing, streaming, and request body setup.
   #
   # @api private
   module Execution
@@ -18,7 +17,7 @@ class LLM::Provider::Transport::HTTP
     #  The request to send
     # @param [Proc] b
     #  A block to yield the response to (optional)
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     #  The response from the server
     # @raise [LLM::Error::Unauthorized]
     #  When authentication fails
@@ -28,7 +27,7 @@ class LLM::Provider::Transport::HTTP
     #  When any other unsuccessful status code is returned
     # @raise [SystemCallError]
     #  When there is a network error at the operating system level
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, inputs: nil, &b)
       owner = transport.request_owner
       tracer = self.tracer
@@ -36,6 +35,7 @@ class LLM::Provider::Transport::HTTP
       res = transport.request(request, owner:) do |http|
         perform_request(http, request, stream, stream_parser, &b)
       end
+      res = LLM::Transport::Response.from(res)
       [handle_response(res, tracer, span), span, tracer]
     rescue *transport.interrupt_errors
       raise LLM::Interrupt, "request interrupted" if transport.interrupted?(owner)
@@ -44,22 +44,19 @@ class LLM::Provider::Transport::HTTP
 
     ##
     # Handles the response from a request
-    # @param [Net::HTTPResponse] res
+    # @param [LLM::Transport::Response] res
     #  The response to handle
     # @param [Object, nil] span
     #  The span
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     def handle_response(res, tracer, span)
-      case res
-      when Net::HTTPOK then res.body = parse_response(res)
-      else error_handler.new(tracer, span, res).raise_error!
-      end
+      res.ok? ? res.body = parse_response(res) : error_handler.new(tracer, span, res).raise_error!
       res
     end
 
     ##
     # Parse a HTTP response
-    # @param [Net::HTTPResponse] res
+    # @param [LLM::Transport::Response] res
     # @return [LLM::Object, String]
     def parse_response(res)
       case res["content-type"]
@@ -86,11 +83,12 @@ class LLM::Provider::Transport::HTTP
     # @param [Object, nil] stream
     # @param [Class] stream_parser
     # @param [Proc, nil] b
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     def perform_request(http, request, stream, stream_parser, &b)
       if stream
-        http.request(request) do |res|
-          if Net::HTTPSuccess === res
+        http.request(request) do |raw|
+          res = LLM::Transport::Response.from(raw)
+          if res.success?
             parser = stream_decoder.new(stream_parser.new(stream))
             res.read_body(parser)
             body = parser.body
@@ -104,9 +102,12 @@ class LLM::Provider::Transport::HTTP
           parser&.free
         end
       elsif b
-        http.request(request) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 }
+        http.request(request) do |raw|
+          res = LLM::Transport::Response.from(raw)
+          res.success? ? b.call(res) : res
+        end
       else
-        http.request(request)
+        LLM::Transport::Response.from(http.request(request))
       end
     end
   end

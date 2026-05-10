@@ -5,7 +5,7 @@ class LLM::Google
   # @private
   class ErrorHandler
     ##
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     #  Non-2XX response from the server
     attr_reader :res
 
@@ -19,13 +19,13 @@ class LLM::Google
     #  The tracer
     # @param [Object, nil] span
     #  The span
-    # @param [Net::HTTPResponse] res
+    # @param [LLM::Transport::Response, Net::HTTPResponse] res
     #  The response from the server
     # @return [LLM::Google::ErrorHandler]
     def initialize(tracer, span, res)
       @tracer = tracer
       @span = span
-      @res = res
+      @res = LLM::Transport::Response.from(res)
     end
 
     ##
@@ -49,17 +49,16 @@ class LLM::Google
     ##
     # @return [LLM::Error]
     def error
-      case res
-      when Net::HTTPServerError
+      if res.server_error?
         LLM::ServerError.new("Server error").tap { _1.response = res }
-      when Net::HTTPBadRequest
+      elsif res.bad_request?
         reason = body.dig("error", "details", 0, "reason")
         if reason == "API_KEY_INVALID"
           LLM::UnauthorizedError.new("Authentication error").tap { _1.response = res }
         else
           LLM::Error.new("Unexpected response").tap { _1.response = res }
         end
-      when Net::HTTPTooManyRequests
+      elsif res.rate_limited?
         LLM::RateLimitError.new("Too many requests").tap { _1.response = res }
       else
         LLM::Error.new("Unexpected response").tap { _1.response = res }

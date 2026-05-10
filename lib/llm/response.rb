@@ -10,25 +10,27 @@ module LLM
   # handling can share one common surface without flattening away
   # specialized behavior.
   #
-  # The normalized response still keeps the original
-  # {Net::HTTPResponse Net::HTTPResponse} available through {#res}
-  # when callers need direct access to raw HTTP details such as
-  # headers, status codes, or unadapted bodies.
+  # The normalized response keeps the transport response available
+  # through {#res}. When the default net/http transport is in use,
+  # {LLM::Transport::Response::HTTP
+  # LLM::Transport::Response::HTTP} keeps the
+  # original {Net::HTTPResponse Net::HTTPResponse} available through
+  # its own {LLM::Transport::Response::HTTP#res #res}.
   class Response
     require "json"
 
     ##
     # Returns the HTTP response
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     attr_reader :res
 
     ##
-    # @param [Net::HTTPResponse] res
+    # @param [LLM::Transport::Response] res
     #  HTTP response
     # @return [LLM::Response]
     #  Returns an instance of LLM::Response
     def initialize(res)
-      @res = res
+      @res = LLM::Transport::Response.from(res)
     end
 
     ##
@@ -51,7 +53,7 @@ module LLM
     # Returns true if the response is successful
     # @return [Boolean]
     def ok?
-      Net::HTTPSuccess === @res
+      @res.success?
     end
 
     ##

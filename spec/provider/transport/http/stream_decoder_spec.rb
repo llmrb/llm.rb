@@ -2,7 +2,7 @@
 
 require "setup"
 
-RSpec.describe LLM::Provider::Transport::HTTP::StreamDecoder do
+RSpec.describe LLM::Transport::StreamDecoder do
   let(:parser_class) do
     Class.new do
       attr_reader :chunks

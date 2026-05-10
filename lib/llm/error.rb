@@ -5,7 +5,7 @@ module LLM
   # The superclass of all LLM errors
   class Error < RuntimeError
     ##
-    # @return [Net::HTTPResponse, nil]
+    # @return [LLM::Transport::Response, nil]
     #  Returns the response associated with an error, or nil
     attr_accessor :response
 

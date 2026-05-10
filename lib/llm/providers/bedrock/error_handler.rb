@@ -11,7 +11,7 @@ class LLM::Bedrock
   # @api private
   class ErrorHandler
     ##
-    # @return [Net::HTTPResponse]
+    # @return [LLM::Transport::Response]
     attr_reader :res
 
     ##
@@ -21,12 +21,12 @@ class LLM::Bedrock
     ##
     # @param [LLM::Tracer] tracer
     # @param [Object, nil] span
-    # @param [Net::HTTPResponse] res
+    # @param [LLM::Transport::Response, Net::HTTPResponse] res
     # @return [LLM::Bedrock::ErrorHandler]
     def initialize(tracer, span, res)
       @tracer = tracer
       @span = span
-      @res = res
+      @res = LLM::Transport::Response.from(res)
     end
 
     ##
@@ -44,16 +44,15 @@ class LLM::Bedrock
     # @return [LLM::Error]
     def error
       message = extract_message
-      case res
-      when Net::HTTPServerError
+      if res.server_error?
         LLM::ServerError.new(message).tap { _1.response = res }
-      when Net::HTTPUnauthorized
+      elsif res.unauthorized?
         LLM::UnauthorizedError.new(message).tap { _1.response = res }
-      when Net::HTTPForbidden
+      elsif res.forbidden?
         LLM::UnauthorizedError.new(message).tap { _1.response = res }
-      when Net::HTTPTooManyRequests
+      elsif res.rate_limited?
         LLM::RateLimitError.new(message).tap { _1.response = res }
-      when Net::HTTPNotFound
+      elsif res.not_found?
         LLM::Error.new("Bedrock model not found: #{message}").tap { _1.response = res }
       else
         LLM::Error.new(message).tap { _1.response = res }

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module LLM::Provider::Transport
+class LLM::Provider::Transport
   ##
   # @private
   class HTTP::StreamDecoder

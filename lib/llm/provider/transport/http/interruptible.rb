@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class LLM::Provider
+class LLM::Provider::Transport::HTTP
   ##
   # Internal request interruption methods for
   # {LLM::Provider::Transport::HTTP}.
@@ -10,7 +10,7 @@ class LLM::Provider
   # active HTTP connection.
   #
   # @api private
-  module Transport::HTTP::Interruptible
+  module Interruptible
     INTERRUPT_ERRORS = [::IOError, ::EOFError, Errno::EBADF].freeze
     Request = Struct.new(:http, :connection, keyword_init: true)
 

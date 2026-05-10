@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 class LLM::Provider
-  module Transport
+  class Transport
     ##
     # The {LLM::Provider::Transport::HTTP LLM::Provider::Transport::HTTP}
-    # class manages HTTP connections for {LLM::Provider}. It handles
+    # transport manages HTTP connections for {LLM::Provider}. It handles
     # transient and persistent clients, tracks active requests by owner,
     # and interrupts in-flight requests when needed.
     #
     # @api private
-    class HTTP
+    class HTTP < LLM::Provider::Transport
       require_relative "http/stream_decoder"
       require_relative "http/interruptible"
 

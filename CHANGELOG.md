@@ -40,6 +40,13 @@
   Delete the unused `LLM::Utils` module and remove its remaining unused
   provider includes and top-level require.
 
+* **Allow custom provider transports** <br>
+  Add `transport:` to provider construction and introduce a public
+  `LLM::Provider::Transport` base class so callers can swap the default
+  `Net::HTTP` transport for another execution layer such as libcurl,
+  Faraday, or a fixture-backed test transport without changing provider
+  request or response adapters.
+
 ## v8.1.0
 
 Changes since `v8.0.0`.

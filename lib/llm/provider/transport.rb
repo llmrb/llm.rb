@@ -13,6 +13,12 @@ class LLM::Provider
   # for features such as interruption, request ownership, or persistence,
   # and only need to be implemented when the underlying adapter can
   # support them.
+  #
+  # Returned responses should remain compatible with
+  # {Net::HTTPResponse Net::HTTPResponse}. In practice this can mean
+  # wrapping another client's response object so existing response
+  # adapters and error handlers can continue to rely on HTTP status,
+  # headers, and body access through the normal net/http interface.
   class Transport
     ##
     # Performs a request through the transport.

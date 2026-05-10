@@ -223,6 +223,13 @@ module LLM::Sequel
     end
 
     ##
+    # @see LLM::Context#functions?
+    # @return [Boolean]
+    def functions?
+      ctx.functions?
+    end
+
+    ##
     # @see LLM::Context#returns
     # @return [Array<LLM::Function::Return>]
     def returns

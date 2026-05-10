@@ -46,11 +46,11 @@ module LLM
 
     ##
     # Waits for queued tool work to finish and returns function results.
-    # @param [Symbol] strategy
-    #  The concurrency strategy to use
+    # Any passed arguments are ignored because queued work is waited according
+    # to the actual task types already present in the queue.
     # @return [Array<LLM::Function::Return>]
-    def wait(strategy)
-      queue.wait(strategy)
+    def wait(*)
+      queue.wait
     end
 
     # @group Public callbacks

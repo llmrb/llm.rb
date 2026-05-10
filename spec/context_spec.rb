@@ -360,6 +360,76 @@ RSpec.describe LLM::Context do
     end
   end
 
+  context "#functions?" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+
+    context "when unresolved functions exist in message history" do
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          name "system"
+
+          def call(command:)
+            {"ok" => command == "date"}
+          end
+        end
+      end
+      let(:ctx) { LLM::Context.new(provider, model:, tools: [tool]) }
+
+      before do
+        ctx.messages << LLM::Message.new("assistant", nil, {
+          tools: [tool],
+          tool_calls: [
+            {id: "call_1", name: "system", arguments: {"command" => "date"}}
+          ]
+        })
+      end
+
+      it "returns true" do
+        expect(ctx.functions?).to eq(true)
+      end
+    end
+
+    context "when the bound stream queue has pending work" do
+      let(:queue) do
+        Class.new do
+          def empty?
+            false
+          end
+        end.new
+      end
+      let(:stream_class) do
+        Class.new(LLM::Stream) do
+          attr_accessor :queue
+        end
+      end
+      let(:stream) { stream_class.new }
+      let(:ctx) { LLM::Context.new(provider, model:, stream:) }
+      let(:pending) { [].extend(LLM::Function::Array) }
+
+      before do
+        stream.queue = queue
+        allow(ctx).to receive(:functions).and_return(pending)
+      end
+
+      it "returns true" do
+        expect(ctx.functions?).to eq(true)
+      end
+    end
+
+    context "when there is no queued or unresolved tool work" do
+      let(:pending) { [].extend(LLM::Function::Array) }
+
+      before do
+        allow(ctx).to receive(:functions).and_return(pending)
+      end
+
+      it "returns false" do
+        expect(ctx.functions?).to eq(false)
+      end
+    end
+  end
+
   context "#call" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
@@ -540,6 +610,11 @@ RSpec.describe LLM::Context do
       expect(ctx.wait(:thread)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
     end
 
+    it "forwards #wait(:call) to the configured stream when the queue has work" do
+      stream.queue << LLM::Function::Return.new("call_1", "system", {"ok" => true})
+      expect(ctx.wait(:call)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
+    end
+
     it "waits queued stream work even when a guard is configured" do
       ctx.guard = guard
       stream.queue << LLM::Function::Return.new("call_1", "system", {"ok" => true})
@@ -551,6 +626,13 @@ RSpec.describe LLM::Context do
       expect(ctx).to receive(:functions).and_return(pending)
       expect(pending).to receive(:spawn).with(:thread).and_return(LLM::Function::ThreadGroup.new([]))
       expect(ctx.wait(:thread)).to eq([])
+    end
+
+    it "flows through pending function spawn groups for #wait(:call)" do
+      pending = [].extend(LLM::Function::Array)
+      expect(ctx).to receive(:functions).and_return(pending)
+      expect(pending).to receive(:spawn).with(:call).and_return(LLM::Function::CallGroup.new([]))
+      expect(ctx.wait(:call)).to eq([])
     end
 
     context "when given a per-call stream" do
@@ -566,6 +648,10 @@ RSpec.describe LLM::Context do
 
       it "waits queued stream work" do
         expect(ctx.wait(:thread)).to eq([result])
+      end
+
+      it "waits queued stream work with :call" do
+        expect(ctx.wait(:call)).to eq([result])
       end
 
       it "clears the per-call stream after wait" do

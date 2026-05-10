@@ -9,6 +9,18 @@
   preserve them through completion usage adaptation and context usage
   aggregation.
 
+* **Add `LLM::Context#functions?` for queue-aware tool loops** <br>
+  Add `functions?` to `LLM::Context` and the ActiveRecord and Sequel
+  wrappers so callers can detect pending tool work through either the
+  bound stream queue or unresolved functions, and update the docs to
+  prefer `while ctx.functions?` over `ctx.functions.any?` in tool-loop
+  examples.
+
+* **Add `:call` as a first-class wait strategy** <br>
+  Add `:call` to pending-function wait paths so `ctx.wait(:call)` can
+  prefer queued streamed work when present and otherwise fall back to
+  direct sequential function execution through `spawn(:call).wait`.
+
 * **Read provider cache usage into completion responses** <br>
   Read cache read tokens from provider usage metadata, including OpenAI
   `usage.prompt_tokens_details` and Anthropic
@@ -65,6 +77,12 @@
   adapt backend-specific response objects to one normalized shape and
   have them work with the existing provider execution and error-handling
   code.
+
+* **Make queued stream waits strategy-free** <br>
+  Change `LLM::Stream::Queue#wait` to resolve queued work by the actual
+  task types already present in the queue instead of accepting an
+  external wait strategy. `LLM::Stream#wait(...)` remains compatible but
+  now ignores its arguments when delegating to the queue.
 
 ## v8.1.0
 

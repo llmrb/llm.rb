@@ -4,7 +4,7 @@ class LLM::Stream
   ##
   # A small queue for collecting streamed tool work. Values can be immediate
   # {LLM::Function::Return} objects or concurrent handles returned by
-  # {LLM::Function#spawn}. Calling {#wait(strategy)} resolves queued work and
+  # {LLM::Function#spawn}. Calling {#wait} resolves queued work and
   # returns an array of {LLM::Function::Return} values.
   class Queue
     ##
@@ -41,28 +41,23 @@ class LLM::Stream
 
     ##
     # Waits for queued work to finish and returns function results.
-    # @param [Symbol, Array<Symbol>] strategy
-    #   Controls concurrency strategy, or lists the possible concurrency strategies
-    #   to wait on:
-    #   - `:thread`: Use threads
-    #   - `:task`: Use async tasks (requires async gem)
-    #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
-    #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
-    #   - `[:thread, :ractor]`: Wait for any queued thread or ractor work, in the
-    #     given order. This is useful when different tools were spawned with
-    #     different concurrency strategies.
+    #
+    # Queued work is waited according to the actual task types that were
+    # enqueued, so callers do not need to provide a strategy here.
+    #
     # @return [Array<LLM::Function::Return>]
-    def wait(strategy)
+    def wait
       returns, tasks = @items.shift(@items.length).partition { LLM::Function::Return === _1 }
-      results = wait_tasks(tasks, strategy)
+      results = wait_tasks(tasks)
       returns.concat fire_hooks(tasks, results)
     end
     alias_method :value, :wait
 
     private
 
-    def wait_tasks(tasks, strategy)
-      strategies = Array(strategy)
+    def wait_tasks(tasks)
+      return [] if tasks.empty?
+      strategies = tasks.map { task_strategy(_1) }.uniq
       return wait_group(tasks, strategies.first) unless strategies.length > 1
       grouped = strategies.to_h { [_1, []] }
       tasks.each do |task|
@@ -79,8 +74,9 @@ class LLM::Stream
       when :thread then LLM::Function::ThreadGroup.new(tasks).wait
       when :task then LLM::Function::TaskGroup.new(tasks).wait
       when :fiber then LLM::Function::FiberGroup.new(tasks).wait
+      when :fork then LLM::Function::Fork::Group.new(tasks).wait
       when :ractor then LLM::Function::Ractor::Group.new(tasks).wait
-      else raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, or :ractor"
+      else raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, :fork, or :ractor"
       end
     end
 
@@ -89,6 +85,7 @@ class LLM::Stream
       when Thread then :thread
       when Fiber then :fiber
       when LLM::Function::Ractor::Task then :ractor
+      when LLM::Function::Fork::Task then :fork
       else :task
       end
     end

@@ -18,21 +18,23 @@ class LLM::Function
 
     ##
     # Calls all functions in a collection concurrently.
-    # This method returns an {LLM::Function::ThreadGroup},
-    # {LLM::Function::TaskGroup}, or {LLM::Function::FiberGroup}
-    # that can be waited on to access the return values.
+    # This method returns an execution group that can be
+    # waited on to access the return values.
     #
     # @param [Symbol] strategy
     #   Controls concurrency strategy:
+    #   - `:call`: Call functions sequentially without spawning
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
     #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
     #   - `:fork`: Use forked child processes
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #
-    # @return [LLM::Function::ThreadGroup, LLM::Function::TaskGroup, LLM::Function::FiberGroup, LLM::Function::Ractor::Group]
+    # @return [LLM::Function::CallGroup, LLM::Function::ThreadGroup, LLM::Function::TaskGroup, LLM::Function::FiberGroup, LLM::Function::Ractor::Group]
     def spawn(strategy)
       case strategy
+      when :call
+        CallGroup.new(self)
       when :task
         TaskGroup.new(map { |fn| fn.spawn(:task) })
       when :thread
@@ -44,7 +46,7 @@ class LLM::Function
       when :ractor
         Ractor::Group.new(map { |fn| fn.spawn(:ractor) })
       else
-        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, :fork, or :ractor"
+        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :call, :thread, :task, :fiber, :fork, or :ractor"
       end
     end
 
@@ -54,6 +56,7 @@ class LLM::Function
     #
     # @param [Symbol] strategy
     #   Controls concurrency strategy:
+    #   - `:call`: Call each function sequentially through a call group
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
     #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)

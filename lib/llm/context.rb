@@ -262,6 +262,16 @@ module LLM
     end
 
     ##
+    # Returns whether there is pending tool work in this context.
+    # This prefers queued streamed tool work when present, and otherwise
+    # falls back to unresolved functions derived from the message history.
+    # @return [Boolean]
+    def functions?
+      pending = queue
+      (pending && !pending.empty?) || functions.any?
+    end
+
+    ##
     # Calls a named collection of work through the context.
     #
     # This currently supports `:functions`, forwarding to `functions.call`.
@@ -312,6 +322,8 @@ module LLM
     # the context's pending functions directly.
     #
     # @param [Symbol, Array<Symbol>] strategy
+    #  Use `:call` to prefer queued streamed work when present and otherwise
+    #  run pending functions sequentially without spawning.
     #  The concurrency strategy to use, or the possible concurrency strategies to
     #  wait on. For example, `[:thread, :ractor]` waits for any queued thread or
     #  ractor work, in that order.
@@ -319,7 +331,7 @@ module LLM
     def wait(strategy)
       if LLM::Stream === stream && !stream.queue.empty?
         @queue = stream.queue
-        @queue.wait(strategy)
+        @queue.wait
       else
         return guarded_returns if guarded_returns
         @queue = functions.spawn(strategy)

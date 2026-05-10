@@ -619,7 +619,7 @@ stream = Stream.new
 ctx = LLM::Context.new(llm, stream:, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
-ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 ```
 
 #### Context Compaction
@@ -872,7 +872,7 @@ mcp = LLM::MCP.http(
 mcp.start
 ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
 ctx.talk("Pull information about my GitHub account.")
-ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 mcp.stop
 ```
 
@@ -887,7 +887,7 @@ mcp = LLM::MCP.http(
 mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("Pull information about my GitHub account.")
-  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+  ctx.talk(ctx.wait(:call)) while ctx.functions?
 end
 ```
 

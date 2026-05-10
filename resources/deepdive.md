@@ -284,7 +284,7 @@ stream = Stream.new
 ctx = LLM::Context.new(llm, stream:, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
-ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 ```
 
 If streamed tool calls mix MCP tools with local class-based tools, you can
@@ -307,7 +307,7 @@ stream = Stream.new
 ctx = LLM::Context.new(llm, stream:, tools: [System, *mcp_tools])
 
 ctx.talk("Check the deployment status and compare it with local system time.")
-ctx.talk(ctx.wait([:thread, :ractor])) while ctx.functions.any?
+ctx.talk(ctx.wait([:thread, :ractor])) while ctx.functions?
 ```
 
 ### Stream Compaction Events
@@ -757,8 +757,8 @@ end
 
 ctx = Context.create!
 ctx.talk("What time is it in UTC right now?")
-while ctx.functions.any?
-  puts ctx.talk(ctx.call(:functions)).content
+while ctx.functions?
+  puts ctx.talk(ctx.wait(:call)).content
 end
 ```
 
@@ -996,7 +996,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
 ctx.talk("Run `date`.")
-ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 ```
 
 ### Stateful Tool Instances
@@ -1035,7 +1035,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, tools: [SearchDocs.new(index: docs_index)])
 ctx.talk("Search the docs for context compaction.")
-ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 ```
 
 ### Cancelling A Function
@@ -1177,7 +1177,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, tools: [weather])
 ctx.talk("What is the weather in Lisbon?")
-ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 ```
 
 ### Concurrent Tools
@@ -1210,7 +1210,7 @@ ctx = LLM::Context.new(
 )
 
 ctx.talk("Summarize the weather, headlines, and stock price.")
-ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+ctx.talk(ctx.wait(:thread)) while ctx.functions?
 ```
 
 ## Agents
@@ -1333,7 +1333,7 @@ class Guard
   private
 
   def suspicious?(ctx)
-    ctx.functions.any? && ctx.messages.to_a.size > 20
+    ctx.functions? && ctx.messages.to_a.size > 20
   end
 end
 
@@ -1525,7 +1525,7 @@ mcp = LLM::MCP.stdio(
 mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the directories in this project.")
-  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+  ctx.talk(ctx.wait(:call)) while ctx.functions?
 end
 ```
 
@@ -1551,7 +1551,7 @@ mcp = LLM::MCP.http(
 mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the available GitHub MCP toolsets.")
-  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+  ctx.talk(ctx.wait(:call)) while ctx.functions?
 end
 ```
 
@@ -1572,7 +1572,7 @@ mcp = LLM::MCP.http(
 mcp.start
 ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
 ctx.talk("List the available GitHub MCP toolsets.")
-ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 mcp.stop
 ```
 

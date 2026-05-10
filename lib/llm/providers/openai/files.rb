@@ -62,7 +62,7 @@ class LLM::OpenAI
       multi = LLM::Multipart.new(params.merge!(file: LLM.File(file), purpose:))
       req = Net::HTTP::Post.new(path("/files"), headers)
       req["content-type"] = multi.content_type
-      set_body_stream(req, multi.body)
+      transport.set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -134,7 +134,7 @@ class LLM::OpenAI
 
     private
 
-    [:path, :headers, :execute, :set_body_stream].each do |m|
+    [:path, :headers, :execute, :transport].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

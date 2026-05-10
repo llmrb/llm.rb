@@ -58,7 +58,7 @@ class LLM::Anthropic
       multi = LLM::Multipart.new(params.merge!(file: LLM.File(file)))
       req = Net::HTTP::Post.new("/v1/files", headers)
       req["content-type"] = multi.content_type
-      set_body_stream(req, multi.body)
+      transport.set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -159,7 +159,7 @@ class LLM::Anthropic
       @provider.instance_variable_get(:@key)
     end
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:headers, :execute, :transport].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

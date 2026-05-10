@@ -161,7 +161,7 @@ module LLM
       payload = adapt(messages)
       body = LLM.json.dump(payload.merge!(params))
       req = Net::HTTP::Post.new("/v1/messages", headers)
-      set_body_stream(req, StringIO.new(body))
+      transport.set_body_stream(req, StringIO.new(body))
       req
     end
 

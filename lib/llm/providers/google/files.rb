@@ -69,7 +69,7 @@ class LLM::Google
       req["X-Goog-Upload-Offset"] = 0
       req["X-Goog-Upload-Command"] = "upload, finalize"
       file.with_io do |io|
-        set_body_stream(req, io)
+        transport.set_body_stream(req, io)
         res, span, tracer = execute(request: req, operation: "request")
         res = ResponseAdapter.adapt(res, type: :file)
         tracer.on_request_finish(operation: "request", res:, span:)
@@ -144,7 +144,7 @@ class LLM::Google
       @provider.instance_variable_get(:@key)
     end
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:headers, :execute, :transport].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

@@ -9,6 +9,11 @@ module LLM
   # execute provider requests without changing request adapters or
   # response adapters.
   #
+  # Providers currently construct {Net::HTTPRequest Net::HTTPRequest}
+  # objects before delegating to a transport. Custom transports are
+  # therefore expected to execute those requests directly, or transform
+  # them into backend-specific request objects before execution.
+  #
   # Only {#request} is required. The remaining methods are optional hooks
   # for features such as interruption, request ownership, or persistence,
   # and only need to be implemented when the underlying adapter can
@@ -81,6 +86,19 @@ module LLM
     # @return [Boolean, nil]
     def interrupted?(owner)
       nil
+    end
+
+    ##
+    # @note
+    #  Custom transports may be able to reuse this helper when they
+    #  operate on Net::HTTPRequest objects, or implement their own
+    #  request body preparation path instead.
+    # @param [Net::HTTPRequest] request
+    # @param [IO] io
+    # @return [void]
+    def set_body_stream(request, io)
+      request.body_stream = io
+      request["transfer-encoding"] = "chunked" unless request["content-length"]
     end
 
     private

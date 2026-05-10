@@ -63,16 +63,5 @@ class LLM::Transport
       else res.body
       end
     end
-
-    ##
-    # @param [Net::HTTPRequest] req
-    #  The request to set the body stream for
-    # @param [IO] io
-    #  The IO object to set as the body stream
-    # @return [void]
-    def set_body_stream(req, io)
-      req.body_stream = io
-      req["transfer-encoding"] = "chunked" unless req["content-length"]
-    end
   end
 end

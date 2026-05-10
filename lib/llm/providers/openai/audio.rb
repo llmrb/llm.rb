@@ -57,7 +57,7 @@ class LLM::OpenAI
       multi = LLM::Multipart.new(params.merge!(file: LLM.File(file), model:))
       req = Net::HTTP::Post.new(path("/audio/transcriptions"), headers)
       req["content-type"] = multi.content_type
-      set_body_stream(req, multi.body)
+      transport.set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
       tracer.on_request_finish(operation: "request", model:, res:, span:)
@@ -81,7 +81,7 @@ class LLM::OpenAI
       multi = LLM::Multipart.new(params.merge!(file: LLM.File(file), model:))
       req = Net::HTTP::Post.new(path("/audio/translations"), headers)
       req["content-type"] = multi.content_type
-      set_body_stream(req, multi.body)
+      transport.set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
       tracer.on_request_finish(operation: "request", model:, res:, span:)
@@ -90,7 +90,7 @@ class LLM::OpenAI
 
     private
 
-    [:path, :headers, :execute, :set_body_stream].each do |m|
+    [:path, :headers, :execute, :transport].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

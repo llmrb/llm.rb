@@ -48,7 +48,7 @@ class LLM::OpenAI
 
     private
 
-    [:path, :headers, :execute, :set_body_stream].each do |m|
+    [:path, :headers, :execute].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

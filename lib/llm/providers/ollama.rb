@@ -130,7 +130,7 @@ module LLM
       messages = build_complete_messages(prompt, params, role)
       body = LLM.json.dump({messages: [adapt(messages)].flatten}.merge!(params))
       req = Net::HTTP::Post.new("/api/chat", headers)
-      set_body_stream(req, StringIO.new(body))
+      transport.set_body_stream(req, StringIO.new(body))
       req
     end
 

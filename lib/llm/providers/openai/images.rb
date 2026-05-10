@@ -78,7 +78,7 @@ class LLM::OpenAI
       multi = LLM::Multipart.new(params.merge!(image:, model:, response_format:))
       req = Net::HTTP::Post.new(path("/images/variations"), headers)
       req["content-type"] = multi.content_type
-      set_body_stream(req, multi.body)
+      transport.set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
       tracer.on_request_finish(operation: "request", model:, res:, span:)
@@ -104,7 +104,7 @@ class LLM::OpenAI
       multi = LLM::Multipart.new(params.merge!(image:, prompt:, model:, response_format:))
       req = Net::HTTP::Post.new(path("/images/edits"), headers)
       req["content-type"] = multi.content_type
-      set_body_stream(req, multi.body)
+      transport.set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
       tracer.on_request_finish(operation: "request", model:, res:, span:)
@@ -113,7 +113,7 @@ class LLM::OpenAI
 
     private
 
-    [:path, :headers, :execute, :set_body_stream].each do |m|
+    [:path, :headers, :execute, :transport].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

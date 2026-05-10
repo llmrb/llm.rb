@@ -44,7 +44,7 @@ class LLM::OpenAI
       messages = build_complete_messages(prompt, params, role)
       @provider.tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))
       body = LLM.json.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
-      set_body_stream(req, StringIO.new(body))
+      transport.set_body_stream(req, StringIO.new(body))
       res, span, tracer = execute(request: req, stream:, stream_parser:, operation: "chat", model: params[:model])
       res = ResponseAdapter.adapt(res, type: :responds)
         .extend(Module.new { define_method(:__tools__) { tools } })
@@ -85,7 +85,7 @@ class LLM::OpenAI
 
     private
 
-    [:path, :headers, :execute, :set_body_stream, :resolve_tools].each do |m|
+    [:path, :headers, :execute, :transport, :resolve_tools].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
 

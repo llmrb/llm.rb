@@ -24,14 +24,6 @@ class LLM::MCP
 
   include RPC
 
-  @clients = {}
-
-  ##
-  # @api private
-  def self.clients
-    @clients
-  end
-
   ##
   # Builds an MCP client that uses the stdio transport.
   # @param [LLM::Provider, nil] llm
@@ -69,6 +61,9 @@ class LLM::MCP
   #  The URL for the MCP HTTP endpoint
   # @option http [Hash] :headers
   #  Extra headers for requests
+  # @option http [LLM::Transport, Class] :transport
+  #  Optional override with any {LLM::Transport} instance or subclass,
+  #  similar to {LLM::Provider}
   # @param [Integer] timeout
   #  The maximum amount of time to wait when reading from an MCP process
   # @return [LLM::MCP] A new MCP instance
@@ -82,8 +77,9 @@ class LLM::MCP
       @transport = Transport::Stdio.new(command:)
     elsif http
       persistent = http.delete(:persistent)
-      http = Transport::HTTP.new(**http, timeout:)
-      @transport = persistent ? http.send(:setup_persistent_client!) : http
+      transport = http.delete(:transport)
+      transport ||= LLM::Transport::PersistentHTTP if persistent
+      @transport = Transport::HTTP.new(**http, timeout:, transport:)
     else
       raise ArgumentError, "stdio or http is required"
     end

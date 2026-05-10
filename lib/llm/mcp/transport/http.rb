@@ -16,12 +16,13 @@ module LLM::MCP::Transport
     #  Extra headers to send with requests
     # @param [Integer, nil] timeout
     #  The timeout in seconds. Defaults to nil
+    # @param [LLM::Transport, Class, nil] transport
+    #  Optional override with any {LLM::Transport} instance or subclass
     # @return [LLM::MCP::Transport::HTTP]
-    def initialize(url:, headers: {}, timeout: nil)
+    def initialize(url:, headers: {}, timeout: nil, transport: nil)
       @uri = URI.parse(url)
-      @use_ssl = @uri.scheme == "https"
       @headers = headers
-      @timeout = timeout
+      @transport = resolve_transport(transport, timeout:)
       @queue = []
       @monitor = Monitor.new
       @running = false
@@ -61,21 +62,13 @@ module LLM::MCP::Transport
     # @return [void]
     def write(message)
       raise LLM::MCP::Error, "MCP transport is not running" unless running?
-      req = Net::HTTP::Post.new(uri.path, headers.merge("content-type" => "application/json"))
+      req = Net::HTTP::Post.new(uri.request_uri, headers.merge("content-type" => "application/json"))
       req.body = LLM.json.dump(message)
-      if persistent_client.nil?
-        http = Net::HTTP.start(uri.host, uri.port, use_ssl:, open_timeout: timeout, read_timeout: timeout)
-        args = [req]
-      else
-        http = persistent_client
-        args = [uri, req]
+      res = transport.request(req, owner: self) do
+        read(_1)
+        _1
       end
-      http.request(*args) do |res|
-        unless Net::HTTPSuccess === res
-          raise LLM::MCP::Error, "MCP transport write failed with HTTP #{res.code}"
-        end
-        read(res)
-      end
+      raise LLM::MCP::Error, "MCP transport write failed with HTTP #{res.code}" unless res.success?
     end
 
     ##
@@ -102,19 +95,18 @@ module LLM::MCP::Transport
 
     private
 
-    attr_reader :uri, :use_ssl, :headers, :timeout
+    attr_reader :uri, :headers, :transport
 
-    def setup_persistent_client!
-      LLM.lock(:mcp) do
-        LLM.require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
-        unless LLM::MCP.clients.key?(key)
-          http = Net::HTTP::Persistent.new(name: self.class.name)
-          http.read_timeout = timeout
-          http.open_timeout = timeout
-          LLM::MCP.clients[key] ||= http
-        end
+    def resolve_transport(transport, timeout:)
+      return default_transport(timeout:) if transport.nil?
+      if Class === transport && transport <= LLM::Transport
+        return transport.new(host: uri.host, port: uri.port, timeout:, ssl: uri.scheme == "https")
       end
-      self
+      transport
+    end
+
+    def default_transport(timeout:)
+      LLM::Transport::HTTP.new(host: uri.host, port: uri.port, timeout:, ssl: uri.scheme == "https")
     end
 
     def read(res)
@@ -132,14 +124,6 @@ module LLM::MCP::Transport
 
     def enqueue(message)
       lock { @queue << message }
-    end
-
-    def persistent_client
-      LLM::MCP.clients[key]
-    end
-
-    def key
-      "#{uri.scheme}:#{uri.host}:#{uri.port}:#{timeout}"
     end
 
     def lock(&)

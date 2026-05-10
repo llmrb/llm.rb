@@ -81,12 +81,15 @@ class LLM::Transport
     # Performs a request on the current HTTP transport.
     # @param [Net::HTTPRequest] request
     # @param [Fiber] owner
-    # @yieldparam [Net::HTTP] http
+    # @param [Object, nil] stream
+    # @param [Class] stream_parser
+    # @param [Class] stream_decoder
+    # @yieldparam [LLM::Transport::Response] response
     # @return [Object]
-    def request(request, owner:, &)
+    def request(request, owner:, stream: nil, stream_parser: nil, stream_decoder: nil, &b)
       client.connection_for(URI.join(base_uri, request.path)) do |connection|
         set_request(Request.new(client:, connection:), owner)
-        yield connection.http
+        perform_request(connection.http, request, stream, stream_parser, stream_decoder, &b)
       end
     ensure
       clear_request(owner)
@@ -101,9 +104,10 @@ class LLM::Transport
         if self.class.registry[client_id]
           self.class.registry[client_id]
         else
-          require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
+          LLM.require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
           client = Net::HTTP::Persistent.new(name: self.class.name)
           client.read_timeout = timeout
+          client.open_timeout = timeout
           self.class.registry[client_id] = client
         end
       end

@@ -32,9 +32,7 @@ class LLM::Transport
       owner = transport.request_owner
       tracer = self.tracer
       span = tracer.on_request_start(operation:, model:, inputs:)
-      res = transport.request(request, owner:) do |http|
-        perform_request(http, request, stream, stream_parser, &b)
-      end
+      res = transport.request(request, owner:, stream:, stream_parser:, stream_decoder:, &b)
       res = LLM::Transport::Response.from(res)
       [handle_response(res, tracer, span), span, tracer]
     rescue *transport.interrupt_errors
@@ -74,41 +72,6 @@ class LLM::Transport
     def set_body_stream(req, io)
       req.body_stream = io
       req["transfer-encoding"] = "chunked" unless req["content-length"]
-    end
-
-    ##
-    # Performs the request on the given HTTP connection.
-    # @param [Net::HTTP] http
-    # @param [Net::HTTPRequest] request
-    # @param [Object, nil] stream
-    # @param [Class] stream_parser
-    # @param [Proc, nil] b
-    # @return [LLM::Transport::Response]
-    def perform_request(http, request, stream, stream_parser, &b)
-      if stream
-        http.request(request) do |raw|
-          res = LLM::Transport::Response.from(raw)
-          if res.success?
-            parser = stream_decoder.new(stream_parser.new(stream))
-            res.read_body(parser)
-            body = parser.body
-            res.body = (Hash === body || Array === body) ? LLM::Object.from(body) : body
-          else
-            body = +""
-            res.read_body { body << _1 }
-            res.body = body
-          end
-        ensure
-          parser&.free
-        end
-      elsif b
-        http.request(request) do |raw|
-          res = LLM::Transport::Response.from(raw)
-          res.success? ? b.call(res) : res
-        end
-      else
-        LLM::Transport::Response.from(http.request(request))
-      end
     end
   end
 end

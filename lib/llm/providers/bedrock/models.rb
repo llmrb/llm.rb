@@ -8,8 +8,9 @@ class LLM::Bedrock
   #
   # Unlike the Converse API (which lives on `bedrock-runtime.<region>.amazonaws.com`),
   # the models endpoint lives on the control plane at
-  # `bedrock.<region>.amazonaws.com`. This class manages its own HTTP
-  # connection since the provider's transport is pinned to the runtime host.
+  # `bedrock.<region>.amazonaws.com`. This class builds a matching
+  # transport for the control-plane host from the provider's current
+  # transport class.
   #
   # @example
   #   llm = LLM.bedrock(
@@ -39,19 +40,18 @@ class LLM::Bedrock
     # @return [LLM::Response]
     def all(**params)
       host = credentials.host
-      handle_response http(host).request(build_request(host, params))
+      req = build_request(host, params)
+      res = build_transport(host).request(req, owner: self)
+      handle_response(res)
     end
 
     private
 
     ##
     # @param [String] host
-    # @return [Net::HTTP]
-    def http(host)
-      http = Net::HTTP.new(host, 443)
-      http.use_ssl = true
-      http.read_timeout = timeout
-      http
+    # @return [LLM::Transport]
+    def build_transport(host)
+      transport.class.new(host:, port: 443, timeout:, ssl: true)
     end
 
     ##
@@ -68,12 +68,12 @@ class LLM::Bedrock
     end
 
     ##
-    # @param [Net::HTTPResponse] res
+    # @param [LLM::Transport::Response, Net::HTTPResponse] res
     # @return [LLM::Response]
     # @raise [LLM::Error]
     def handle_response(res)
-      case res
-      when Net::HTTPSuccess
+      res = LLM::Transport::Response.from(res)
+      if res.success?
         res.body = LLM::Object.from(LLM.json.load(res.body || "{}"))
         LLM::Bedrock::ResponseAdapter.adapt(res, type: :models)
       else
@@ -102,7 +102,7 @@ class LLM::Bedrock
       end
     end
 
-    [:timeout, :tracer].each do |m|
+    [:timeout, :tracer, :transport].each do |m|
       define_method(m) { @provider.send(m) }
     end
   end

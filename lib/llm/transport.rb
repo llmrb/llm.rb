@@ -45,12 +45,10 @@ module LLM
     # Performs a request through the transport.
     # @param [Net::HTTPRequest] request
     # @param [Object] owner
-    # @param [Object, nil] stream
-    # @param [Class] stream_parser
-    # @param [Class] stream_decoder
+    # @param [LLM::Object, nil] stream
     # @yieldparam [LLM::Transport::Response] response
     # @return [Object]
-    def request(request, owner:, stream: nil, stream_parser: nil, stream_decoder: nil, &)
+    def request(request, owner:, stream: nil, &)
       raise NotImplementedError
     end
 
@@ -93,12 +91,12 @@ module LLM
     #  Custom transports may be able to reuse this helper when they
     #  execute requests through a Net::HTTP-compatible client, or
     #  implement their own request execution path instead.
-    def perform_request(client, request, stream, stream_parser, stream_decoder, &b)
+    def perform_request(client, request, stream, &b)
       if stream
         client.request(request) do |raw|
           res = LLM::Transport::Response.from(raw)
           if res.success?
-            parser = stream_decoder.new(stream_parser.new(stream))
+            parser = stream.decoder.new(stream.parser.new(stream.streamer))
             res.read_body(parser)
             body = parser.body
             res.body = (Hash === body || Array === body) ? LLM::Object.from(body) : body

@@ -81,15 +81,13 @@ class LLM::Transport
     # Performs a request on the current HTTP transport.
     # @param [Net::HTTPRequest] request
     # @param [Fiber] owner
-    # @param [Object, nil] stream
-    # @param [Class] stream_parser
-    # @param [Class] stream_decoder
+    # @param [LLM::Object, nil] stream
     # @yieldparam [LLM::Transport::Response] response
     # @return [Object]
-    def request(request, owner:, stream: nil, stream_parser: nil, stream_decoder: nil, &b)
+    def request(request, owner:, stream: nil, &b)
       client.connection_for(URI.join(base_uri, request.path)) do |connection|
         set_request(Request.new(client:, connection:), owner)
-        perform_request(connection.http, request, stream, stream_parser, stream_decoder, &b)
+        perform_request(connection.http, request, stream, &b)
       end
     ensure
       clear_request(owner)

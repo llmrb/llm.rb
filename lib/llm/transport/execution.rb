@@ -29,10 +29,11 @@ class LLM::Transport
     #  When there is a network error at the operating system level
     # @return [LLM::Transport::Response]
     def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, inputs: nil, &b)
+      stream &&= LLM::Object.from(streamer: stream, parser: stream_parser, decoder: stream_decoder)
       owner = transport.request_owner
       tracer = self.tracer
       span = tracer.on_request_start(operation:, model:, inputs:)
-      res = transport.request(request, owner:, stream:, stream_parser:, stream_decoder:, &b)
+      res = transport.request(request, owner:, stream:, &b)
       res = LLM::Transport::Response.from(res)
       [handle_response(res, tracer, span), span, tracer]
     rescue *transport.interrupt_errors

@@ -40,11 +40,31 @@
   Delete the unused `LLM::Utils` module and remove its remaining unused
   provider includes and top-level require.
 
+* **Make HTTP persistence constructor-driven** <br>
+  Remove public `persist!` and `.persistent` mutation APIs from
+  providers, transports, and MCP clients. Select persistent HTTP
+  behavior at construction time with `persistent: true` instead.
+
+* **Split Net::HTTP transports by backend** <br>
+  Treat `Net::HTTP` and `Net::HTTP::Persistent` as separate transport
+  implementations instead of two modes tangled together in one shared
+  HTTP transport path.
+
+* **Add built-in transport class helpers** <br>
+  Add `LLM::Transport.net_http` and
+  `LLM::Transport.net_http_persistent` so callers can select the
+  built-in HTTP backends explicitly.
+
 * **Allow swapping the provider HTTP backend** <br>
   Add `transport:` to provider construction so callers can run provider
   requests through another HTTP backend such as libcurl, Faraday, or a
   fixture-backed test transport without changing provider request or
   response adapters.
+
+* **Allow provider transport classes in `transport:`** <br>
+  Let provider construction accept a transport class such as
+  `LLM::Transport.net_http_persistent` and instantiate it with the
+  provider's host, port, timeout, and SSL settings.
 
 * **Let custom transports adapt their own response objects** <br>
   Introduce a transport response interface so custom transports can
@@ -146,8 +166,7 @@ and `acts_as_agent`.
 
 * **Allow `persistent: true` on `LLM::MCP.http`** <br>
   Let `LLM::MCP.http(...)` enable persistent HTTP transport directly
-  through `persistent: true`, instead of requiring a separate
-  `.persistent` call after construction.
+  through `persistent: true` at construction time.
 
 * **Expose `LLM::Function#runner` as public API** <br>
   Promote the internal runner instantiation to a public `runner` method on

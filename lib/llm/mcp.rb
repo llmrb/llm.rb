@@ -82,8 +82,8 @@ class LLM::MCP
       @transport = Transport::Stdio.new(command:)
     elsif http
       persistent = http.delete(:persistent)
-      @transport = Transport::HTTP.new(**http, timeout:)
-      @transport.persistent if persistent
+      http = Transport::HTTP.new(**http, timeout:)
+      @transport = persistent ? http.send(:setup_persistent_client!) : http
     else
       raise ArgumentError, "stdio or http is required"
     end
@@ -120,19 +120,6 @@ class LLM::MCP
   ensure
     stop
   end
-
-  ##
-  # Configures an HTTP MCP transport to use a persistent connection pool
-  # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
-  # @example
-  #   mcp = LLM::MCP.http(url: "https://example.com/mcp", persistent: true)
-  #   # do something with 'mcp'
-  # @return [LLM::MCP]
-  def persist!
-    transport.persist!
-    self
-  end
-  alias_method :persistent, :persist!
 
   ##
   # Returns the tools provided by the MCP process.

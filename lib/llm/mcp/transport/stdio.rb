@@ -78,14 +78,6 @@ module LLM::MCP::Transport
       command.wait
     end
 
-    ##
-    # This method is a no-op for stdio transports
-    # @return [LLM::MCP::Transport::Stdio]
-    def persist!
-      self
-    end
-    alias_method :persistent, :persist!
-
     private
 
     attr_reader :command, :stdin, :stdout, :stderr

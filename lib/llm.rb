@@ -37,21 +37,11 @@ module LLM
 
   ##
   # Thread-safe monitors for different contexts
-  @monitors = {require: Monitor.new, clients: Monitor.new, inherited: Monitor.new, registry: Monitor.new, mcp: Monitor.new}
+  @monitors = {require: Monitor.new, inherited: Monitor.new, registry: Monitor.new, mcp: Monitor.new}
 
   ##
   # Model registry
   @registry = {}
-
-  ##
-  # Shared HTTP clients used by providers.
-  @clients = {}
-
-  ##
-  # @api private
-  def self.clients
-    @clients
-  end
 
   ##
   # Requires an optional runtime dependency

@@ -39,6 +39,13 @@ RSpec.describe LLM::Provider do
     end
   end
 
+  context "with a transport class" do
+    it "builds a transport from the provider settings" do
+      provider = LLM.openai(key: "test", transport: LLM::Transport.net_http_persistent)
+      expect(provider.send(:transport)).to be_a(LLM::Transport::PersistentHTTP)
+    end
+  end
+
   context "#interrupt!" do
     let(:provider) { LLM.openai(key: "test") }
     let(:owner) { Fiber.current }
@@ -47,7 +54,7 @@ RSpec.describe LLM::Provider do
       http = Net::HTTP.new("example.com")
       allow(http).to receive(:active?).and_return(true)
       allow(http).to receive(:finish)
-      req = LLM::Transport::HTTP::Interruptible::Request.new(http:)
+      req = LLM::Transport::HTTP::Request.new(client: http)
       provider.send(:transport).send(:set_request, req, owner)
       provider.interrupt!(owner)
       expect(http).to have_received(:finish)
@@ -59,10 +66,12 @@ RSpec.describe LLM::Provider do
       else
         stub_const("Net::HTTP::Persistent", Class.new)
       end
+      transport = LLM::Transport::PersistentHTTP.new(host: "api.openai.com", port: 443, timeout: 60, ssl: true)
+      provider = LLM.openai(key: "test", transport:)
       client = persistent_class.allocate
       connection = double(:connection, http: nil)
       allow(client).to receive(:finish)
-      req = LLM::Transport::HTTP::Interruptible::Request.new(http: client, connection:)
+      req = LLM::Transport::PersistentHTTP::Request.new(client:, connection:)
       provider.send(:transport).send(:set_request, req, owner)
       provider.interrupt!(owner)
       expect(client).to have_received(:finish).with(connection)

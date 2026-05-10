@@ -1,25 +1,37 @@
 # frozen_string_literal: true
 
-require "net/http"
-
 class LLM::Transport
   ##
-  # The {LLM::Transport::HTTP LLM::Transport::HTTP} transport is the
-  # built-in adapter for Ruby's {Net::HTTP Net::HTTP}. It manages
-  # transient HTTP connections, tracks active requests by owner, and
-  # interrupts in-flight requests when needed.
+  # The {LLM::Transport::PersistentHTTP LLM::Transport::PersistentHTTP}
+  # transport is the built-in adapter for
+  # [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent).
+  # It manages pooled HTTP connections, tracks active requests by owner,
+  # and interrupts in-flight requests when needed.
   #
   # @api private
-  class HTTP < self
+  class PersistentHTTP < self
     INTERRUPT_ERRORS = [::IOError, ::EOFError, Errno::EBADF].freeze
-    Request = Struct.new(:client, keyword_init: true)
+    Request = Struct.new(:client, :connection, keyword_init: true)
+    @registry = {}
+    @monitor = Monitor.new
+
+    ##
+    # Returns the process-wide connection pool registry.
+    # @return [Hash]
+    def self.registry
+      @registry
+    end
+
+    def self.lock(&)
+      @monitor.synchronize(&)
+    end
 
     ##
     # @param [String] host
     # @param [Integer] port
     # @param [Integer] timeout
     # @param [Boolean] ssl
-    # @return [LLM::Transport::HTTP]
+    # @return [LLM::Transport::PersistentHTTP]
     def initialize(host:, port:, timeout:, ssl:)
       @host = host
       @port = port
@@ -50,8 +62,8 @@ class LLM::Transport
     def interrupt!(owner)
       req = request_for(owner) or return
       lock { (@interrupts ||= {})[owner] = true }
-      close_socket(req.client)
-      req.client.finish if req.client.active?
+      close_socket(req.connection&.http)
+      req.client.finish(req.connection)
       owner.stop if owner.respond_to?(:stop)
     rescue *interrupt_errors
       nil
@@ -71,18 +83,13 @@ class LLM::Transport
     # @param [Fiber] owner
     # @yieldparam [Net::HTTP] http
     # @return [Object]
-    def request(_request, owner:, &)
-      client = client()
-      set_request(Request.new(client:), owner)
-      yield client
+    def request(request, owner:, &)
+      client.connection_for(URI.join(base_uri, request.path)) do |connection|
+        set_request(Request.new(client:, connection:), owner)
+        yield connection.http
+      end
     ensure
       clear_request(owner)
-    end
-
-    ##
-    # @return [String]
-    def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)}>"
     end
 
     private
@@ -90,10 +97,20 @@ class LLM::Transport
     attr_reader :host, :port, :timeout, :ssl, :base_uri
 
     def client
-      client = Net::HTTP.new(host, port)
-      client.read_timeout = timeout
-      client.use_ssl = ssl
-      client
+      self.class.lock do
+        if self.class.registry[client_id]
+          self.class.registry[client_id]
+        else
+          require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
+          client = Net::HTTP::Persistent.new(name: self.class.name)
+          client.read_timeout = timeout
+          self.class.registry[client_id] = client
+        end
+      end
+    end
+
+    def client_id
+      "#{host}:#{port}:#{timeout}:#{ssl}"
     end
 
     def close_socket(http)

@@ -24,7 +24,7 @@ class LLM::Provider
   # @param [Boolean] persistent
   #  Whether to use a persistent connection.
   #  Requires the net-http-persistent gem.
-  # @param [LLM::Transport, nil] transport
+  # @param [LLM::Transport, Class, nil] transport
   #  Optional transport override used to execute requests.
   def initialize(key:, host:, port: 443, timeout: 60, ssl: true, base_path: "", persistent: false, transport: nil)
     @key = key
@@ -35,7 +35,7 @@ class LLM::Provider
     @base_path = normalize_base_path(base_path)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
-    @transport = transport || LLM::Transport::HTTP.new(host:, port:, timeout:, ssl:, persistent:)
+    @transport = resolve_transport(transport, persistent:)
     @monitor = Monitor.new
   end
 
@@ -316,19 +316,6 @@ class LLM::Provider
   end
 
   ##
-  # This method configures a provider to use a persistent connection pool
-  # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
-  # @example
-  #   llm = LLM.openai(key: ENV["KEY"]).persistent
-  #   # do something with 'llm'
-  # @return [LLM::Provider]
-  def persist!
-    transport.persist!
-    self
-  end
-  alias_method :persistent, :persist!
-
-  ##
   # Interrupt the active request, if any.
   # @param [Fiber] owner
   # @return [nil]
@@ -428,6 +415,23 @@ class LLM::Provider
   # @api private
   def lock(&)
     @monitor.synchronize(&)
+  end
+
+  ##
+  # @api private
+  def default_transport(persistent:)
+    transport_class = persistent ? LLM::Transport::PersistentHTTP : LLM::Transport::HTTP
+    transport_class.new(host:, port:, timeout:, ssl:)
+  end
+
+  ##
+  # @api private
+  def resolve_transport(transport, persistent:)
+    return default_transport(persistent:) if transport.nil?
+    if Class === transport && transport <= LLM::Transport
+      return transport.new(host:, port:, timeout:, ssl:)
+    end
+    transport
   end
 
   ##

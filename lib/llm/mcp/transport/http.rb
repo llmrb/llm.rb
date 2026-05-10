@@ -100,14 +100,11 @@ module LLM::MCP::Transport
       @running
     end
 
-    ##
-    # Configures the transport to use a persistent HTTP connection pool
-    # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
-    # @example
-    #   mcp = LLM::MCP.http(url: "https://example.com/mcp", persistent: true)
-    #   # do something with 'mcp'
-    # @return [LLM::MCP::Transport::HTTP]
-    def persist!
+    private
+
+    attr_reader :uri, :use_ssl, :headers, :timeout
+
+    def setup_persistent_client!
       LLM.lock(:mcp) do
         LLM.require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
         unless LLM::MCP.clients.key?(key)
@@ -119,11 +116,6 @@ module LLM::MCP::Transport
       end
       self
     end
-    alias_method :persistent, :persist!
-
-    private
-
-    attr_reader :uri, :use_ssl, :headers, :timeout
 
     def read(res)
       if res["content-type"].to_s.include?("text/event-stream")

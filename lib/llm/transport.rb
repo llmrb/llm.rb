@@ -24,7 +24,22 @@ module LLM
     require_relative "transport/response"
     require_relative "transport/stream_decoder"
     require_relative "transport/http"
+    require_relative "transport/persistent_http"
     require_relative "transport/execution"
+
+    ##
+    # Returns the built-in Net::HTTP transport class.
+    # @return [Class]
+    def self.net_http
+      HTTP
+    end
+
+    ##
+    # Returns the built-in Net::HTTP::Persistent transport class.
+    # @return [Class]
+    def self.net_http_persistent
+      PersistentHTTP
+    end
 
     ##
     # Performs a request through the transport.
@@ -67,19 +82,5 @@ module LLM
       nil
     end
 
-    ##
-    # Configures the transport to use persistence, if supported.
-    # @return [LLM::Transport]
-    def persist!
-      self
-    end
-    alias_method :persistent, :persist!
-
-    ##
-    # Returns whether the transport is persistent.
-    # @return [Boolean]
-    def persistent?
-      false
-    end
   end
 end

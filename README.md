@@ -11,12 +11,9 @@
 
 llm.rb is Ruby's most capable AI runtime.
 
-It runs on Ruby's standard library by default and loads optional pieces
-only when needed.
-
-llm.rb offers a single runtime for providers, agents, tools, skills, MCP,
-streaming, files, and persisted state, so those pieces fit together
-through one execution model.
+It runs on Ruby's standard library by default, loads optional pieces
+only when needed, and offers a single runtime for providers, agents,
+tools, skills, MCP, streaming, files, and persisted state.
 
 It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
 Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. It

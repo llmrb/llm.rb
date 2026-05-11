@@ -404,13 +404,13 @@ module LLM
         stream.extra[:concurrency] = concurrency if LLM::Stream === stream
         res = @ctx.public_send(method, apply_instructions(prompt), params)
         loop do
-          break if @ctx.functions.empty?
+          break unless @ctx.functions?
           if max
             max.times do
-              break if @ctx.functions.empty?
+              break unless @ctx.functions?
               res = @ctx.public_send(method, call_functions, params)
             end
-            break if @ctx.functions.empty?
+            break unless @ctx.functions?
             res = @ctx.public_send(method, @ctx.functions.map { rate_limit(_1) }, params)
           else
             res = @ctx.public_send(method, call_functions, params)

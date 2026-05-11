@@ -274,6 +274,7 @@ RSpec.describe LLM::Agent do
         context_window: 0,
         model: "gpt-4.1",
         params: {},
+        functions?: false,
         to_h: {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []},
         prompt: nil,
         image_url: nil,
@@ -288,6 +289,7 @@ RSpec.describe LLM::Agent do
       allow(ctx).to receive(:talk).and_return(double("first_response"), double("second_response"))
       allow(ctx).to receive(:respond).and_return(double("first_response"), double("second_response"))
       allow(ctx).to receive(:wait)
+      allow(ctx).to receive(:functions?).and_return(true, true, false, false)
       allow(ctx).to receive(:functions).and_return(pending_functions, pending_functions, empty_functions, empty_functions)
     end
 
@@ -426,6 +428,7 @@ RSpec.describe LLM::Agent do
         local_file: nil,
         remote_file: nil,
         params: {},
+        functions?: false,
         tracer: nil
       )
     end
@@ -437,6 +440,7 @@ RSpec.describe LLM::Agent do
       allow(LLM::Context).to receive(:new).and_return(ctx)
       allow(ctx).to receive(:talk).and_return(double("first_response"), *Array.new(25) { double("response") }, advisory_res, res)
       allow(ctx).to receive(:wait).with(:call).and_return([double("return")])
+      allow(ctx).to receive(:functions?).and_return(*Array.new(29, true), false, false, false)
       allow(ctx).to receive(:functions).and_return(*Array.new(30, pending_functions), empty_functions, empty_functions, empty_functions)
     end
 
@@ -454,6 +458,7 @@ RSpec.describe LLM::Agent do
 
     it "disables advisory tool-limit returns when tool_attempts is nil" do
       allow(ctx).to receive(:talk).and_return(double("first_response"), res)
+      allow(ctx).to receive(:functions?).and_return(true, false, false)
       allow(ctx).to receive(:functions).and_return(pending_functions, empty_functions, empty_functions)
       expect(agent.talk("hello", tool_attempts: nil)).to eq(res)
       expect(ctx).to have_received(:wait).with(:call).once

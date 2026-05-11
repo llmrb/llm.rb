@@ -102,7 +102,7 @@ uses the same tool loop as local tools:
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM::MCP.stdio(command: ["ruby", "server.rb"])
+mcp = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
 
 mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)

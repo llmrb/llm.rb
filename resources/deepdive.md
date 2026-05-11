@@ -287,28 +287,9 @@ ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:call)) while ctx.functions?
 ```
 
-If streamed tool calls mix MCP tools with local class-based tools, you can
-choose the strategy per tool inside `on_tool_call` so MCP tools stay on a
-supported concurrency mode while local class-based tools use experimental
-`:ractor` execution. In that case, `wait(...)` can accept an array of
-possible concurrency strategies such as `[:thread, :ractor]`, so llm.rb waits
-on whichever of those strategies are actually present:
-
-```ruby
-class Stream < LLM::Stream
-  def on_tool_call(tool, error)
-    return queue << error if error
-    queue << (tool.mcp? ? ctx.spawn(tool, :thread) : ctx.spawn(tool, :ractor))
-  end
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-stream = Stream.new
-ctx = LLM::Context.new(llm, stream:, tools: [System, *mcp_tools])
-
-ctx.talk("Check the deployment status and compare it with local system time.")
-ctx.talk(ctx.wait([:thread, :ractor])) while ctx.functions?
-```
+If tool work is already queued by the stream, just call `wait`.
+Do not pass `[:thread, :ractor]` or similar lists for queued stream work.
+The queue already knows what it contains and will wait on it correctly.
 
 ### Stream Compaction Events
 

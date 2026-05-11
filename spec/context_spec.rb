@@ -430,29 +430,6 @@ RSpec.describe LLM::Context do
     end
   end
 
-  context "#call" do
-    let(:provider) { LLM.openai(key: "test") }
-    let(:model) { "gpt-5.4" }
-
-    it "requires an explicit target" do
-      expect { ctx.call }.to raise_error(ArgumentError)
-    end
-
-    it "forwards :functions to ctx.functions.call" do
-      pending = [].extend(LLM::Function::Array)
-      expect(ctx).to receive(:functions).and_return(pending)
-      expect(pending).to receive(:call).and_return([])
-      expect(ctx.call(:functions)).to eq([])
-    end
-
-    it "raises for an unknown target" do
-      expect { ctx.call(:unknown) }.to raise_error(
-        ArgumentError,
-        /Unknown target: :unknown\. Expected :functions/
-      )
-    end
-  end
-
   context "when configured with a transformer" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }

@@ -185,14 +185,6 @@ module LLM::Sequel
     end
 
     ##
-    # Calls into the stored context.
-    # @see LLM::Context#call
-    # @return [Object]
-    def call(...)
-      ctx.call(...)
-    end
-
-    ##
     # @see LLM::Context#mode
     # @return [Symbol]
     def mode

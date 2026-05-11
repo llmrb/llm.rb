@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Breaking
+
+* **Remove `#call` as a context and agent tool-loop API** <br>
+  Remove `LLM::Context#call(:functions)` and `LLM::Agent#call(:functions)`.
+  Tool loops should use `ctx.wait(:call)` or `agent.wait(:call)` instead.
+  The ActiveRecord and Sequel wrappers no longer expose `#call` passthroughs
+  for stored llm.rb contexts.
+
+* **Make HTTP transport selection constructor-driven** <br>
+  Remove public `persist!` and `.persistent` mutation APIs from
+  providers, transports, and MCP clients. Select persistent behavior at
+  construction time with `persistent: true`, `LLM::Transport.net_http`,
+  `LLM::Transport.net_http_persistent`, or an explicit `transport:`
+  override.
+
+* **Make queued stream waits strategy-free** <br>
+  Change `LLM::Stream::Queue#wait` to resolve queued work by the actual
+  task types already present in the queue instead of accepting an
+  external wait strategy. `LLM::Stream#wait(...)` remains compatible but
+  now ignores its arguments when delegating to the queue.
+
+* **Remove unused `LLM::Utils`** <br>
+  Delete the `LLM::Utils` module and remove its remaining unused
+  provider includes and top-level require.
+
 ### Add
 
 * **Track cache read and write tokens in usage** <br>
@@ -48,23 +73,12 @@
 
 ### Change
 
-* **Remove unused `LLM::Utils`** <br>
-  Delete the unused `LLM::Utils` module and remove its remaining unused
-  provider includes and top-level require.
-
 * **Refactor HTTP transports around shared backends** <br>
   Split `Net::HTTP` and `Net::HTTP::Persistent` into separate
   `LLM::Transport` implementations, move HTTP-specific request helpers
   and response execution into the shared transport layer, and let MCP
   HTTP wrap those transports instead of maintaining a separate
   transient/persistent client split.
-
-* **Make HTTP transport selection constructor-driven** <br>
-  Remove public `persist!` and `.persistent` mutation APIs from
-  providers, transports, and MCP clients. Select persistent behavior at
-  construction time with `persistent: true`, `LLM::Transport.net_http`,
-  `LLM::Transport.net_http_persistent`, or an explicit `transport:`
-  override.
 
 * **Share transport overrides across providers and MCP** <br>
   Let both provider construction and `LLM::MCP.http(...)` accept
@@ -77,12 +91,6 @@
   adapt backend-specific response objects to one normalized shape and
   have them work with the existing provider execution and error-handling
   code.
-
-* **Make queued stream waits strategy-free** <br>
-  Change `LLM::Stream::Queue#wait` to resolve queued work by the actual
-  task types already present in the queue instead of accepting an
-  external wait strategy. `LLM::Stream#wait(...)` remains compatible but
-  now ignores its arguments when delegating to the queue.
 
 ## v8.1.0
 

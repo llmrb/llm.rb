@@ -272,21 +272,6 @@ module LLM
     end
 
     ##
-    # Calls a named collection of work through the context.
-    #
-    # This currently supports `:functions`, forwarding to `functions.call`.
-    #
-    # @param [Symbol] target
-    #  The work collection to call
-    # @return [Array<LLM::Function::Return>]
-    def call(target)
-      case target
-      when :functions then guarded_returns || functions.call
-      else raise ArgumentError, "Unknown target: #{target.inspect}. Expected :functions"
-      end
-    end
-
-    ##
     # Spawns a function through the context.
     #
     # When a guard is configured, this method can return an in-band guarded
@@ -322,11 +307,10 @@ module LLM
     # the context's pending functions directly.
     #
     # @param [Symbol, Array<Symbol>] strategy
-    #  Use `:call` to prefer queued streamed work when present and otherwise
-    #  run pending functions sequentially without spawning.
-    #  The concurrency strategy to use, or the possible concurrency strategies to
-    #  wait on. For example, `[:thread, :ractor]` waits for any queued thread or
-    #  ractor work, in that order.
+    #  If the stream queue already has tool work, `wait` will drain it
+    #  without using this argument.
+    #  Otherwise, this controls how pending functions are resolved directly.
+    #  Use `:call` for sequential execution without spawning.
     # @return [Array<LLM::Function::Return>]
     def wait(strategy)
       if LLM::Stream === stream && !stream.queue.empty?

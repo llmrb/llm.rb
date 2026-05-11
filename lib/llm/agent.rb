@@ -23,8 +23,7 @@ module LLM
   #   advisory tool errors back through the model and keeps the loop in-band.
   #   Set `tool_attempts: nil` to disable that advisory behavior.
   # * Tool loop execution can be configured with `concurrency :call`,
-  #   `:thread`, `:task`, `:fiber`, `:ractor`, or a list of queued task
-  #   types such as `[:thread, :ractor]`.
+  #   `:thread`, `:task`, `:fiber`, or `:ractor`.
   #
   # @example
   #   class SystemAdmin < LLM::Agent
@@ -110,9 +109,8 @@ module LLM
     #  - `:fork`: forked child processes
     #  - `:ractor`: concurrent Ruby ractors for class-based tools; MCP tools are not supported,
     #    and this mode is especially useful for CPU-bound tool work
-    #  - `[:thread, :ractor]`: the possible concurrency strategies to wait on, in the
-    #    given order. This is useful for mixed tool sets or when work may have been
-    #    spawned with more than one concurrency strategy.
+    #  Usually pass a single strategy. Arrays are only for advanced mixed-work
+    #  cases and are not needed for normal queued stream tool loops.
     # @return [Symbol, Array<Symbol>, nil]
     def self.concurrency(concurrency = nil)
       return @concurrency if concurrency.nil?
@@ -220,13 +218,6 @@ module LLM
     # @return [Array<LLM::Function::Return>]
     def returns
       @ctx.returns
-    end
-
-    ##
-    # @see LLM::Context#call
-    # @return [Object]
-    def call(...)
-      @tracer ? @llm.with_tracer(@tracer) { @ctx.call(...) } : @ctx.call(...)
     end
 
     ##
@@ -397,7 +388,7 @@ module LLM
     # @return [Array<LLM::Function::Return>]
     def call_functions
       case concurrency || :call
-      when :call then call(:functions)
+      when :call then wait(:call)
       when :thread, :task, :fiber, :fork, :ractor, Array then wait(concurrency)
       else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. " \
                                 "Expected :call, :thread, :task, :fiber, :fork, :ractor, " \

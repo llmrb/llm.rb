@@ -53,6 +53,16 @@ class LLM::Function
     end
     alias_method :value, :wait
 
+    ##
+    # @return [Class]
+    def group_class
+      case task
+      when Thread then LLM::Function::ThreadGroup
+      when Fiber then LLM::Function::FiberGroup
+      else LLM::Function::TaskGroup
+      end
+    end
+
     private
 
     def scheduler

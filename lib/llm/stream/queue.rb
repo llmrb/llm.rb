@@ -57,37 +57,13 @@ class LLM::Stream
 
     def wait_tasks(tasks)
       return [] if tasks.empty?
-      strategies = tasks.map { task_strategy(_1) }.uniq
-      return wait_group(tasks, strategies.first) unless strategies.length > 1
-      grouped = strategies.to_h { [_1, []] }
-      tasks.each do |task|
-        grouped[task_strategy(task)] << task
+      results = {}
+      grouped_tasks = tasks.group_by(&:group_class)
+      grouped_tasks.each do |group_class, group|
+        returns = group_class.new(group).wait
+        returns.each.with_index { results[group[_2]] = _1 }
       end
-      strategies.flat_map do |name|
-        selected = grouped.fetch(name)
-        selected.empty? ? [] : wait_group(selected, name)
-      end
-    end
-
-    def wait_group(tasks, strategy)
-      case strategy
-      when :thread then LLM::Function::ThreadGroup.new(tasks).wait
-      when :task then LLM::Function::TaskGroup.new(tasks).wait
-      when :fiber then LLM::Function::FiberGroup.new(tasks).wait
-      when :fork then LLM::Function::Fork::Group.new(tasks).wait
-      when :ractor then LLM::Function::Ractor::Group.new(tasks).wait
-      else raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, :fork, or :ractor"
-      end
-    end
-
-    def task_strategy(task)
-      case task.task
-      when Thread then :thread
-      when Fiber then :fiber
-      when LLM::Function::Ractor::Task then :ractor
-      when LLM::Function::Fork::Task then :fork
-      else :task
-      end
+      tasks.map { results[_1] }
     end
 
     def fire_hooks(tasks, results)

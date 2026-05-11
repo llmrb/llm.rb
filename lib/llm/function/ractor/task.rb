@@ -57,6 +57,12 @@ class LLM::Function
     end
     alias_method :value, :wait
 
+    ##
+    # @return [Class]
+    def group_class
+      LLM::Function::Ractor::Group
+    end
+
     private
 
     def build_task

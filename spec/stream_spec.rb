@@ -295,6 +295,43 @@ RSpec.describe LLM::Stream do
             ]
           )
         end
+
+        context "when tracking tool return callbacks" do
+          let(:stream) do
+            Class.new(described_class) do
+              attr_reader :events
+
+              def initialize
+                @events = []
+              end
+
+              def on_tool_return(fn, result)
+                @events << [fn.id, result.id]
+              end
+            end.new
+          end
+          let(:third_tool) do
+            tool_class.function.dup.tap do |fn|
+              fn.id = "call_3"
+              fn.arguments = {"command" => "date"}
+            end
+          end
+          let(:expected_ids) { %w[call_1 call_2 call_3] }
+          let(:result_ids) { stream.wait([:thread, :ractor]).map(&:id) }
+
+          before do
+            stream.queue << third_tool.spawn(:thread)
+            result_ids
+          end
+
+          it "preserves enqueue order across mixed task groups" do
+            expect(result_ids).to eq(expected_ids)
+          end
+
+          it "emits tool return callbacks in enqueue order" do
+            expect(stream.events).to eq(expected_ids.map { [_1, _1] })
+          end
+        end
       end
     end
   end

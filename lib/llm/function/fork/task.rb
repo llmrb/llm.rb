@@ -63,6 +63,12 @@ class LLM::Function
     end
     alias_method :value, :wait
 
+    ##
+    # @return [Class]
+    def group_class
+      LLM::Function::Fork::Group
+    end
+
     private
 
     def reap

@@ -71,6 +71,11 @@
   `LLM::Cost` using the model's generic input rate so image-bearing
   prompts report their input spend.
 
+* **Add `LLM::Agent.stream` DSL support** <br>
+  Let agents define a default `stream` through the class DSL, including
+  block-based stream construction so each agent instance can resolve its
+  stream the same way `tracer` does.
+
 ### Change
 
 * **Refactor HTTP transports around shared backends** <br>

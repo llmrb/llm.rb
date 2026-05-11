@@ -83,6 +83,68 @@ RSpec.describe LLM::Agent do
           expect(provider.tracer).to be_a(LLM::Tracer::Null)
         end
       end
+
+      context "when configured with a stream block" do
+        let(:stream_class) { Class.new(LLM::Stream) }
+        let(:stream) { stream_class.new }
+        let(:klass) do
+          stream = self.stream
+          Class.new(described_class) do
+            model "gpt-4.1"
+            stream { stream }
+          end
+        end
+
+        it "resolves the stream before building the context" do
+          expect(LLM::Context).to receive(:new).with(
+            provider,
+            {model: "gpt-4.1", tools: [], guard: true, stream:}
+          ).and_call_original
+          klass.new(provider)
+        end
+
+        context "when the block builds a new stream" do
+          let(:klass) do
+            stream_class = self.stream_class
+            Class.new(described_class) do
+              model "gpt-4.1"
+              stream { stream_class.new }
+            end
+          end
+          let(:first_agent) { klass.new(provider) }
+          let(:second_agent) { klass.new(provider) }
+          let(:first_stream) { first_agent.instance_variable_get(:@ctx).send(:stream) }
+          let(:second_stream) { second_agent.instance_variable_get(:@ctx).send(:stream) }
+
+          it "creates a separate stream per agent instance" do
+            expect(first_stream).not_to equal(second_stream)
+          end
+
+          it "uses the configured stream type" do
+            expect(first_stream).to be_a(stream_class)
+            expect(second_stream).to be_a(stream_class)
+          end
+        end
+      end
+
+      context "when configured with a stream object" do
+        let(:stream) { Class.new(LLM::Stream).new }
+        let(:klass) do
+          stream = self.stream
+          Class.new(described_class) do
+            model "gpt-4.1"
+            stream stream
+          end
+        end
+
+        it "passes the stream to the context" do
+          expect(LLM::Context).to receive(:new).with(
+            provider,
+            {model: "gpt-4.1", tools: [], guard: true, stream:}
+          ).and_call_original
+          klass.new(provider)
+        end
+      end
     end
 
     describe "#talk" do

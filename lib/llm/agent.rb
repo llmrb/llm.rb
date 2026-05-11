@@ -138,6 +138,26 @@ module LLM
     end
 
     ##
+    # Set or get the default stream.
+    #
+    # When a block is provided, it is stored and evaluated lazily against the
+    # agent instance during initialization so it can build a fresh stream for
+    # each agent.
+    #
+    # @example
+    #   class Agent < LLM::Agent
+    #     stream { MyStream.new }
+    #   end
+    #
+    # @param [Object, Proc, nil] stream
+    # @yieldreturn [Object, nil]
+    # @return [Object, Proc, nil]
+    def self.stream(stream = nil, &block)
+      return @stream if stream.nil? && !block
+      @stream = block || stream
+    end
+
+    ##
     # @param [LLM::Provider] provider
     #  A provider
     # @param [Hash] params
@@ -155,7 +175,9 @@ module LLM
       @concurrency = params.delete(:concurrency) || self.class.concurrency
       @llm = llm
       tracer = params.key?(:tracer) ? params.delete(:tracer) : self.class.tracer
+      stream = params.key?(:stream) ? params.delete(:stream) : self.class.stream
       @tracer = resolve_option(tracer) unless tracer.nil?
+      params[:stream] = resolve_option(stream) unless stream.nil?
       @ctx = LLM::Context.new(llm, defaults.merge({guard: true}).merge(params))
     end
 

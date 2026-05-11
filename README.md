@@ -11,16 +11,16 @@
 
 llm.rb is Ruby's most capable AI runtime.
 
-It runs on Ruby's standard library by default, loads optional pieces
+It runs on Ruby's standard library by default (and that made it possible to
+[port llm.rb to mruby](https://github.com/llmrb/mruby-llm)), loads optional pieces
 only when needed, and offers a single runtime for providers, agents,
 tools, skills, MCP, streaming, files, and persisted state.
 
 It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
 Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. It
 also includes built-in ActiveRecord and Sequel support, plus concurrent
-tool execution through threads, tasks, fibers, ractors, and fork. That
-also made
-[porting llm.rb to mruby](https://github.com/llmrb/mruby-llm) easy.
+tool execution through threads, tasks (via async gem), fibers, ractors,
+and fork (via xchan.rb gem).
 
 ## Quick start
 
@@ -199,7 +199,7 @@ multiple tools and you want to resolve them in parallel instead of one
 at a time. On
 [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html),
 you can enable this with `concurrency`. Common options are `:call` for
-sequential execution, `:thread` for concurrent IO-bound work, and
+sequential execution, `:thread`, or `:task` for concurrent IO-bound work, and
 `:ractor` or `:fork` for more isolated CPU-bound work:
 
 ```ruby
@@ -276,7 +276,7 @@ compactor can also use its own `model:` if you want summarization to run on a
 different model from the main context. `token_threshold:` accepts either a
 fixed token count or a percentage string like `"90%"`, which resolves
 against the active model context window and triggers compaction once total
-token usage goes over that percentage. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+token usage goes over that percentage. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"

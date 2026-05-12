@@ -216,6 +216,29 @@ agent = Agent.new(llm, stream: $stdout)
 agent.talk "Read README.md and CHANGELOG.md and compare them."
 ```
 
+#### Serialization
+
+The [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+object can be serialized to JSON, which makes it suitable for storing
+in a file, a database column, or a Redis queue. The built-in
+ActiveRecord and Sequel plugins are built on top of this feature:
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+
+# Serialize a context
+ctx1 = LLM::Context.new(llm)
+ctx1.talk "Remember that my favorite language is Ruby"
+string = ctx1.to_json
+
+# Restore a context (from JSON)
+ctx2 = LLM::Context.new(llm, stream: $stdout)
+ctx2.restore(string:)
+ctx2.talk "What is my favorite language?"
+```
+
 ## Installation
 
 ```bash

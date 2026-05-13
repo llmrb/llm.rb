@@ -391,7 +391,7 @@ class Context < Sequel::Model
   private
 
   def set_provider
-    LLM.openai(key: ENV["OPENAI_SECRET"])
+    LLM.openai(key: ENV["OPENAI_SECRET"], persistent: true)
   end
 
   def set_context
@@ -527,7 +527,7 @@ This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) o
 require "llm"
 require "net/http/persistent"
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.openai(key: ENV["KEY"], persistent: true)
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
   headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"},

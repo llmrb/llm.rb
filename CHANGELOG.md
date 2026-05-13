@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+## v9.0.0
+
+Changes since `v8.1.0`.
+
+This release deepens llm.rb's transport and cost-tracking surface. It
+replaces the old mutable `persist!` API with constructor-driven transport
+selection, removes `#call` from contexts and agents in favor of explicit
+`ctx.wait(:call)`, makes queued stream waits strategy-free, and deletes
+the unused `LLM::Utils` module.
+
+It adds cache read/write token tracking
+with corresponding cost components, audio and image token pricing,
+`LLM::Context#functions?` for queue-aware tool loops,
+`LLM::Agent.stream` DSL support, and exposes `#stream` readers on
+contexts and agents.
+
+The HTTP transport layer has been refactored around shared backends so
+providers, MCP, and custom transports all use the same normalized
+response interface.
+
 ### Breaking
 
 * **Remove `#call` as a context and agent tool-loop API** <br>

@@ -307,6 +307,13 @@ module LLM
     end
 
     ##
+    # @return [LLM::Stream, #<<, nil]
+    #  Returns a stream object, or nil
+    def stream
+      @ctx.stream
+    end
+
+    ##
     # Returns the model an Agent is actively using
     # @return [String]
     def model

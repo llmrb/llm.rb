@@ -29,6 +29,10 @@
 
 ### Add
 
+* **Expose `#stream` readers on contexts and agents** <br>
+  Add public `LLM::Context#stream` and `LLM::Agent#stream` accessors so
+  callers can inspect the active stream object directly.
+
 * **Track cache read and write tokens in usage** <br>
   Add `cache_read_tokens` and `cache_write_tokens` to `LLM::Usage` and
   preserve them through completion usage adaptation and context usage

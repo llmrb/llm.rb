@@ -171,7 +171,7 @@ module LLM
     # This prefers request-local tools attached to the stream and falls back
     # to the current context defaults when present.
     # @return [Array<LLM::Function, LLM::Tool>]
-    def tools
+    def __tools__
       extra[:tools] || ctx&.params&.dig(:tools) || []
     end
 
@@ -180,8 +180,8 @@ module LLM
     # then falls back to the global function registry.
     # @param [String] name
     # @return [LLM::Function, nil]
-    def find_tool(name)
-      tool = tools.find do |candidate|
+    def __find__(name)
+      tool = __tools__.find do |candidate|
         candidate_name =
           if candidate.respond_to?(:function)
             candidate.function.name

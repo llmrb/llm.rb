@@ -185,7 +185,7 @@ class LLM::OpenAI
     end
 
     def resolve_tool(tool, function, arguments)
-      registered = @stream.find_tool(function["name"])
+      registered = @stream.__find__(function["name"])
       fn = (registered || LLM::Function.new(function["name"])).dup.tap do |fn|
         fn.id = tool["id"]
         fn.arguments = arguments

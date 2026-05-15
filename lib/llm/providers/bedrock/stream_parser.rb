@@ -184,7 +184,7 @@ class LLM::Bedrock
 
     def resolve_tool(tool)
       payload = tool["toolUse"] || {}
-      registered = @stream.find_tool(payload["name"])
+      registered = @stream.__find__(payload["name"])
       fn = (registered || LLM::Function.new(payload["name"])).dup.tap do |f|
         f.id = payload["toolUseId"]
         f.arguments = payload["input"] || {}

@@ -153,7 +153,7 @@ class LLM::Google
 
     def resolve_tool(part, cindex, pindex)
       call = part["functionCall"]
-      registered = @stream.find_tool(call["name"])
+      registered = @stream.__find__(call["name"])
       fn = (registered || LLM::Function.new(call["name"])).dup.tap do |fn|
         fn.id = LLM::Google.tool_id(part:, cindex:, pindex:)
         fn.arguments = call["args"]

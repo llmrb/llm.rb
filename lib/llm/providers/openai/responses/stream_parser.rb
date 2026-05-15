@@ -269,7 +269,7 @@ class LLM::OpenAI
     # @group Resolvers
 
     def resolve_tool(tool, arguments)
-      registered = @stream.find_tool(tool["name"])
+      registered = @stream.__find__(tool["name"])
       fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
         fn.id = tool["call_id"]
         fn.arguments = arguments

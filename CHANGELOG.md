@@ -13,6 +13,15 @@
   Add `key?` to providers so callers can check whether a non-blank API
   key has been configured.
 
+### Fix
+
+* **Rename internal stream methods to reduce collision risk** <br>
+  Rename `LLM::Stream#tools` to `#__tools__` and `#find_tool` to
+  `#__find__` so user-defined stream subclasses are less likely to
+  accidentally override internal methods.
+
+  Ported from mruby-llm.
+
 ## v9.0.0
 
 Changes since `v8.1.0`.

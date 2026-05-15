@@ -56,12 +56,23 @@ class LLM::Schema
     def resolve(schema, type)
       if LLM::Schema::Leaf === type
         type
+      elsif ::Array === type
+        resolve_array(schema, type)
       elsif Class === type && type.respond_to?(:object)
         type.object
       else
         target = type.name.split("::").last.downcase
         schema.public_send(target)
       end
+    end
+
+    def resolve_array(schema, values)
+      item = if values.size == 1
+        resolve(schema, values[0])
+      else
+        schema.any_of(*values.map { resolve(schema, _1) })
+      end
+      schema.array(item)
     end
   end
 

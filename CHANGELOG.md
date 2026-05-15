@@ -4,6 +4,11 @@
 
 ### Add
 
+* **Support `Array[...]` schema and tool param types** <br>
+  Let `LLM::Schema` properties and `LLM::Tool` params accept
+  `Array[...]` type declarations, including mixed item unions that are
+  serialized as `anyOf` array items.
+
 * **Add `LLM::Provider#key?`** <br>
   Add `key?` to providers so callers can check whether a non-blank API
   key has been configured.

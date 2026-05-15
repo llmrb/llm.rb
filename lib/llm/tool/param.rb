@@ -62,14 +62,7 @@ class LLM::Tool
       extend self
 
       def resolve(schema, type)
-        if LLM::Schema::Leaf === type
-          type
-        elsif Class === type && type.respond_to?(:object)
-          type.object
-        else
-          target = type.name.split("::").last.downcase
-          schema.public_send(target)
-        end
+        LLM::Schema::Utils.resolve(schema, type)
       end
 
       def setup(leaf, description, options)

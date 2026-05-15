@@ -339,6 +339,13 @@ class LLM::Provider
     LLM::Stream === stream || stream.respond_to?(:<<)
   end
 
+  ##
+  # @return [Boolean]
+  #  Returns true when an API key is configured
+  def key?
+    @key != nil && @key.to_s.strip.size > 0
+  end
+
   private
 
   def path(suffix)

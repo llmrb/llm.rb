@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Add
+
+* **Add `LLM::Provider#key?`** <br>
+  Add `key?` to providers so callers can check whether a non-blank API
+  key has been configured.
+
 ## v9.0.0
 
 Changes since `v8.1.0`.

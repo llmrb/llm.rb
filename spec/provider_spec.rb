@@ -22,6 +22,23 @@ RSpec.describe LLM::Provider do
         )
       end
     end
+
+    describe "#key?" do
+      context "when given nil as a key" do
+        subject { LLM.openai(key: nil).key? }
+        it { is_expected.to be(false) }
+      end
+
+      context "when given an empty string as a key" do
+        subject { LLM.openai(key: "    ").key? }
+        it { is_expected.to be(false) }
+      end
+
+      context "when given an API key" do
+        subject { LLM.openai(key: "sk-12345").key? }
+        it { is_expected.to be(true) }
+      end
+    end
   end
 
   context "with bedrock" do

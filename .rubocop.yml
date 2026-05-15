@@ -69,3 +69,5 @@ Lint/ConstantDefinitionInBlock:
   Enabled: false
 Layout/ParameterAlignment:
   Enabled: false
+Style/NonNilCheck:
+  Enabled: false

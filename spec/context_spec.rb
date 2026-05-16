@@ -100,7 +100,7 @@ RSpec.describe LLM::Context do
       expect(compactor).to receive(:compact?).with("What is the capital of France?").ordered.and_return(true)
       expect(compactor).to receive(:compact!).with("What is the capital of France?").ordered.and_return(nil)
       expect(responses).to receive(:create).ordered.and_return(response)
-      ctx.respond("What is the capital of France?")
+      ctx.talk("What is the capital of France?")
     end
   end
 
@@ -477,11 +477,13 @@ RSpec.describe LLM::Context do
       expect(ctx.messages.first.content).to eq("hello [scrubbed]")
     end
 
-    it "rewrites the prompt before respond" do
+    it "rewrites the prompt before talk in responses mode" do
       responses = double
+      ctx = LLM::Context.new(provider, model:, transformer:, mode: :responses)
+      allow(ctx).to receive(:compactor).and_return(compactor)
       allow(provider).to receive(:responses).and_return(responses)
       expect(responses).to receive(:create).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
-      ctx.respond("hello")
+      ctx.talk("hello")
     end
 
     it "notifies the stream when transform starts" do

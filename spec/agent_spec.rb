@@ -437,7 +437,6 @@ RSpec.describe LLM::Agent do
     before do
       allow(LLM::Context).to receive(:new).and_return(ctx)
       allow(ctx).to receive(:talk).and_return(double("first_response"), double("second_response"))
-      allow(ctx).to receive(:respond).and_return(double("first_response"), double("second_response"))
       allow(ctx).to receive(:wait)
       allow(ctx).to receive(:functions?).and_return(true, true, false, false)
       allow(ctx).to receive(:functions).and_return(pending_functions, pending_functions, empty_functions, empty_functions)

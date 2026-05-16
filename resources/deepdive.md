@@ -83,7 +83,7 @@ building on the same object instead of switching to a different abstraction
 for each feature.
 
 Those context-level defaults are not fixed. You can override them on a single
-`talk` or `respond` call by passing request params directly, which makes it
+`talk` call by passing request params directly, which makes it
 easy to keep stable defaults at the context level while changing things like
 `model`, `schema`, `tools`, or `stream` for one turn.
 
@@ -697,7 +697,7 @@ The `acts_as_llm` method wraps
 provides full control over tool execution.
 
 `context:` lets the model provide default options to the constructed
-`LLM::Context`, while still allowing individual `talk` and `respond` calls to
+`LLM::Context`, while still allowing individual `talk` calls to
 override them when a specific turn needs different behavior. One common use is
 setting default tools:
 
@@ -886,7 +886,7 @@ puts ctx.usage.total_tokens
 
 `context:` lets the plugin inject default options into the constructed
 `LLM::Context`. Those defaults still live at the context layer, so they can be
-overridden on individual `talk` or `respond` calls when a specific turn needs
+overridden on individual `talk` calls when a specific turn needs
 different behavior. One common use is setting default tools this way, but the
 same hook can also preload schemas, stream handlers, or other context-level
 options:
@@ -1236,7 +1236,7 @@ so it can also be used outside the agent DSL.
 Those agent-level defaults are not fixed. You can still override things like
 `model`, `tools`, `schema`, `stream`, or `concurrency` when you initialize the
 agent, and you can continue overriding request-level options again at the
-`talk` or `respond` call site.
+`talk` call site.
 
 An agent example:
 
@@ -1337,7 +1337,7 @@ values. In other words, you can intercept a tool call's return value and
 modify it before sending it back to the LLM.
 
 This is especially useful when you want context-wide behavior without
-rewriting every `talk` and `respond` call site by hand.
+rewriting every `talk` call site by hand.
 
 When a stream is present, transformer lifecycle hooks are also exposed through
 [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with

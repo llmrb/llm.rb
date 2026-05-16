@@ -191,14 +191,22 @@ module LLM
     #   res = ctx.talk("Hello, what is your name?")
     #   puts res.messages[0].content
     def talk(prompt, params = {})
-      return respond(prompt, params) if mode == :responses
       @owner = @llm.request_owner
       compactor.compact!(prompt) if compactor.compact?(prompt)
-      params = params.merge(messages: @messages.to_a)
-      params = @params.merge(params)
-      prompt, params = transform(prompt, params)
-      bind!(params[:stream], params[:model], params[:tools])
-      res = @llm.complete(prompt, params)
+      if mode == :responses
+        params = @params.merge(params)
+        prompt, params = transform(prompt, params)
+        bind!(params[:stream], params[:model], params[:tools])
+        res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
+        params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
+        res = @llm.responses.create(prompt, params)
+      else
+        params = params.merge(messages: @messages.to_a)
+        params = @params.merge(params)
+        prompt, params = transform(prompt, params)
+        bind!(params[:stream], params[:model], params[:tools])
+        res = @llm.complete(prompt, params)
+      end
       self.compacted = false
       role = params[:role] || @llm.user_role
       role = @llm.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
@@ -207,35 +215,6 @@ module LLM
       res
     end
     alias_method :chat, :talk
-
-    ##
-    # Interact with the context via the responses API.
-    # This method immediately sends a request to the LLM and returns the response.
-    #
-    # @note Not all LLM providers support this API
-    # @param prompt (see LLM::Provider#complete)
-    # @param params The params, including optional :role (defaults to :user), :stream, :tools, :schema etc.
-    # @return [LLM::Response] Returns the LLM's response for this turn.
-    # @example
-    #   llm = LLM.openai(key: ENV["KEY"])
-    #   ctx = LLM::Context.new(llm)
-    #   res = ctx.respond("What is the capital of France?")
-    #   puts res.output_text
-    def respond(prompt, params = {})
-      @owner = @llm.request_owner
-      compactor.compact!(prompt) if compactor.compact?(prompt)
-      params = @params.merge(params)
-      prompt, params = transform(prompt, params)
-      bind!(params[:stream], params[:model], params[:tools])
-      res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
-      params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
-      res = @llm.responses.create(prompt, params)
-      self.compacted = false
-      role = params[:role] || @llm.user_role
-      @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]
-      @messages.concat [res.choices[-1]]
-      res
-    end
 
     ##
     # @return [String]

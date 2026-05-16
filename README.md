@@ -330,6 +330,10 @@ ctx = LLM::Context.new(
 
 This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with the OpenAI Responses API so reasoning output is streamed separately from visible assistant output. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
+To use the Responses API (OpenAI-specific), initialize a
+context or agent with `mode: :responses` and keep using
+`talk` for turns.
+
 ```ruby
 require "llm"
 

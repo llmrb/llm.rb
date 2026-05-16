@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Breaking
+
+* **Unify context turns under `#talk`** <br>
+  Remove `LLM::Context#respond` and route responses-mode turns through
+  `LLM::Context#talk` with `mode: :responses` instead.
+
 ### Add
 
 * **Resolve all class-level agent tunables via Proc** <br>

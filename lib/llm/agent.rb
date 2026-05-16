@@ -205,30 +205,9 @@ module LLM
     #   response = agent.talk("Hello, what is your name?")
     #   puts response.choices[0].content
     def talk(prompt, params = {})
-      run_loop(:talk, prompt, params)
+      run_loop(prompt, params)
     end
     alias_method :chat, :talk
-
-    ##
-    # Maintain a conversation via the responses API.
-    # This method immediately sends a request to the LLM and returns the response.
-    #
-    # @note Not all LLM providers support this API
-    # @param prompt (see LLM::Provider#complete)
-    # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
-    # @option params [Integer] :tool_attempts
-    #  The maxinum number of tool call iterations before the agent sends
-    #  in-band advisory tool errors back through the model (default 25).
-    #  Set to `nil` to disable advisory tool-limit returns.
-    # @return [LLM::Response] Returns the LLM's response for this turn.
-    # @example
-    #   llm = LLM.openai(key: ENV["KEY"])
-    #   agent = LLM::Agent.new(llm)
-    #   res = agent.respond("What is the capital of France?")
-    #   puts res.output_text
-    def respond(prompt, params = {})
-      run_loop(:respond, prompt, params)
-    end
 
     ##
     # @return [LLM::Buffer<LLM::Message>]
@@ -439,29 +418,28 @@ module LLM
       end
     end
 
-    def run_loop(method, prompt, params)
-      loop = proc do
+    def run_loop(prompt, params)
+      run = proc do
         max = params.key?(:tool_attempts) ? params.delete(:tool_attempts) : 25
         max = Integer(max) if max
         stream = params[:stream] || @ctx.params[:stream]
         stream.extra[:concurrency] = concurrency if LLM::Stream === stream
-        res = @ctx.public_send(method, apply_instructions(prompt), params)
-        loop do
-          break unless @ctx.functions?
+        res = @ctx.talk(apply_instructions(prompt), params)
+        while @ctx.functions?
           if max
             max.times do
               break unless @ctx.functions?
-              res = @ctx.public_send(method, call_functions, params)
+              res = @ctx.talk(call_functions, params)
             end
-            break unless @ctx.functions?
-            res = @ctx.public_send(method, @ctx.functions.map { rate_limit(_1) }, params)
+            res = @ctx.talk(@ctx.functions.map { rate_limit(_1) }, params) if @ctx.functions?
           else
-            res = @ctx.public_send(method, call_functions, params)
+            res = @ctx.talk(call_functions, params)
           end
         end
         res
       end
-      @tracer ? @llm.with_tracer(@tracer, &loop) : loop.call
+      return run.call unless @tracer
+      @llm.with_tracer(@tracer, &run)
     end
 
     def rate_limit(function)

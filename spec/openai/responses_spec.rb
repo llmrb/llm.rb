@@ -77,7 +77,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
 
   context "when given a function call",
           vcr: {cassette_name: "openai/responses/function_call"} do
-    let(:ctx) { LLM::Context.new(provider, tools: [tool]) }
+    let(:ctx) { LLM::Context.new(provider, mode: :responses, tools: [tool]) }
     let(:tool) do
       LLM.function(:system) do |fn|
         fn.description "Runs system commands"
@@ -97,9 +97,9 @@ RSpec.describe "LLM::OpenAI::Responses" do
     end
 
     it "calls a function" do
-      ctx.respond(prompt)
+      ctx.talk(prompt)
       expect(ctx.functions).not_to be_empty
-      ctx.respond ctx.functions.map(&:call)
+      ctx.talk ctx.wait(:call)
       expect(ctx.functions).to be_empty
     end
   end
@@ -136,7 +136,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
           vcr: {cassette_name: "openai/responses/bot_text_stream"} do
     let(:params) { {stream:} }
     let(:stream) { StringIO.new }
-    let(:ctx) { LLM::Context.new(provider, params) }
+    let(:ctx) { LLM::Context.new(provider, params.merge(mode: :responses)) }
     let(:system_prompt) do
       "Keep your answers short and concise, and provide three answers to the three questions. " \
       "There should be one answer per line. " \
@@ -152,7 +152,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
       end
     end
 
-    before { ctx.respond(prompt) }
+    before { ctx.talk(prompt) }
 
     context "with the contents of the IO" do
       subject { stream.string }
@@ -168,7 +168,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
   context "when given a context and a tool stream for responses",
           vcr: {cassette_name: "openai/responses/bot_tool_stream"} do
     let(:params) { {stream: true, tools: [tool]} }
-    let(:ctx) { LLM::Context.new(provider, params) }
+    let(:ctx) { LLM::Context.new(provider, params.merge(mode: :responses)) }
     let(:tool) do
       LLM.function(:system) do |fn|
         fn.description "Runs system commands"
@@ -183,11 +183,11 @@ RSpec.describe "LLM::OpenAI::Responses" do
       end
     end
 
-    before { ctx.respond(prompt) }
+    before { ctx.talk(prompt) }
 
     it "calls the function(s)" do
       expect(Kernel).to receive(:system).with("date").and_return("2024-01-01")
-      ctx.respond ctx.functions.map(&:call)
+      ctx.talk ctx.wait(:call)
       expect(ctx.functions).to be_empty
     end
   end

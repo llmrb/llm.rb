@@ -1,10 +1,18 @@
 <p align="center">
-  <a href="llm.rb"><img src="https://github.com/llmrb/llm.rb/raw/main/llm.png" width="200" height="200" border="0" alt="llm.rb"></a>
+  <a href="llm.rb">
+    <img src="https://github.com/llmrb/llm.rb/raw/main/llm.png" width="200" height="200" border="0" alt="llm.rb">
+  </a>
 </p>
 <p align="center">
-  <a href="https://0x1eef.github.io/x/llm.rb?rebuild=1"><img src="https://img.shields.io/badge/docs-0x1eef.github.io-blue.svg" alt="RubyDoc"></a>
-  <a href="https://opensource.org/license/0bsd"><img src="https://img.shields.io/badge/License-0BSD-orange.svg?" alt="License"></a>
-  <a href="https://github.com/llmrb/llm.rb/tags"><img src="https://img.shields.io/badge/version-9.0.0-green.svg?" alt="Version"></a>
+  <a href="https://0x1eef.github.io/x/llm.rb?rebuild=1">
+    <img src="https://img.shields.io/badge/docs-0x1eef.github.io-blue.svg" alt="RubyDoc">
+  </a>
+  <a href="https://opensource.org/license/0bsd">
+    <img src="https://img.shields.io/badge/License-0BSD-orange.svg?" alt="License">
+  </a>
+  <a href="https://github.com/llmrb/llm.rb/tags">
+    <img src="https://img.shields.io/badge/version-9.0.0-green.svg?" alt="Version">
+  </a>
 </p>
 
 ## About
@@ -249,7 +257,10 @@ gem install llm.rb
 
 #### REPL
 
-This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) directly for an interactive REPL. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+directly for an interactive REPL. <br> See the
+[deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or
+[deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -299,7 +310,9 @@ compactor can also use its own `model:` if you want summarization to run on a
 different model from the main context. `token_threshold:` accepts either a
 fixed token count or a percentage string like `"90%"`, which resolves
 against the active model context window and triggers compaction once total
-token usage goes over that percentage. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+token usage goes over that percentage. See the
+[deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or
+[deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -328,7 +341,11 @@ ctx = LLM::Context.new(
 
 #### Reasoning
 
-This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with the OpenAI Responses API so reasoning output is streamed separately from visible assistant output. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html)
+with the OpenAI Responses API so reasoning output is streamed separately from
+visible assistant output. See the
+[deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or
+[deepdive (markdown)](resources/deepdive.md) for more examples.
 
 To use the Responses API (OpenAI-specific), initialize a
 context or agent with `mode: :responses` and keep using
@@ -360,7 +377,10 @@ ctx.talk("Solve 17 * 19 and show your work.")
 
 #### Request Cancellation
 
-Need to cancel a stream? llm.rb has you covered through [`LLM::Context#interrupt!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#interrupt-21-instance_method). <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+Need to cancel a stream? llm.rb has you covered through
+[`LLM::Context#interrupt!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#interrupt-21-instance_method).
+<br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html)
+or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -381,7 +401,14 @@ worker.join
 
 #### Sequel (ORM)
 
-The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. Like the ActiveRecord wrappers, its built-in persistence contract is the serialized `data` column, while `provider:` resolves a real `LLM::Provider` instance and `context:` injects defaults such as `model:`. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+The `plugin :llm` integration wraps
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a
+`Sequel::Model` and keeps tool execution explicit. Like the ActiveRecord
+wrappers, its built-in persistence contract is the serialized `data` column,
+while `provider:` resolves a real `LLM::Provider` instance and `context:`
+injects defaults such as `model:`. <br> See the
+[deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or
+[deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -416,7 +443,8 @@ one serialized `data` column. If your app has provider, model, or usage
 columns, provide them to llm.rb through `provider:` and `context:` instead of
 relying on reserved wrapper columns.
 
-See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html)
+or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -472,7 +500,8 @@ manages tool execution for you. Like `acts_as_llm`, its built-in persistence
 contract is one serialized `data` column. If your app has provider or model
 columns, provide them to llm.rb through your hooks and agent DSL.
 
-See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html)
+or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -525,7 +554,12 @@ end
 
 #### MCP
 
-This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. It expects a GitHub token in `ENV["GITHUB_PAT"]`. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html)
+over HTTP so remote GitHub MCP tools run through the same
+`LLM::Context` tool path as local tools. It expects a GitHub token in
+`ENV["GITHUB_PAT"]`. See the
+[deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or
+[deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"

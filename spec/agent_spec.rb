@@ -69,6 +69,87 @@ RSpec.describe LLM::Agent do
         klass.new(provider)
       end
 
+      context "when model is declared with a block" do
+        let(:klass) do
+          Class.new(described_class) do
+            model { "gpt-4.1" }
+          end
+        end
+
+        it "resolves the block against the agent instance" do
+          expect(LLM::Context).to receive(:new).with(
+            provider,
+            {model: "gpt-4.1", tools: [], guard: true}
+          ).and_call_original
+          klass.new(provider)
+        end
+      end
+
+      context "when tools are declared with a block" do
+        let(:tool) do
+          Class.new(LLM::Tool) do
+            name "echo"
+            description "Echo a value"
+          end
+        end
+        let(:klass) do
+          tool_class = tool
+          Class.new(described_class) do
+            tools { [tool_class] }
+          end
+        end
+
+        it "resolves the block against the agent instance" do
+          expect(LLM::Context).to receive(:new).with(
+            provider,
+            {model: nil, tools: [tool], guard: true}
+          ).and_call_original
+          klass.new(provider)
+        end
+      end
+
+      context "when skills are declared with a block" do
+        let(:skill_path) { "/tmp/weather" }
+        let(:skill) { double("skill", to_tool: tool) }
+        let(:klass) do
+          skill_path = self.skill_path
+          Class.new(described_class) do
+            skills { [skill_path] }
+          end
+        end
+
+        it "resolves the block against the agent instance" do
+          expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
+          expect(LLM::Context).to receive(:new).with(
+            provider,
+            {model: nil, tools: [], skills: [skill_path], guard: true}
+          ).and_call_original
+          klass.new(provider)
+        end
+      end
+
+      context "when schema is declared with a block" do
+        let(:schema) do
+          Class.new(LLM::Schema) do
+            property :answer, String, "Answer", required: true
+          end
+        end
+        let(:klass) do
+          schema_class = schema
+          Class.new(described_class) do
+            schema { schema_class }
+          end
+        end
+
+        it "resolves the block against the agent instance" do
+          expect(LLM::Context).to receive(:new).with(
+            provider,
+            {model: nil, tools: [], guard: true, schema: schema}
+          ).and_call_original
+          klass.new(provider)
+        end
+      end
+
       context "when configured with a tracer block" do
         let(:tracer) { Object.new }
         let(:agent) do
@@ -193,6 +274,7 @@ RSpec.describe LLM::Agent do
     let(:functions) { empty_functions }
     let(:cost) { double("cost") }
     let(:payload) { {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []} }
+    let(:params) { {model: "gpt-4.1"} }
     let(:ctx) do
       instance_double(
         LLM::Context,
@@ -205,6 +287,7 @@ RSpec.describe LLM::Agent do
         context_window: 128_000,
         model: "gpt-4.1",
         to_h: payload,
+        params:,
         prompt: :prompt,
         image_url: :image,
         local_file: :local_file,
@@ -298,6 +381,11 @@ RSpec.describe LLM::Agent do
     describe "#tracer" do
       subject { agent.tracer }
       it { is_expected.to eq(:tracer) }
+    end
+
+    describe "#params" do
+      subject { agent.params }
+      it { is_expected.to eq(params) }
     end
 
     describe "#interrupt!" do

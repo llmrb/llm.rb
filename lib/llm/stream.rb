@@ -9,8 +9,7 @@ module LLM
   # subclass that overrides the callbacks it needs. For basic streaming,
   # llm.rb also accepts any object that implements `#<<`. {#queue} provides
   # a small helper for collecting asynchronous tool work started from a
-  # callback, and {#tool_not_found} returns an in-band tool error when a
-  # streamed tool cannot be resolved.
+  # callback.
   #
   # @note The `on_*` callbacks run inline with the streaming parser. They
   #   therefore block streaming progress and should generally return as
@@ -150,30 +149,7 @@ module LLM
 
     # @endgroup
 
-    # @group Error handlers
-
-    ##
-    # Returns a function return describing a streamed tool that could not
-    # be resolved.
-    # @note This is mainly useful as a fallback from {#on_tool_call}. It
-    #   should be uncommon in normal use, since streamed tool callbacks only
-    #   run for tools already defined in the context.
-    # @param [LLM::Function] tool
-    # @return [LLM::Function::Return]
-    def tool_not_found(tool)
-      LLM::Function::Return.new(tool.id, tool.name, {
-        error: true, type: LLM::NoSuchToolError.name, message: "tool not found"
-      })
-    end
-
-    ##
-    # Returns the tool definitions available for the current streamed request.
-    # This prefers request-local tools attached to the stream and falls back
-    # to the current context defaults when present.
-    # @return [Array<LLM::Function, LLM::Tool>]
-    def __tools__
-      extra[:tools] || ctx&.params&.dig(:tools) || []
-    end
+    # @group Finders
 
     ##
     # Resolves a streamed tool call against the current request tools first,
@@ -181,17 +157,16 @@ module LLM
     # @param [String] name
     # @return [LLM::Function, nil]
     def __find__(name)
-      tool = __tools__.find do |candidate|
-        candidate_name =
-          if candidate.respond_to?(:function)
-            candidate.function.name
-          else
-            candidate.name
-          end
-        candidate_name.to_s == name.to_s
+      tools = extra[:tools] || ctx&.params&.dig(:tools) || []
+      tool = tools.find do
+        candidate = _1.respond_to?(:function) ? _1.function.name : _1.name
+        candidate.to_s == name.to_s
       end
-      tool&.then { _1.respond_to?(:function) ? _1.function : _1 } ||
+      if tool
+        tool.respond_to?(:function) ? tool.function : tool
+      else
         LLM::Function.find_by_name(name)
+      end
     end
 
     # @endgroup

@@ -192,7 +192,7 @@ class LLM::OpenAI
         fn.tracer = @stream.extra[:tracer]
         fn.model = @stream.extra[:model]
       end
-      [fn, (registered ? nil : @stream.tool_not_found(fn))]
+      [fn, (registered ? nil : fn.unavailable)]
     end
 
     def parse_arguments(arguments)

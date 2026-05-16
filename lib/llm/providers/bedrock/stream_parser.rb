@@ -191,7 +191,7 @@ class LLM::Bedrock
         f.tracer = @stream.extra[:tracer]
         f.model = @stream.extra[:model]
       end
-      [fn, registered ? nil : @stream.tool_not_found(fn)]
+      [fn, registered ? nil : fn.unavailable]
     end
 
     def content

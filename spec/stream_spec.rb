@@ -51,7 +51,7 @@ RSpec.describe LLM::Stream do
 
   describe "#on_tool_return" do
     it "returns nil" do
-      expect(stream.on_tool_return(tool, stream.tool_not_found(tool))).to be_nil
+      expect(stream.on_tool_return(tool, tool.unavailable)).to be_nil
     end
   end
 
@@ -79,22 +79,22 @@ RSpec.describe LLM::Stream do
     end
   end
 
-  describe "#tool_not_found" do
+  describe "LLM::Function#unavailable" do
     it "returns an in-band error" do
-      expect(stream.tool_not_found(tool).to_h).to eq(
+      expect(tool.unavailable.to_h).to eq(
         id: "call_1", name: "system",
         value: {error: true, type: "LLM::NoSuchToolError", message: "tool not found"}
       )
     end
 
     it "marks the return as an error" do
-      expect(stream.tool_not_found(tool)).to be_error
+      expect(tool.unavailable).to be_error
     end
   end
 
   describe LLM::Function::Return, "#error?" do
     it "returns true for automatic error returns" do
-      result = LLM::Stream.new.tool_not_found(tool)
+      result = tool.unavailable
       expect(result.error?).to be(true)
     end
 
@@ -115,7 +115,7 @@ RSpec.describe LLM::Stream do
 
   describe "#wait" do
     before do
-      stream.queue << stream.tool_not_found(tool)
+      stream.queue << tool.unavailable
     end
 
     it "forwards to the queue" do
@@ -189,7 +189,7 @@ RSpec.describe LLM::Stream do
     end
 
     it "handles finished tools" do
-      result = stream.tool_not_found(tool)
+      result = tool.unavailable
       stream.on_tool_return(tool, result)
       expect(stream.returns).to eq([[tool, result]])
     end
@@ -219,7 +219,7 @@ RSpec.describe LLM::Stream do
     describe "#wait" do
       context "when given queued function returns" do
         before do
-          stream.queue << stream.tool_not_found(tool)
+          stream.queue << tool.unavailable
         end
 
         it "returns the queued values" do

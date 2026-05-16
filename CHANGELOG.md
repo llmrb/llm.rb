@@ -32,10 +32,11 @@
 
 ### Fix
 
-* **Rename internal stream methods to reduce collision risk** <br>
-  Rename `LLM::Stream#tools` to `#__tools__` and `#find_tool` to
-  `#__find__` so user-defined stream subclasses are less likely to
-  accidentally override internal methods.
+* **Reduce private internal methods on `LLM::Stream`** <br>
+  Remove `tool_not_found` and `__tools__` from `LLM::Stream`. The
+  `__tools__` logic is inlined directly into `__find__` since that
+  was its only caller. The `tool_not_found` utility method was unused
+  externally and added unnecessary surface to LLM::Stream.
 
   Ported from mruby-llm.
 
@@ -1133,7 +1134,7 @@ Changes since `v4.9.0`.
 
 - Add HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
 - Add JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
-- Add JSON Schema type array union support (e.g., `\"type\\\": [\"object\", \"null\"]`)
+- Add JSON Schema type array union support (e.g., `\"type\": [\"object\", \"null\"]`)
 - Add JSON Schema type inference from `const`, `enum`, or `default` fields
 
 ### Change

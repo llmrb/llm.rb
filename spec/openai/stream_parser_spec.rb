@@ -25,10 +25,6 @@ RSpec.describe LLM::OpenAI::StreamParser do
       def on_tool_call(fn, error)
         @calls << [fn, error]
       end
-
-      def tool_not_found(fn)
-        {id: fn.id, name: fn.name, value: {error: true}}
-      end
     end.new
   end
 
@@ -87,6 +83,9 @@ RSpec.describe LLM::OpenAI::StreamParser do
     expect(fn.arguments).to eq({"command" => "date"})
     expect(fn.tracer).to equal(stream.extra[:tracer])
     expect(fn.model).to eq("deepseek-chat")
-    expect(error).to eq(id: "call_1", name: "missing", value: {error: true})
+    expect(error.to_h).to eq(
+      id: "call_1", name: "missing",
+      value: {error: true, type: "LLM::NoSuchToolError", message: "tool not found"}
+    )
   end
 end

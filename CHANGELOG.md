@@ -4,6 +4,17 @@
 
 ### Add
 
+* **Resolve all class-level agent tunables via Proc** <br>
+  Let `model`, `tools`, `skills`, `schema`, `stream`, and `tracer`
+  declared with a block be lazily evaluated against the agent instance
+  at initialization time, matching how `stream` and `tracer` already
+  worked.
+
+  Add `LLM::Agent#params` for direct access to the underlying context
+  parameters.
+
+  Ported from mruby-llm.
+
 * **Support `Array[...]` schema and tool param types** <br>
   Let `LLM::Schema` properties and `LLM::Tool` params accept
   `Array[...]` type declarations, including mixed item unions that are
@@ -182,7 +193,7 @@ DSML tool-marker filtering in streamed text.
   blocks that Bedrock rejects.
 
 * **Suppress Bedrock DSML tool markers in streamed text** <br>
-  Filter `"<｜DSML｜function_calls"` markers out of streamed Bedrock
+  Filter `\"<｜DSML｜function_calls\"` markers out of streamed Bedrock
   assistant text so tool-call sentinels do not leak into user-visible
   output.
 
@@ -333,7 +344,7 @@ provider usage has been recorded yet.
   buffer API.
 
 * **Support percentage compaction token thresholds** <br>
-  Let `LLM::Compactor` accept `token_threshold:` values like `"90%"` so
+  Let `LLM::Compactor` accept `token_threshold:` values like `\"90%\"` so
   compaction can trigger at a percentage of the active model context
   window.
 
@@ -1116,7 +1127,7 @@ Changes since `v4.9.0`.
 
 - Add HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
 - Add JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
-- Add JSON Schema type array union support (e.g., `"type\": [\"object\", \"null\"]`)
+- Add JSON Schema type array union support (e.g., `\"type\\\": [\"object\", \"null\"]`)
 - Add JSON Schema type inference from `const`, `enum`, or `default` fields
 
 ### Change
@@ -1217,7 +1228,7 @@ Notable merged work in this range includes:
 - `Add rack + websocket example (#130)`
 - `feat(gemspec): add changelog URI (#136)`
 - `feat(function): alias ThreadGroup#wait as ThreadGroup#value (#62)`
-- README and screencast refresh across `#66`, `#67`, `#68`, `#71`, and
+- README and screencast refresh across `#66`, `#68`, `#71`, and
   `#72`
 - `chore(bot): update deprecation warning from v5.0 to v6.0`
 - `fix(deepseek): tolerate malformed tool arguments`

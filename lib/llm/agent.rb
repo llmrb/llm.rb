@@ -177,7 +177,7 @@ module LLM
       fields = %i[model skills schema tracer stream tools]
       fields.each do |field|
         resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
-        resolved = resolve_option(resolvable) unless resolvable.nil?
+        resolved = LLM::Utils.resolve_option(self, resolvable) unless resolvable.nil?
         if field == :model
           params[field] = resolved unless params.key?(field)
         elsif field != :tracer && !resolved.nil?
@@ -448,10 +448,6 @@ module LLM
         type: LLM::ToolLoopError.name,
         message: "tool loop rate limit reached"
       })
-    end
-
-    def resolve_option(option)
-      Proc === option ? instance_exec(&option) : option
     end
   end
 end

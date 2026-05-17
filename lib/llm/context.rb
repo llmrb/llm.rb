@@ -69,13 +69,6 @@ module LLM
     attr_reader :mode
 
     ##
-    # Returns the default params for this context
-    # @return [Hash]
-    def params
-      @params.dup
-    end
-
-    ##
     # @param [LLM::Provider] llm
     #  A provider
     # @param [Hash] params
@@ -96,6 +89,13 @@ module LLM
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @params[:tools] = tools unless tools.empty?
       @messages = LLM::Buffer.new(llm)
+    end
+
+    ##
+    # Returns the default params for this context
+    # @return [Hash]
+    def params
+      @params.dup
     end
 
     ##

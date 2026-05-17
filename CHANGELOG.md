@@ -10,6 +10,11 @@
 
 ### Add
 
+* **Add shared option resolution through `LLM::Utils`** <br>
+  Add `LLM::Utils.resolve_option` for resolving configured values as
+  literals, procs, symbol-named methods, or duplicated hashes, and use
+  it in agent and ORM option resolution paths.
+
 * **Resolve all class-level agent tunables via Proc** <br>
   Let `model`, `tools`, `skills`, `schema`, `stream`, and `tracer`
   declared with a block be lazily evaluated against the agent instance

@@ -20,12 +20,7 @@ module LLM::ActiveRecord
     # Resolves a single configured option against a model instance.
     # @return [Object]
     def self.resolve_option(obj, option)
-      case option
-      when Proc then obj.instance_exec(&option)
-      when Symbol then obj.send(option)
-      when Hash then option.dup
-      else option
-      end
+      LLM::Utils.resolve_option(obj, option)
     end
 
     ##

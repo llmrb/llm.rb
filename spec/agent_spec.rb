@@ -85,6 +85,16 @@ RSpec.describe LLM::Agent do
         end
       end
 
+      context "when no model is configured" do
+        it "keeps the provider default model" do
+          expect(LLM::Context).to receive(:new).with(
+            provider,
+            {tools: [], guard: true}
+          ).and_call_original
+          described_class.new(provider)
+        end
+      end
+
       context "when tools are declared with a block" do
         let(:tool) do
           Class.new(LLM::Tool) do
@@ -102,7 +112,7 @@ RSpec.describe LLM::Agent do
         it "resolves the block against the agent instance" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {model: nil, tools: [tool], guard: true}
+            {tools: [tool], guard: true}
           ).and_call_original
           klass.new(provider)
         end
@@ -122,7 +132,7 @@ RSpec.describe LLM::Agent do
           expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {model: nil, tools: [], skills: [skill_path], guard: true}
+            {tools: [], skills: [skill_path], guard: true}
           ).and_call_original
           klass.new(provider)
         end
@@ -144,7 +154,7 @@ RSpec.describe LLM::Agent do
         it "resolves the block against the agent instance" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {model: nil, tools: [], guard: true, schema: schema}
+            {tools: [], guard: true, schema: schema}
           ).and_call_original
           klass.new(provider)
         end

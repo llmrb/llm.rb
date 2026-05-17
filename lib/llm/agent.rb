@@ -180,7 +180,7 @@ module LLM
         resolve_symbol = !%i[concurrency].include?(field)
         resolved = resolvable != nil ? resolve_option(self, resolvable, resolve_symbol:) : resolvable
         if field == :model
-          params[field] = resolved unless params.key?(field)
+          params[field] = resolved unless resolved.nil? || params.key?(field)
         elsif resolved && !fields_ivar.include?(field)
           params[field] ||= resolved
         elsif fields_ivar.include?(field)

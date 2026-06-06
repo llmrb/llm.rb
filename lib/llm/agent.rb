@@ -160,14 +160,31 @@ module LLM
     ##
     # Set or get the tool names that require confirmation before they can run.
     #
+    # When a single Symbol is given, it is stored as-is and resolved at
+    # initialization time by calling the method with that name on the agent
+    # instance. This allows dynamic tool confirmation lists.
+    #
+    # @example
+    #   class MyAgent < LLM::Agent
+    #     confirm :tools_that_need_confirmation
+    #
+    #     def tools_that_need_confirmation
+    #       some_condition ? %w[delete destroy] : %w[delete]
+    #     end
+    #   end
+    #
     # @param [String, Symbol, Array<String, Symbol>, Proc] tool_names
     #  One or more tool names.
     # @param [Proc] block
     #  An optional, lazy-evaluated Proc
-    # @return [Array<String>, Proc, nil]
+    # @return [Array<String>, Proc, Symbol, nil]
     def self.confirm(*tool_names, &block)
       return @confirm if tool_names.empty? && !block
-      @confirm = block || tool_names.flatten.map(&:to_s)
+      if tool_names.size == 1 && tool_names.grep(Symbol).any?
+        @confirm = tool_names.first
+      else
+        @confirm = block || tool_names.flatten.map(&:to_s)
+      end
     end
 
     ##
@@ -190,7 +207,7 @@ module LLM
       fields_ivar = %i[tracer concurrency instructions confirm]
       fields.each do |field|
         resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
-        resolve_symbol = !%i[concurrency confirm].include?(field)
+        resolve_symbol = !%i[concurrency].include?(field)
         resolved = resolvable != nil ? resolve_option(self, resolvable, resolve_symbol:) : resolvable
         resolved = [*resolved].map(&:to_s) if field == :confirm && resolved
         if field == :model

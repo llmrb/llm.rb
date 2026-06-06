@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Add
+
+* **Add Symbol resolution to `LLM::Agent.confirm`** <br>
+  When `confirm` receives a single Symbol argument, it stores it
+  as-is instead of converting it to a string array. At initialization
+  time, `resolve_option` resolves the Symbol by calling the method
+  with that name on the agent instance, and the result is converted
+  to strings. This allows dynamic tool confirmation lists:
+
+      class MyAgent < LLM::Agent
+        confirm :tools_that_need_confirmation
+
+        def tools_that_need_confirmation
+          some_condition ? %w[delete destroy] : %w[delete]
+        end
+      end
+
+  Ported from llmrb/mruby-llm@89a232e3 and @2dd04e2d.
+
 ### Change
 
 * **Clarify `LLM::Agent` as the default high-level runtime** <br>
@@ -230,7 +249,7 @@ requests outside `#session`, `LLM::Function#def` as a short alias for
   Fix block-form `model { ... }`, `tools { ... }`, and
   `schema { ... }` declarations in the ActiveRecord and Sequel agent
   wrappers so persisted agent models configure the internal agent class
-  the same way as `LLM::Agent`.
+  the same way `LLM::Agent` does.
 
 * **Fix missing `skills` in ORM agent wrappers** <br>
   Fix the ActiveRecord and Sequel agent wrappers to expose `skills`, so
@@ -473,7 +492,7 @@ DSML tool-marker filtering in streamed text.
   blocks that Bedrock rejects.
 
 * **Suppress Bedrock DSML tool markers in streamed text** <br>
-  Filter `\"<｜DSML｜function_calls\"` markers out of streamed Bedrock
+  Filter `"\u003c\u003cDSML\u003efunction_calls\u003e\u003e"` markers out of streamed Bedrock
   assistant text so tool-call sentinels do not leak into user-visible
   output.
 
@@ -483,7 +502,7 @@ Changes since `v7.0.0`.
 
 This release adds Unix-fork concurrency for process-isolated tool
 execution, extends `LLM::Object` with `#merge` and `#delete`, and drops
-Ruby 3.2 support due to segfaults observed with the `:fork` path. It
+Ruby 3.2 support due to a segfault observed with the `:fork` path. It
 promotes `LLM::Pipe` to the top-level namespace and adds
 `persistent: true` on `LLM::MCP.http` for direct persistent transport
 configuration. `LLM::Function#runner` is exposed as public API, agent
@@ -624,7 +643,7 @@ provider usage has been recorded yet.
   buffer API.
 
 * **Support percentage compaction token thresholds** <br>
-  Let `LLM::Compactor` accept `token_threshold:` values like `\"90%\"` so
+  Let `LLM::Compactor` accept `token_threshold:` values like `"90%"` so
   compaction can trigger at a percentage of the active model context
   window.
 
@@ -783,7 +802,7 @@ interruption use the active per-call stream correctly.
 
 * **Refresh provider model metadata** <br>
   Add current DeepSeek and OpenAI model metadata to `data/` and update the
-  Google Gemma model entry to match the current provider naming.
+  Google Gemini model entry to match the current provider naming.
 
 ### Fix
 
@@ -1224,12 +1243,12 @@ Changes since `v4.14.0`.
   storage when Sequel JSON typecasting is enabled.
 
 * **Improve streaming parser performance** <br>
-  In the local replay-based `stream_parser` benchmark versus
-  `v4.14.0` (median of 20 samples, 5000 iterations), plain Ruby is a
+  In the local replay-based `stream_parser` benchmark versus `v4.14.0`
+  (median of 20 samples, 5000 iterations), plain Ruby is a
   small overall win: the generic eventstream path is about 0.4%
   faster, the OpenAI stream parser is about 0.5% faster, and the
   OpenAI Responses parser is about 1.6% faster, with unchanged
-  allocations. Under YJIT on the same benchmark, the generic
+  allocations. Under YJIT on the same benchmark harness, the generic
   eventstream path is about 0.9% faster and the OpenAI stream parser
   is about 0.4% faster, while the OpenAI Responses parser is about
   0.7% slower, also with unchanged allocations.
@@ -1271,7 +1290,7 @@ parallel tool calls can safely share one connection.
 * **Reduce provider streaming allocations** <br>
   Decode streamed provider payloads directly in
   `LLM::Provider::Transport::HTTP` before handing them to provider
-  parsers, which cuts allocation churn and gives a smaller streaming
+  parsers, which cuts allocation churn and gives a small streaming
   speed bump.
 
 * **Reduce generic SSE parser allocations** <br>
@@ -1407,7 +1426,7 @@ Changes since `v4.9.0`.
 
 - Add HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
 - Add JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
-- Add JSON Schema type array union support (e.g., `\"type\": [\"object\", \"null\"]`)
+- Add JSON Schema type array union support (e.g., `"type": ["object", "null"]`)
 - Add JSON Schema type inference from `const`, `enum`, or `default` fields
 
 ### Change
@@ -1508,7 +1527,7 @@ Notable merged work in this range includes:
 - `Add rack + websocket example (#130)`
 - `feat(gemspec): add changelog URI (#136)`
 - `feat(function): alias ThreadGroup#wait as ThreadGroup#value (#62)`
-- README and screencast refresh across `#66`, `#68`, `#71`, and
+- `README and screencast refresh across `#66`, `#68`, `#71`, and
   `#72`
 - `chore(bot): update deprecation warning from v5.0 to v6.0`
 - `fix(deepseek): tolerate malformed tool arguments`

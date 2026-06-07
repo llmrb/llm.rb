@@ -30,10 +30,12 @@ also includes built-in ActiveRecord and Sequel support, plus concurrent
 tool execution through threads, tasks (via async gem), fibers, ractors,
 and fork (via xchan.rb gem).
 
-As a bonus, llm.rb is also available to embedded systems [via mruby](https://github.com/llmrb/mruby-llm#readme),
-to the browser and edge devices [via WebAssembly](https://github.com/llmrb/wasm-llm#readme),
-and has first-class [Rails support](https://github.com/llmrb/rails-llm#readme)
-via a separate gem.
+**See also:**
+
+* [mruby-llm](https://github.com/llmrb/mruby-llm) - the llm.rb runtime for mruby
+* [wasm-llm](https://github.com/llmrb/wasm-llm) - the llm.rb runtime ported to WebAssembly
+* [rails-llm](https://github.com/llmrb/rails-llm) - the llm.rb runtime optimized for Rails
+* [robert](https://github.com/llmrb/robert) - FreeBSD teacher as a 3MB, statically linked binary
 
 ## Quick start
 

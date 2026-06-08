@@ -60,4 +60,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "sqlite3", "~> 2.0"
   spec.add_development_dependency "xchan.rb", "~> 0.20"
   spec.add_development_dependency "pg", "~> 1.5"
+  spec.add_development_dependency "irb", "~> 1.18"
 end

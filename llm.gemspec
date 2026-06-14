@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name = "llm.rb"
   spec.version = LLM::VERSION
   spec.authors = ["Antar Azri", "0x1eef", "Christos Maris", "Rodrigo Serrano"]
-  spec.email = ["azantar@proton.me", "0x1eef@hardenedbsd.org"]
+  spec.email = ["robert@4.4bsd.dev"]
 
   spec.summary = "Ruby's most capable AI runtime"
   spec.description = <<~DESC
